@@ -2,9 +2,12 @@ import React, { useMemo } from "react"
 import { View, StyleSheet, useWindowDimensions } from "react-native"
 import { Canvas, Path, Group, LinearGradient, vec } from "@shopify/react-native-skia"
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated"
 import { GestureDetector, ScrollView } from "react-native-gesture-handler"
 
@@ -13,7 +16,6 @@ import { getYForX } from "@/Math"
 import { Cursor } from "@/components/Cursor"
 import { Selection } from "@/components/Selection"
 import { List } from "@/components/List"
-import { Header } from "@/components/Header"
 import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
@@ -58,9 +60,25 @@ export const Tuneo = () => {
       top: translateY + y.value - touchableCursorSize / 2,
     }
   })
+
+  // Animate plots automatically
+  const dt = 50 // ms
+  const inter = setInterval(() => {
+    const next = (state.value.current + 1) % graphs.length
+    state.value = { current: state.value.next, next }
+    transition.value = 0
+    transition.value = withTiming(1, {
+      duration: dt,
+      easing: Easing.inOut(Easing.quad),
+    })
+  }, dt)
+  // Stop animation after 10 secs
+  setTimeout(() => {
+    clearInterval(inter)
+  }, 10000)
+
   return (
     <ScrollView style={styles.container}>
-      <Header />
       <View>
         <Canvas style={{ width, height: 2 * height + 30 }}>
           <Label state={state} y={y} graphs={graphs} width={width} height={height} />
