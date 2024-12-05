@@ -92,27 +92,27 @@ export type Graphs = Graph[]
 
 export const getGraph = (width: number, height: number) => [
   {
-    label: "1H",
+    label: "A",
     value: 0,
     data: buildGraph(values.hour, "Last Hour", width, height),
   },
   {
-    label: "1D",
+    label: "B",
     value: 1,
     data: buildGraph(values.day, "Today", width, height),
   },
   {
-    label: "1M",
+    label: "C",
     value: 2,
     data: buildGraph(values.month, "Last Month", width, height),
   },
   {
-    label: "1Y",
+    label: "D",
     value: 3,
     data: buildGraph(values.year, "This Year", width, height),
   },
   {
-    label: "All",
+    label: "E",
     value: 4,
     data: buildGraph(values.all, "All time", width, height),
   },

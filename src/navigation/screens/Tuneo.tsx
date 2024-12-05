@@ -15,7 +15,6 @@ import { PADDING, COLORS, getGraph } from "@/Model"
 import { getYForX } from "@/Math"
 import { Cursor } from "@/components/Cursor"
 import { Selection } from "@/components/Selection"
-import { List } from "@/components/List"
 import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
@@ -81,7 +80,7 @@ export const Tuneo = () => {
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height: 2 * height + 30 }}>
-          <Label state={state} y={y} graphs={graphs} width={width} height={height} />
+          <Label text={"Em"} width={width} height={height} />
           <Group transform={[{ translateY }]}>
             <Path style="stroke" path={path} strokeWidth={4} strokeJoin="round" strokeCap="round">
               <LinearGradient start={vec(0, 0)} end={vec(width, 0)} colors={COLORS} />
@@ -89,12 +88,11 @@ export const Tuneo = () => {
             <Cursor x={x} y={y} width={width} />
           </Group>
         </Canvas>
+        <Selection graphs={graphs} state={state} transition={transition} />
         <GestureDetector gesture={gesture}>
           <Animated.View style={style} />
         </GestureDetector>
       </View>
-      <Selection state={state} transition={transition} graphs={graphs} />
-      <List />
     </ScrollView>
   )
 }
