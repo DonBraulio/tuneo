@@ -18,6 +18,8 @@ import { Selection } from "@/components/Selection"
 import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
+import DSPModule from "@/../specs/NativeDSPModule"
+
 const touchableCursorSize = 80
 
 const styles = StyleSheet.create({
@@ -80,7 +82,7 @@ export const Tuneo = () => {
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height: 2 * height + 30 }}>
-          <Label text={"Em"} width={width} height={height} />
+          <Label text={DSPModule.reverseString("Em")} width={width} height={height} />
           <Group transform={[{ translateY }]}>
             <Path style="stroke" path={path} strokeWidth={4} strokeJoin="round" strokeCap="round">
               <LinearGradient start={vec(0, 0)} end={vec(width, 0)} colors={COLORS} />

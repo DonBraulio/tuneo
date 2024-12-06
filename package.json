@@ -8,6 +8,14 @@
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
+  "codegenConfig": {
+    "name": "AppSpecs",
+    "type": "modules",
+    "jsSrcsDir": "specs",
+    "android": {
+      "javaPackageName": "com.tuneo.specs"
+    }
+  },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.0",
     "@expo/vector-icons": "^14.0.2",
