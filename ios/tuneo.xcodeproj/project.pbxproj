@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03039F292D0351BF00BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F262D0351BF00BC2B9F /* NativeDSPModule.cpp */; };
+		03039F322D0369FB00BC2B9F /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F2C2D0369FB00BC2B9F /* kiss_fft.c */; };
+		03039F332D0369FB00BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -20,8 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		03039F262D0351BF00BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
-		03039F272D0351BF00BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
+		03039F2A2D0369FB00BC2B9F /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		03039F2B2D0369FB00BC2B9F /* kiss_fft_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft_log.h; sourceTree = "<group>"; };
+		03039F2C2D0369FB00BC2B9F /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		03039F2D2D0369FB00BC2B9F /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
+		03039F302D0369FB00BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tuneo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tuneo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tuneo/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = tuneo/AppDelegate.mm; sourceTree = "<group>"; };
@@ -52,11 +57,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		03039F282D0351BF00BC2B9F /* shared */ = {
+		03039F2E2D0369FB00BC2B9F /* kissfft */ = {
 			isa = PBXGroup;
 			children = (
-				03039F262D0351BF00BC2B9F /* NativeDSPModule.cpp */,
-				03039F272D0351BF00BC2B9F /* NativeDSPModule.h */,
+				03039F2A2D0369FB00BC2B9F /* _kiss_fft_guts.h */,
+				03039F2B2D0369FB00BC2B9F /* kiss_fft_log.h */,
+				03039F2C2D0369FB00BC2B9F /* kiss_fft.c */,
+				03039F2D2D0369FB00BC2B9F /* kiss_fft.h */,
+			);
+			path = kissfft;
+			sourceTree = "<group>";
+		};
+		03039F312D0369FB00BC2B9F /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				03039F2E2D0369FB00BC2B9F /* kissfft */,
+				03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */,
+				03039F302D0369FB00BC2B9F /* NativeDSPModule.h */,
 			);
 			name = shared;
 			path = ../shared;
@@ -98,7 +115,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				03039F282D0351BF00BC2B9F /* shared */,
+				03039F312D0369FB00BC2B9F /* shared */,
 				13B07FAE1A68108700A75B9A /* tuneo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -343,9 +360,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03039F322D0369FB00BC2B9F /* kiss_fft.c in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				03039F332D0369FB00BC2B9F /* NativeDSPModule.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				03039F292D0351BF00BC2B9F /* NativeDSPModule.cpp in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
 				BBBAFB7EF08747478DE7863B /* noop-file.swift in Sources */,
 			);
