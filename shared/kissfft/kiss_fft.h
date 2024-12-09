@@ -70,19 +70,21 @@ extern "C" {
 #endif
 
 
-#ifdef FIXED_POINT
-#include <stdint.h>
-# if (FIXED_POINT == 32)
-#  define kiss_fft_scalar int32_t
-# else	
-#  define kiss_fft_scalar int16_t
-# endif
-#else
-# ifndef kiss_fft_scalar
-/*  default is float */
-#   define kiss_fft_scalar float
-# endif
-#endif
+// #ifdef FIXED_POINT
+// #include <stdint.h>
+// # if (FIXED_POINT == 32)
+// #  define kiss_fft_scalar int32_t
+// # else	
+// #  define kiss_fft_scalar int16_t
+// # endif
+// #else
+// # ifndef kiss_fft_scalar
+// /*  default is float */
+// #   define kiss_fft_scalar float
+// # endif
+// #endif
+
+#define kiss_fft_scalar float
 
 typedef struct {
     kiss_fft_scalar r;

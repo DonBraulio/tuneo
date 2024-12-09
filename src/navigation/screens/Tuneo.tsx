@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated"
 import { GestureDetector, ScrollView } from "react-native-gesture-handler"
 
-import { PADDING, COLORS, getGraph } from "@/Model"
+import { PADDING, COLORS, getGraph, arrayToPath } from "@/Model"
 import { getYForX } from "@/Math"
 import { Cursor } from "@/components/Cursor"
 import { Selection } from "@/components/Selection"
@@ -21,6 +21,9 @@ import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 import DSPModule from "@/../specs/NativeDSPModule"
 
 const touchableCursorSize = 80
+
+// Keep this in sync with NativeDSPModule.cpp
+const BUF_SIZE = 1024
 
 const styles = StyleSheet.create({
   container: {
@@ -34,20 +37,47 @@ export const Tuneo = () => {
   const height = Math.min(window.width, window.height) / 2
   const translateY = height + PADDING
   const graphs = useMemo(() => getGraph(width, height), [width, height])
+
+  const test = useMemo(() => {
+    const CYCLES = 500
+    const sineWave: number[] = []
+    for (let i = 0; i < BUF_SIZE; i++) {
+      sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
+    }
+    return sineWave
+  }, [])
+
+  const fourier = useMemo(() => {
+    console.log("Calling fft")
+    try {
+      const fft = DSPModule.fft(test)
+      console.log("Finished fft")
+      return fft
+    } catch (e: unknown) {
+      console.log(`Exception caught: ${e}`)
+      return []
+    }
+  }, [test])
+
   // animation value to transition from one graph to the next
   const transition = useSharedValue(0)
+
   // indicices of the current and next graphs
   const state = useSharedValue({
     next: 0,
     current: 0,
   })
+
   // path to display
+  const path0 = useMemo(() => arrayToPath(test, width, height), [test])
+  const path1 = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   const path = useDerivedValue(() => {
     const { current, next } = state.value
-    const start = graphs[current].data.path
-    const end = graphs[next].data.path
+    const start = current == 0 ? path0 : path1
+    const end = next == 0 ? path0 : path1
     return end.interpolate(start, transition.value)!
   })
+
   // x and y values of the cursor
   const x = useSharedValue(0)
   const y = useDerivedValue(() => getYForX(path.value.toCmds(), x.value))
@@ -63,9 +93,10 @@ export const Tuneo = () => {
   })
 
   // Animate plots automatically
-  const dt = 50 // ms
+  const dt = 1000 // ms
   const inter = setInterval(() => {
-    const next = (state.value.current + 1) % graphs.length
+    // Toggle from 0 to 1
+    const next = state.value.current === 0 ? 1 : 0
     state.value = { current: state.value.next, next }
     transition.value = 0
     transition.value = withTiming(1, {

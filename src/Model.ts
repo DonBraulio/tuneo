@@ -48,6 +48,19 @@ interface Prices {
 const values = data.data.prices as Prices
 const POINTS = 20
 
+export const arrayToPath = (samples: number[], WIDTH: number, HEIGHT: number) => {
+  const AJUSTED_SIZE = HEIGHT - PADDING * 2
+
+  const points = samples.map((sample, idx) => {
+    const x = (idx / samples.length) * WIDTH
+    const y = sample * AJUSTED_SIZE
+    return { x, y }
+  })
+  points.push({ x: WIDTH + 10, y: points[points.length - 1].y })
+  const path = curveLines(points, 0.1, "complex")
+  return path
+}
+
 const buildGraph = (datapoints: DataPoints, label: string, WIDTH: number, HEIGHT: number) => {
   const AJUSTED_SIZE = HEIGHT - PADDING * 2
   const priceList = datapoints.prices.slice(0, POINTS)
