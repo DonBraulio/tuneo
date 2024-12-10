@@ -1,6 +1,8 @@
 import AVFoundation
 import ExpoModulesCore
 
+let SAMPLE_RATE: Double = 44100
+let BUFFER_SIZE: AVAudioFrameCount = 4410
 
 public class MicrophoneStreamModule: Module {
 
@@ -18,7 +20,7 @@ public class MicrophoneStreamModule: Module {
 
     // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
     Constants([
-      "BUFFER_SIZE": 1024
+      "BUFFER_SIZE": BUFFER_SIZE
     ])
 
     // Defines event names that the module can send to JavaScript.
@@ -38,17 +40,17 @@ public class MicrophoneStreamModule: Module {
               do {
                   let audioSession = AVAudioSession.sharedInstance()
                   try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
-                  try audioSession.setPreferredSampleRate(44100)
+                  try audioSession.setPreferredSampleRate(SAMPLE_RATE)
                   try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
                   let inputNode = self.audioEngine.inputNode
-                  let desiredFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, channels: 1, interleaved: false)
+                  let desiredFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: SAMPLE_RATE, channels: 1, interleaved: false)
                   guard let format = desiredFormat else {
                       print("Error creating audio format.")
                       return
                   }
 
-                  inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+                  inputNode.installTap(onBus: 0, bufferSize: BUFFER_SIZE, format: format) { buffer, _ in
                       guard let channelData = buffer.floatChannelData else { return }
                       let frameLength = Int(buffer.frameLength)
                       let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))

@@ -53,43 +53,35 @@ export const Tuneo = () => {
 
   useEffect(() => {
     console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-    // MicrophoneStreamModule.startRecording({
-    //   my_property: "Hello World",
-    //   my_callback: (result: string) => {
-    //     console.log(result)
-    //   },
-    // })
     MicrophoneStreamModule.startRecording((samples) => {
       setAudio(samples)
     })
   }, [])
 
-  setInterval(() => {
-    console.log(`Max. audio sample: ${Math.max(...audio)}`)
-  }, 1000)
+  // setInterval(() => {
+  //   console.log(`Max. audio sample: ${Math.max(...audio)}`)
+  // }, 1000)
 
-  const graphs = useMemo(() => getGraph(width, height), [width, height])
+  //const graphs = useMemo(() => getGraph(width, height), [width, height])
 
-  const test = useMemo(() => {
-    const CYCLES = 500
-    const sineWave: number[] = []
-    for (let i = 0; i < BUF_SIZE; i++) {
-      sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
-    }
-    return sineWave
-  }, [])
+  // const test = useMemo(() => {
+  // const CYCLES = 500
+  // const sineWave: number[] = []
+  // for (let i = 0; i < BUF_SIZE; i++) {
+  // sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
+  // }
+  // return sineWave
+  // }, [])
 
   const fourier = useMemo(() => {
-    console.log("Calling fft")
     try {
-      const fft = DSPModule.fft(test)
-      console.log("Finished fft")
+      const fft = DSPModule.fft(audio)
       return fft
     } catch (e: unknown) {
       console.log(`Exception caught: ${e}`)
       return []
     }
-  }, [test])
+  }, [audio])
 
   // animation value to transition from one graph to the next
   const transition = useSharedValue(0)
@@ -109,7 +101,7 @@ export const Tuneo = () => {
   //   const end = next == 0 ? path0 : path1
   //   return end.interpolate(start, transition.value)!
   // })
-  const path = useMemo(() => arrayToPath(audio, width, height), [audio])
+  const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
 
   // x and y values of the cursor
   // const x = useSharedValue(0)
@@ -154,8 +146,8 @@ export const Tuneo = () => {
             {/*<Cursor x={x} y={y} width={width} />*/}
           </Group>
         </Canvas>
-        <Selection graphs={graphs} state={state} transition={transition} />
-        {/*<GestureDetector gesture={gesture}>
+        {/*<Selection graphs={graphs} state={state} transition={transition} />
+        <GestureDetector gesture={gesture}>
           <Animated.View style={style} />
         </GestureDetector>
         */}
