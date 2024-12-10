@@ -1,5 +1,5 @@
-import React, { useMemo } from "react"
-import { View, StyleSheet, useWindowDimensions } from "react-native"
+import React, { useEffect, useMemo } from "react"
+import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
 import { Canvas, Path, Group, LinearGradient, vec } from "@shopify/react-native-skia"
 import Animated, {
   Easing,
@@ -19,6 +19,8 @@ import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
+import { AudioModule, RecordingPresets, useAudioRecorder, useAudioSampleListener } from "expo-audio"
+import MicStream from "react-native-microphone-stream"
 
 const touchableCursorSize = 80
 
@@ -36,6 +38,16 @@ export const Tuneo = () => {
   const { width } = window
   const height = Math.min(window.width, window.height) / 2
   const translateY = height + PADDING
+
+  useEffect(() => {
+    ;(async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync()
+      if (!status.granted) {
+        Alert.alert("Permission to access microphone was denied")
+      }
+    })()
+  }, [])
+
   const graphs = useMemo(() => getGraph(width, height), [width, height])
 
   const test = useMemo(() => {
