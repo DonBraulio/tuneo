@@ -7,40 +7,40 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03039F322D0369FB00BC2B9F /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F2C2D0369FB00BC2B9F /* kiss_fft.c */; };
-		03039F332D0369FB00BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */; };
+		03039F3C2D087F5700BC2B9F /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F362D087F5700BC2B9F /* kiss_fft.c */; };
+		03039F3D2D087F5700BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F392D087F5700BC2B9F /* NativeDSPModule.cpp */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		422CADFCFEE343248AFC6D95 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6E97C224D440F09C8FC3BB /* noop-file.swift */; };
 		96905EF65AED1B983A6B3ABC /* libPods-tuneo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-tuneo.a */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		BBBAFB7EF08747478DE7863B /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57EA023ADFE4D9A96867625 /* noop-file.swift */; };
-		C5A34BF50F7ED9142EA8FEEC /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B70459451F3DE641C383E2BB /* PrivacyInfo.xcprivacy */; };
+		D8C1C03BEBB90E58FE74F09E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B0C0A0CE9EF68D867A0965B8 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		03039F2A2D0369FB00BC2B9F /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
-		03039F2B2D0369FB00BC2B9F /* kiss_fft_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft_log.h; sourceTree = "<group>"; };
-		03039F2C2D0369FB00BC2B9F /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
-		03039F2D2D0369FB00BC2B9F /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
-		03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
-		03039F302D0369FB00BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
+		03039F342D087F5700BC2B9F /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		03039F352D087F5700BC2B9F /* kiss_fft_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft_log.h; sourceTree = "<group>"; };
+		03039F362D087F5700BC2B9F /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		03039F372D087F5700BC2B9F /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		03039F392D087F5700BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
+		03039F3A2D087F5700BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tuneo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tuneo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tuneo/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = tuneo/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = tuneo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tuneo/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tuneo/main.m; sourceTree = "<group>"; };
+		3D6E97C224D440F09C8FC3BB /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "tuneo/noop-file.swift"; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-tuneo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tuneo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-tuneo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tuneo.debug.xcconfig"; path = "Target Support Files/Pods-tuneo/Pods-tuneo.debug.xcconfig"; sourceTree = "<group>"; };
-		76A3A6503E274F0AB835DF70 /* tuneo-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "tuneo-Bridging-Header.h"; path = "tuneo/tuneo-Bridging-Header.h"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-tuneo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tuneo.release.xcconfig"; path = "Target Support Files/Pods-tuneo/Pods-tuneo.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = tuneo/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B70459451F3DE641C383E2BB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = tuneo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B0C0A0CE9EF68D867A0965B8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = tuneo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D57EA023ADFE4D9A96867625 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "tuneo/noop-file.swift"; sourceTree = "<group>"; };
+		E15D67EA308E4ABEAEE90090 /* tuneo-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "tuneo-Bridging-Header.h"; path = "tuneo/tuneo-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-tuneo/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,23 +57,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		03039F2E2D0369FB00BC2B9F /* kissfft */ = {
+		03039F382D087F5700BC2B9F /* kissfft */ = {
 			isa = PBXGroup;
 			children = (
-				03039F2A2D0369FB00BC2B9F /* _kiss_fft_guts.h */,
-				03039F2B2D0369FB00BC2B9F /* kiss_fft_log.h */,
-				03039F2C2D0369FB00BC2B9F /* kiss_fft.c */,
-				03039F2D2D0369FB00BC2B9F /* kiss_fft.h */,
+				03039F342D087F5700BC2B9F /* _kiss_fft_guts.h */,
+				03039F352D087F5700BC2B9F /* kiss_fft_log.h */,
+				03039F362D087F5700BC2B9F /* kiss_fft.c */,
+				03039F372D087F5700BC2B9F /* kiss_fft.h */,
 			);
 			path = kissfft;
 			sourceTree = "<group>";
 		};
-		03039F312D0369FB00BC2B9F /* shared */ = {
+		03039F3B2D087F5700BC2B9F /* shared */ = {
 			isa = PBXGroup;
 			children = (
-				03039F2E2D0369FB00BC2B9F /* kissfft */,
-				03039F2F2D0369FB00BC2B9F /* NativeDSPModule.cpp */,
-				03039F302D0369FB00BC2B9F /* NativeDSPModule.h */,
+				03039F382D087F5700BC2B9F /* kissfft */,
+				03039F392D087F5700BC2B9F /* NativeDSPModule.cpp */,
+				03039F3A2D087F5700BC2B9F /* NativeDSPModule.h */,
 			);
 			name = shared;
 			path = ../shared;
@@ -89,9 +89,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				D57EA023ADFE4D9A96867625 /* noop-file.swift */,
-				76A3A6503E274F0AB835DF70 /* tuneo-Bridging-Header.h */,
-				B70459451F3DE641C383E2BB /* PrivacyInfo.xcprivacy */,
+				3D6E97C224D440F09C8FC3BB /* noop-file.swift */,
+				E15D67EA308E4ABEAEE90090 /* tuneo-Bridging-Header.h */,
+				B0C0A0CE9EF68D867A0965B8 /* PrivacyInfo.xcprivacy */,
 			);
 			name = tuneo;
 			sourceTree = "<group>";
@@ -115,7 +115,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				03039F312D0369FB00BC2B9F /* shared */,
+				03039F3B2D087F5700BC2B9F /* shared */,
 				13B07FAE1A68108700A75B9A /* tuneo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -178,13 +178,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "tuneo" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				1C0B83A0C7BC03981477FA43 /* [Expo] Configure project */,
+				596909DB21783A37F8C465A3 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				824BF9908C15B7CB04A2D12C /* [CP] Embed Pods Frameworks */,
+				B6C1DBE2A86311A6DE05617C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -234,7 +234,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				C5A34BF50F7ED9142EA8FEEC /* PrivacyInfo.xcprivacy in Resources */,
+				D8C1C03BEBB90E58FE74F09E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,7 +278,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1C0B83A0C7BC03981477FA43 /* [Expo] Configure project */ = {
+		596909DB21783A37F8C465A3 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -335,7 +335,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tuneo/Pods-tuneo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		824BF9908C15B7CB04A2D12C /* [CP] Embed Pods Frameworks */ = {
+		B6C1DBE2A86311A6DE05617C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -360,12 +360,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03039F322D0369FB00BC2B9F /* kiss_fft.c in Sources */,
+				03039F3C2D087F5700BC2B9F /* kiss_fft.c in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
-				03039F332D0369FB00BC2B9F /* NativeDSPModule.cpp in Sources */,
+				03039F3D2D087F5700BC2B9F /* NativeDSPModule.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				BBBAFB7EF08747478DE7863B /* noop-file.swift in Sources */,
+				422CADFCFEE343248AFC6D95 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

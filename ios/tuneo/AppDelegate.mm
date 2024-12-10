@@ -1,9 +1,9 @@
 #import "AppDelegate.h"
+#import <RCTAppDelegate+Protected.h>
+#import "NativeDSPModule.h"
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-#import <RCTAppDelegate+Protected.h>
-#import "NativeDSPModule.h"
 
 @implementation AppDelegate
 

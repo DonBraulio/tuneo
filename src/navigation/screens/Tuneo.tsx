@@ -19,8 +19,6 @@ import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
-import { AudioModule, RecordingPresets, useAudioRecorder, useAudioSampleListener } from "expo-audio"
-import MicStream from "react-native-microphone-stream"
 
 const touchableCursorSize = 80
 
@@ -39,14 +37,14 @@ export const Tuneo = () => {
   const height = Math.min(window.width, window.height) / 2
   const translateY = height + PADDING
 
-  useEffect(() => {
-    ;(async () => {
-      const status = await AudioModule.requestRecordingPermissionsAsync()
-      if (!status.granted) {
-        Alert.alert("Permission to access microphone was denied")
-      }
-    })()
-  }, [])
+  // useEffect(() => {
+  //   ;(async () => {
+  //     const status = await AudioModule.requestRecordingPermissionsAsync()
+  //     if (!status.granted) {
+  //       Alert.alert("Permission to access microphone was denied")
+  //     }
+  //   })()
+  // }, [])
 
   const graphs = useMemo(() => getGraph(width, height), [width, height])
 

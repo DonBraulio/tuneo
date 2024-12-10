@@ -1,0 +1,17 @@
+{
+  "platforms": [
+    "apple",
+    "android",
+    "web"
+  ],
+  "apple": {
+    "modules": [
+      "MicrophoneStreamModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "expo.modules.microphonestream.MicrophoneStreamModule"
+    ]
+  }
+}

@@ -1,24 +1,28 @@
-import { Text } from '@react-navigation/elements';
-import { StaticScreenProps } from '@react-navigation/native';
-import { StyleSheet, View } from 'react-native';
+import { Text } from "@react-navigation/elements"
+import { StaticScreenProps } from "@react-navigation/native"
+import { StyleSheet, View } from "react-native"
+import { MicrophoneStreamView, MicrophoneStreamViewProps } from "@/../modules/microphone-stream"
 
 type Props = StaticScreenProps<{
-  user: string;
-}>;
+  user: string
+}>
 
 export function Profile({ route }: Props) {
   return (
-    <View style={styles.container}>
-      <Text>{route.params.user}'s Profile</Text>
-    </View>
-  );
+    <MicrophoneStreamView
+      url="https://docs.expo.dev/modules/"
+      onLoad={() => {
+        console.log("Loaded Micro View!")
+      }}
+    />
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 10,
   },
-});
+})
