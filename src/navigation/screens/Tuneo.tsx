@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
 import { Canvas, Path, Group, LinearGradient, vec } from "@shopify/react-native-skia"
 import Animated, {
@@ -19,11 +19,13 @@ import { Label } from "@/components/Label"
 import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
+import MicrophoneStreamModule from "@/../modules/microphone-stream"
+import { AudioModule } from "expo-audio"
 
 const touchableCursorSize = 80
 
 // Keep this in sync with NativeDSPModule.cpp
-const BUF_SIZE = 1024
+const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
 
 const styles = StyleSheet.create({
   container: {
@@ -37,14 +39,34 @@ export const Tuneo = () => {
   const height = Math.min(window.width, window.height) / 2
   const translateY = height + PADDING
 
-  // useEffect(() => {
-  //   ;(async () => {
-  //     const status = await AudioModule.requestRecordingPermissionsAsync()
-  //     if (!status.granted) {
-  //       Alert.alert("Permission to access microphone was denied")
-  //     }
-  //   })()
-  // }, [])
+  // Microphone audio buffer, initialized with 0
+  const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
+
+  useEffect(() => {
+    ;(async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync()
+      if (!status.granted) {
+        Alert.alert("Permission to access microphone was denied")
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
+    // MicrophoneStreamModule.startRecording({
+    //   my_property: "Hello World",
+    //   my_callback: (result: string) => {
+    //     console.log(result)
+    //   },
+    // })
+    MicrophoneStreamModule.startRecording((samples) => {
+      setAudio(samples)
+    })
+  }, [])
+
+  setInterval(() => {
+    console.log(`Max. audio sample: ${Math.max(...audio)}`)
+  }, 1000)
 
   const graphs = useMemo(() => getGraph(width, height), [width, height])
 
@@ -79,45 +101,46 @@ export const Tuneo = () => {
   })
 
   // path to display
-  const path0 = useMemo(() => arrayToPath(test, width, height), [test])
-  const path1 = useMemo(() => arrayToPath(fourier, width, height), [fourier])
-  const path = useDerivedValue(() => {
-    const { current, next } = state.value
-    const start = current == 0 ? path0 : path1
-    const end = next == 0 ? path0 : path1
-    return end.interpolate(start, transition.value)!
-  })
+  // const path0 = useMemo(() => arrayToPath(test, width, height), [test])
+  // const path1 = useMemo(() => arrayToPath(fourier, width, height), [fourier])
+  // const path = useDerivedValue(() => {
+  //   const { current, next } = state.value
+  //   const start = current == 0 ? path0 : path1
+  //   const end = next == 0 ? path0 : path1
+  //   return end.interpolate(start, transition.value)!
+  // })
+  const path = useMemo(() => arrayToPath(audio, width, height), [audio])
 
   // x and y values of the cursor
-  const x = useSharedValue(0)
-  const y = useDerivedValue(() => getYForX(path.value.toCmds(), x.value))
-  const gesture = useGraphTouchHandler(x, width)
-  const style = useAnimatedStyle(() => {
-    return {
-      position: "absolute",
-      width: touchableCursorSize,
-      height: touchableCursorSize,
-      left: x.value - touchableCursorSize / 2,
-      top: translateY + y.value - touchableCursorSize / 2,
-    }
-  })
+  // const x = useSharedValue(0)
+  // const y = useDerivedValue(() => getYForX(path.value.toCmds(), x.value))
+  // const gesture = useGraphTouchHandler(x, width)
+  // const style = useAnimatedStyle(() => {
+  //   return {
+  //     position: "absolute",
+  //     width: touchableCursorSize,
+  //     height: touchableCursorSize,
+  //     left: x.value - touchableCursorSize / 2,
+  //     top: translateY + y.value - touchableCursorSize / 2,
+  //   }
+  // })
 
-  // Animate plots automatically
-  const dt = 1000 // ms
-  const inter = setInterval(() => {
-    // Toggle from 0 to 1
-    const next = state.value.current === 0 ? 1 : 0
-    state.value = { current: state.value.next, next }
-    transition.value = 0
-    transition.value = withTiming(1, {
-      duration: dt,
-      easing: Easing.inOut(Easing.quad),
-    })
-  }, dt)
-  // Stop animation after 10 secs
-  setTimeout(() => {
-    clearInterval(inter)
-  }, 10000)
+  // // Animate plots automatically
+  // const dt = 1000 // ms
+  // const inter = setInterval(() => {
+  //   // Toggle from 0 to 1
+  //   const next = state.value.current === 0 ? 1 : 0
+  //   state.value = { current: state.value.next, next }
+  //   transition.value = 0
+  //   transition.value = withTiming(1, {
+  //     duration: dt,
+  //     easing: Easing.inOut(Easing.quad),
+  //   })
+  // }, dt)
+  // // Stop animation after 10 secs
+  // setTimeout(() => {
+  //   clearInterval(inter)
+  // }, 10000)
 
   return (
     <ScrollView style={styles.container}>
@@ -128,13 +151,14 @@ export const Tuneo = () => {
             <Path style="stroke" path={path} strokeWidth={4} strokeJoin="round" strokeCap="round">
               <LinearGradient start={vec(0, 0)} end={vec(width, 0)} colors={COLORS} />
             </Path>
-            <Cursor x={x} y={y} width={width} />
+            {/*<Cursor x={x} y={y} width={width} />*/}
           </Group>
         </Canvas>
         <Selection graphs={graphs} state={state} transition={transition} />
-        <GestureDetector gesture={gesture}>
+        {/*<GestureDetector gesture={gesture}>
           <Animated.View style={style} />
         </GestureDetector>
+        */}
       </View>
     </ScrollView>
   )

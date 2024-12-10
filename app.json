@@ -34,7 +34,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "We need access to the microphone!"
         }
       ]
     ]

@@ -6,7 +6,6 @@ import { Image } from "react-native"
 import bell from "../assets/bell.png"
 import newspaper from "../assets/newspaper.png"
 import { Home } from "./screens/Home"
-import { Profile } from "./screens/Profile"
 import { Settings } from "./screens/Settings"
 import { Updates } from "./screens/Updates"
 import { NotFound } from "./screens/NotFound"
@@ -63,18 +62,6 @@ const RootStack = createNativeStackNavigator({
       options: {
         title: "Home",
         headerShown: false,
-      },
-    },
-    Profile: {
-      screen: Profile,
-      linking: {
-        path: ":user(@[a-zA-Z0-9-_]+)",
-        parse: {
-          user: (value) => value.replace(/^@/, ""),
-        },
-        stringify: {
-          user: (value) => `@${value}`,
-        },
       },
     },
     Settings: {
