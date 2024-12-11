@@ -69,24 +69,24 @@ export const Tuneo = () => {
 
   //const graphs = useMemo(() => getGraph(width, height), [width, height])
 
-  const test = useMemo(() => {
-    const CYCLES = 500
-    const sineWave: number[] = []
-    for (let i = 0; i < BUF_SIZE; i++) {
-      sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
-    }
-    return sineWave
-  }, [])
-
-  // const fourier = useMemo(() => {
-  //   try {
-  //     const fft = DSPModule.fft(audio)
-  //     return fft
-  //   } catch (e: unknown) {
-  //     console.log(`Exception caught: ${e}`)
-  //     return []
+  // const test = useMemo(() => {
+  //   const CYCLES = 500
+  //   const sineWave: number[] = []
+  //   for (let i = 0; i < BUF_SIZE; i++) {
+  //     sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
   //   }
-  // }, [audio])
+  //   return sineWave
+  // }, [])
+
+  const fourier = useMemo(() => {
+    try {
+      const fft = DSPModule.fft(audio)
+      return fft
+    } catch (e: unknown) {
+      console.log(`Exception caught: ${e}`)
+      return []
+    }
+  }, [audio])
 
   // animation value to transition from one graph to the next
   const transition = useSharedValue(0)
@@ -107,8 +107,8 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  const path = useMemo(() => arrayToPath(audio, width, height), [audio])
-  // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
+  // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
+  const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
 
   // x and y values of the cursor
