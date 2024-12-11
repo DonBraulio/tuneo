@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#define IN_BUF_SIZE 4410
+#define IN_BUF_SIZE 4096
 #define OUT_BUF_SIZE (IN_BUF_SIZE/2 + 1)
 
 namespace facebook::react {

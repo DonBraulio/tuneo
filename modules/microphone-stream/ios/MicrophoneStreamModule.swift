@@ -1,11 +1,11 @@
 import AVFoundation
 import ExpoModulesCore
 
-let SAMPLE_RATE: Double = 44100
-let BUFFER_SIZE: AVAudioFrameCount = 4410
+let BUFFER_SIZE: AVAudioFrameCount = 4096
 
 public class MicrophoneStreamModule: Module {
 
+  private let audioSession = AVAudioSession.sharedInstance()
   private let audioEngine = AVAudioEngine()
   private var audioBufferHandler: (([Float]) -> Void)?
 
@@ -30,7 +30,7 @@ public class MicrophoneStreamModule: Module {
       // audioBufferHandler = handler
 
       // Request microphone permission
-      AVAudioSession.sharedInstance().requestRecordPermission { granted in
+      self.audioSession.requestRecordPermission { granted in
           guard granted else {
               print("Microphone permission not granted.")
               return
@@ -38,19 +38,13 @@ public class MicrophoneStreamModule: Module {
 
           DispatchQueue.main.async {
               do {
-                  let audioSession = AVAudioSession.sharedInstance()
-                  try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
-                  try audioSession.setPreferredSampleRate(SAMPLE_RATE)
-                  try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+                  try self.audioSession.setCategory(.record, mode: .measurement, options: [])
+                  try self.audioSession.setActive(true)
 
                   let inputNode = self.audioEngine.inputNode
-                  let desiredFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: SAMPLE_RATE, channels: 1, interleaved: false)
-                  guard let format = desiredFormat else {
-                      print("Error creating audio format.")
-                      return
-                  }
+                  let hwFormat = inputNode.inputFormat(forBus: 0)
 
-                  inputNode.installTap(onBus: 0, bufferSize: BUFFER_SIZE, format: format) { buffer, _ in
+                  inputNode.installTap(onBus: 0, bufferSize: BUFFER_SIZE, format: hwFormat) { buffer, _ in
                       guard let channelData = buffer.floatChannelData else { return }
                       let frameLength = Int(buffer.frameLength)
                       let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
