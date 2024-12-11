@@ -26,6 +26,8 @@ const touchableCursorSize = 80
 
 // Keep this in sync with NativeDSPModule.cpp
 const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
+const FFT_IN_SIZE = DSPModule.getInputBufSize()
+const FFT_OUT_SIZE = DSPModule.getInputBufSize()
 
 const styles = StyleSheet.create({
   container: {
@@ -43,6 +45,9 @@ export const Tuneo = () => {
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
 
   useEffect(() => {
+    console.log(`Microphone buffer: ${BUF_SIZE}`)
+    console.log(`DSP buffers: IN[${FFT_IN_SIZE}] -> OUT[${FFT_OUT_SIZE}]`)
+    console.log("Checking recording permissions")
     ;(async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync()
       if (!status.granted) {
@@ -101,6 +106,8 @@ export const Tuneo = () => {
   //   const end = next == 0 ? path0 : path1
   //   return end.interpolate(start, transition.value)!
   // })
+
+  // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
   const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
 
   // x and y values of the cursor
@@ -138,7 +145,7 @@ export const Tuneo = () => {
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height: 2 * height + 30 }}>
-          <Label text={DSPModule.reverseString("Em")} width={width} height={height} />
+          <Label text={"Em"} width={width} height={height} />
           <Group transform={[{ translateY }]}>
             <Path style="stroke" path={path} strokeWidth={4} strokeJoin="round" strokeCap="round">
               <LinearGradient start={vec(0, 0)} end={vec(width, 0)} colors={COLORS} />

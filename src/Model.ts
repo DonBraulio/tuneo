@@ -56,7 +56,7 @@ export const arrayToPath = (samples: number[], WIDTH: number, HEIGHT: number) =>
     const y = sample * AJUSTED_SIZE
     return { x, y }
   })
-  points.push({ x: WIDTH + 10, y: points[points.length - 1].y })
+  // points.push({ x: WIDTH + 10, y: points[points.length - 1].y })
   const path = curveLines(points, 0.1, "complex")
   return path
 }

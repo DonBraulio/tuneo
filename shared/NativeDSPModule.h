@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 
-#define BUF_SIZE 1024
+#define IN_BUF_SIZE 4410
+#define OUT_BUF_SIZE (IN_BUF_SIZE/2 + 1)
 
 namespace facebook::react {
 
@@ -14,7 +15,8 @@ class NativeDSPModule : public NativeDSPModuleCxxSpec<NativeDSPModule> {
 public:
   NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker);
 
-  std::string reverseString(jsi::Runtime& rt, std::string input);
+  int getInputBufSize(jsi::Runtime& rt);
+  int getOutputBufSize(jsi::Runtime& rt);
 
   std::vector<float> fft(jsi::Runtime& rt, const std::vector<float>& input);
 

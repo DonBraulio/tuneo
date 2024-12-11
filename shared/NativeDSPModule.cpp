@@ -4,6 +4,7 @@
 #include <iostream>
 #include "NativeDSPModule.h"
 #include "kiss_fft.h"
+#include "kiss_fftr.h"
 
 
 namespace facebook::react {
@@ -12,36 +13,31 @@ namespace facebook::react {
 NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
     : NativeDSPModuleCxxSpec(std::move(jsInvoker)) {}
 
-std::string NativeDSPModule::reverseString(jsi::Runtime& rt, std::string input) {
+int NativeDSPModule::getInputBufSize(jsi::Runtime& rt) {
+  return IN_BUF_SIZE;
+}
 
-  return std::string(input.rbegin(), input.rend());
+int NativeDSPModule::getOutputBufSize(jsi::Runtime& rt) {
+  return OUT_BUF_SIZE;
 }
 
 std::vector<float> NativeDSPModule::fft(jsi::Runtime& rt, const std::vector<float>& input) {
     // TODO: initialize kissfft separately with given buffer size
-    // TODO: Use kissfft for real signals
     std::cout << "Calling fft";
-    kiss_fft_cfg cfg = kiss_fft_alloc(BUF_SIZE, 0, nullptr, nullptr);
+    kiss_fftr_cfg cfg = kiss_fftr_alloc(IN_BUF_SIZE, 0, nullptr, nullptr);
     if (!cfg) {
         throw std::runtime_error("Module is not initialized. Call initialize() first.");
     }
 
-    kiss_fft_cpx fin[BUF_SIZE];
-    kiss_fft_cpx fout[BUF_SIZE];
-    
-    // Copy input signal into real part
-    for (int i = 0; i < BUF_SIZE; i++) {
-        fin[i].r = input[i];  // Real part
-        fin[i].i = 0;  // Imaginary part
-    }
+    // Perform FFT
+    kiss_fft_cpx fout[OUT_BUF_SIZE];
+    const kiss_fft_scalar* fin = input.data();
+    kiss_fftr(cfg, fin, fout);
+    kiss_fftr_free(cfg);
 
-    // // Perform FFT
-    kiss_fft(cfg, fin, fout);
-    kiss_fft_free(cfg);
-
-    // // Get module of fft
-    std::vector<float> output(BUF_SIZE);
-    for(int i = 0; i < BUF_SIZE; i++){
+    // Get module of fft
+    std::vector<float> output(OUT_BUF_SIZE);
+    for(int i = 0; i < OUT_BUF_SIZE; i++){
        output[i] = std::sqrt(std::pow(fout[i].r, 2) + std::pow(fout[i].i, 2));
     }
     return output;
