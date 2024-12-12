@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03039F482D08EFE300BC2B9F /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F402D08EFE300BC2B9F /* kiss_fft.c */; };
-		03039F492D08EFE300BC2B9F /* kiss_fftr.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F422D08EFE300BC2B9F /* kiss_fftr.c */; };
-		03039F4A2D08EFE300BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F452D08EFE300BC2B9F /* NativeDSPModule.cpp */; };
+		03039F582D0B858100BC2B9F /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F4D2D0B858100BC2B9F /* kiss_fft.c */; };
+		03039F592D0B858100BC2B9F /* kiss_fftr.c in Sources */ = {isa = PBXBuildFile; fileRef = 03039F4F2D0B858100BC2B9F /* kiss_fftr.c */; };
+		03039F5A2D0B858100BC2B9F /* yin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F522D0B858100BC2B9F /* yin.cpp */; };
+		03039F5B2D0B858100BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -22,14 +23,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		03039F3E2D08EFE300BC2B9F /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
-		03039F3F2D08EFE300BC2B9F /* kiss_fft_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft_log.h; sourceTree = "<group>"; };
-		03039F402D08EFE300BC2B9F /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
-		03039F412D08EFE300BC2B9F /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
-		03039F422D08EFE300BC2B9F /* kiss_fftr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fftr.c; sourceTree = "<group>"; };
-		03039F432D08EFE300BC2B9F /* kiss_fftr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fftr.h; sourceTree = "<group>"; };
-		03039F452D08EFE300BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
-		03039F462D08EFE300BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
+		03039F4B2D0B858100BC2B9F /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		03039F4C2D0B858100BC2B9F /* kiss_fft_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft_log.h; sourceTree = "<group>"; };
+		03039F4D2D0B858100BC2B9F /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		03039F4E2D0B858100BC2B9F /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		03039F4F2D0B858100BC2B9F /* kiss_fftr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fftr.c; sourceTree = "<group>"; };
+		03039F502D0B858100BC2B9F /* kiss_fftr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fftr.h; sourceTree = "<group>"; };
+		03039F522D0B858100BC2B9F /* yin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = yin.cpp; sourceTree = "<group>"; };
+		03039F532D0B858100BC2B9F /* yin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yin.h; sourceTree = "<group>"; };
+		03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
+		03039F562D0B858100BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tuneo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tuneo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tuneo/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = tuneo/AppDelegate.mm; sourceTree = "<group>"; };
@@ -60,25 +63,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		03039F442D08EFE300BC2B9F /* kissfft */ = {
+		03039F512D0B858100BC2B9F /* kissfft */ = {
 			isa = PBXGroup;
 			children = (
-				03039F3E2D08EFE300BC2B9F /* _kiss_fft_guts.h */,
-				03039F3F2D08EFE300BC2B9F /* kiss_fft_log.h */,
-				03039F402D08EFE300BC2B9F /* kiss_fft.c */,
-				03039F412D08EFE300BC2B9F /* kiss_fft.h */,
-				03039F422D08EFE300BC2B9F /* kiss_fftr.c */,
-				03039F432D08EFE300BC2B9F /* kiss_fftr.h */,
+				03039F4B2D0B858100BC2B9F /* _kiss_fft_guts.h */,
+				03039F4C2D0B858100BC2B9F /* kiss_fft_log.h */,
+				03039F4D2D0B858100BC2B9F /* kiss_fft.c */,
+				03039F4E2D0B858100BC2B9F /* kiss_fft.h */,
+				03039F4F2D0B858100BC2B9F /* kiss_fftr.c */,
+				03039F502D0B858100BC2B9F /* kiss_fftr.h */,
 			);
 			path = kissfft;
 			sourceTree = "<group>";
 		};
-		03039F472D08EFE300BC2B9F /* shared */ = {
+		03039F542D0B858100BC2B9F /* yin */ = {
 			isa = PBXGroup;
 			children = (
-				03039F442D08EFE300BC2B9F /* kissfft */,
-				03039F452D08EFE300BC2B9F /* NativeDSPModule.cpp */,
-				03039F462D08EFE300BC2B9F /* NativeDSPModule.h */,
+				03039F522D0B858100BC2B9F /* yin.cpp */,
+				03039F532D0B858100BC2B9F /* yin.h */,
+			);
+			path = yin;
+			sourceTree = "<group>";
+		};
+		03039F572D0B858100BC2B9F /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				03039F512D0B858100BC2B9F /* kissfft */,
+				03039F542D0B858100BC2B9F /* yin */,
+				03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */,
+				03039F562D0B858100BC2B9F /* NativeDSPModule.h */,
 			);
 			name = shared;
 			path = ../shared;
@@ -120,7 +133,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				03039F472D08EFE300BC2B9F /* shared */,
+				03039F572D0B858100BC2B9F /* shared */,
 				13B07FAE1A68108700A75B9A /* tuneo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -367,13 +380,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03039F482D08EFE300BC2B9F /* kiss_fft.c in Sources */,
+				03039F5B2D0B858100BC2B9F /* NativeDSPModule.cpp in Sources */,
+				03039F582D0B858100BC2B9F /* kiss_fft.c in Sources */,
+				03039F5A2D0B858100BC2B9F /* yin.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
 				422CADFCFEE343248AFC6D95 /* noop-file.swift in Sources */,
-				03039F4A2D08EFE300BC2B9F /* NativeDSPModule.cpp in Sources */,
-				03039F492D08EFE300BC2B9F /* kiss_fftr.c in Sources */,
+				03039F592D0B858100BC2B9F /* kiss_fftr.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

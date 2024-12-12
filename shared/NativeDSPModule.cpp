@@ -5,6 +5,7 @@
 #include "NativeDSPModule.h"
 #include "kiss_fft.h"
 #include "kiss_fftr.h"
+#include "yin.h"
 
 
 namespace facebook::react {
@@ -12,6 +13,11 @@ namespace facebook::react {
 
 NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
     : NativeDSPModuleCxxSpec(std::move(jsInvoker)) {}
+
+float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input, float sampleRate) {
+  Yin yin(sampleRate, IN_BUF_SIZE);
+  return yin.getPitch(input.data());
+}
 
 int NativeDSPModule::getInputBufSize(jsi::Runtime& rt) {
   return IN_BUF_SIZE;

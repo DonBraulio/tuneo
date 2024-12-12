@@ -88,6 +88,12 @@ export const Tuneo = () => {
     }
   }, [audio])
 
+  useEffect(() => {
+    // TODO: FIX SAMPLE RATE DEPENDING ON HW
+    const pitch = DSPModule.pitch(audio, 44100)
+    console.log(`Pitch: ${pitch}`)
+  }, [audio])
+
   // animation value to transition from one graph to the next
   const transition = useSharedValue(0)
 
