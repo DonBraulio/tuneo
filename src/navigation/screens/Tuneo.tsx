@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
-import { Canvas, Path, Group, LinearGradient, vec } from "@shopify/react-native-skia"
+import { Canvas, Path, Group, LinearGradient, vec, Circle, Paint } from "@shopify/react-native-skia"
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -21,6 +21,7 @@ import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
+import Colors from "@/Colors"
 
 const touchableCursorSize = 80
 
@@ -31,15 +32,13 @@ const FFT_OUT_SIZE = DSPModule.getInputBufSize()
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#1F1D2B",
+    backgroundColor: Colors.bgInactive,
   },
 })
 
 export const Tuneo = () => {
   const window = useWindowDimensions()
-  const { width } = window
-  const height = Math.min(window.width, window.height) / 2
-  const translateY = height + PADDING
+  const { width, height } = window
 
   // Microphone audio buffer, initialized with 0
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
@@ -78,20 +77,20 @@ export const Tuneo = () => {
   //   return sineWave
   // }, [])
 
-  const fourier = useMemo(() => {
-    try {
-      const fft = DSPModule.fft(audio)
-      return fft
-    } catch (e: unknown) {
-      console.log(`Exception caught: ${e}`)
-      return []
-    }
-  }, [audio])
+  // const fourier = useMemo(() => {
+  //   try {
+  //     const fft = DSPModule.fft(audio)
+  //     return fft
+  //   } catch (e: unknown) {
+  //     console.log(`Exception caught: ${e}`)
+  //     return []
+  //   }
+  // }, [audio])
 
   useEffect(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
     const pitch = DSPModule.pitch(audio, 44100)
-    console.log(`Pitch: ${pitch}`)
+    // console.log(`Pitch: ${pitch}`)
   }, [audio])
 
   // animation value to transition from one graph to the next
@@ -113,8 +112,8 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
-  const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
+  const path = useMemo(() => arrayToPath(audio, width, height), [audio])
+  // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
 
   // x and y values of the cursor
@@ -147,17 +146,40 @@ export const Tuneo = () => {
   // setTimeout(() => {
   //   clearInterval(inter)
   // }, 10000)
+  const centerY = height * 0.75
+  const centerX = width / 2
+  const radius = height
+  const angle = 5
+  const gaugeX = centerX - radius * Math.sin((Math.PI * angle) / 180)
+  const gaugeY = centerY - radius * Math.cos((Math.PI * angle) / 180)
 
   return (
     <ScrollView style={styles.container}>
       <View>
-        <Canvas style={{ width, height: 2 * height + 30 }}>
-          <Label text={"Em"} width={width} height={height} />
-          <Group transform={[{ translateY }]}>
-            <Path style="stroke" path={path} strokeWidth={4} strokeJoin="round" strokeCap="round">
-              <LinearGradient start={vec(0, 0)} end={vec(width, 0)} colors={COLORS} />
-            </Path>
-            {/*<Cursor x={x} y={y} width={width} />*/}
+        <Canvas style={{ width, height }}>
+          <Group transform={[{ translateY: height / 10 }]}>
+            <Path
+              style="stroke"
+              path={path}
+              strokeWidth={2}
+              strokeJoin="round"
+              strokeCap="round"
+              color={Colors.fgDefault}
+              end={0.95}
+            />
+          </Group>
+          <Group transform={[{ translateY: height / 2 }]}>
+            <Circle cy={centerY} cx={centerX} r={radius}>
+              <Paint style="stroke" strokeWidth={4} color={Colors.fgDefault} />
+              <Paint color={Colors.bgActive} />
+            </Circle>
+            <Path
+              path={`M ${centerX} ${centerY} L ${gaugeX} ${gaugeY} Z`}
+              style="stroke"
+              strokeWidth={2}
+              strokeJoin="round"
+              color="#ffffff"
+            />
           </Group>
         </Canvas>
         {/*<Selection graphs={graphs} state={state} transition={transition} />
