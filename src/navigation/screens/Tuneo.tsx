@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
-import { Canvas, Path, Group, LinearGradient, vec, Circle, Paint } from "@shopify/react-native-skia"
+import {
+  Canvas,
+  Path,
+  Group,
+  LinearGradient,
+  vec,
+  Circle,
+  Paint,
+  Text,
+  useFont,
+} from "@shopify/react-native-skia"
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -24,6 +34,8 @@ import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 
 const touchableCursorSize = 80
+
+const sfMono = require("@/assets/SF-Mono-Medium.otf")
 
 // Keep this in sync with NativeDSPModule.cpp
 const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
@@ -87,10 +99,9 @@ export const Tuneo = () => {
   //   }
   // }, [audio])
 
-  useEffect(() => {
+  const pitch = useMemo(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    const pitch = DSPModule.pitch(audio, 44100)
-    // console.log(`Pitch: ${pitch}`)
+    return DSPModule.pitch(audio, 44100)
   }, [audio])
 
   // animation value to transition from one graph to the next
@@ -149,28 +160,39 @@ export const Tuneo = () => {
   const centerY = height * 0.75
   const centerX = width / 2
   const radius = height
-  const angle = 5
-  const gaugeX = centerX - radius * Math.sin((Math.PI * angle) / 180)
-  const gaugeY = centerY - radius * Math.cos((Math.PI * angle) / 180)
+
+  // TODO: auto detect strings
+  const refTone = 110 // Frequency of A4
+  const angleRads = Math.atan((100 * (pitch - refTone)) / refTone) / 4
+  const gaugeX = centerX - radius * Math.sin(angleRads)
+  const gaugeY = centerY - radius * Math.cos(angleRads)
+  const fontSize = 32
+  const pitchFont = useFont(sfMono, 32)
 
   return (
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height }}>
-          <Group transform={[{ translateY: height / 10 }]}>
+          <Group transform={[{ translateY: height / 8 }]}>
+            <Text
+              text={pitch > 0 ? `${pitch.toFixed(0)}Hz` : "No tone"}
+              color={Colors.primary}
+              font={pitchFont}
+              x={width / 2}
+            />
             <Path
               style="stroke"
               path={path}
               strokeWidth={2}
               strokeJoin="round"
               strokeCap="round"
-              color={Colors.fgDefault}
+              color={Colors.secondary}
               end={0.95}
             />
           </Group>
           <Group transform={[{ translateY: height / 2 }]}>
             <Circle cy={centerY} cx={centerX} r={radius}>
-              <Paint style="stroke" strokeWidth={4} color={Colors.fgDefault} />
+              <Paint style="stroke" strokeWidth={4} color={Colors.secondary} />
               <Paint color={Colors.bgActive} />
             </Circle>
             <Path
@@ -178,7 +200,7 @@ export const Tuneo = () => {
               style="stroke"
               strokeWidth={2}
               strokeJoin="round"
-              color="#ffffff"
+              color={Colors.primary}
             />
           </Group>
         </Canvas>
