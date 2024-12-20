@@ -32,7 +32,7 @@ import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
-import { getFrequencyFromNote, getNoteFromFrequency } from "@/MusicalNotes"
+import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
 
 const touchableCursorSize = 80
 
@@ -42,6 +42,23 @@ const sfMono = require("@/assets/SF-Mono-Medium.otf")
 const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
 const FFT_IN_SIZE = DSPModule.getInputBufSize()
 const FFT_OUT_SIZE = DSPModule.getInputBufSize()
+
+const TEST_MODE = true
+const TEST_TONES: Array<{ title: string; freq: number }> = [
+  { title: "A0", freq: 27.5 }, // Piano lowest
+  { title: "B0", freq: 30.87 }, // 5 string bass lowest
+  { title: "E1", freq: 41.2 }, // 4 string bass lowest
+  { title: "E1+5%", freq: 41.2 * 1.05 },
+  { title: "E1-5%", freq: 41.2 * 0.95 },
+  { title: "E2", freq: 30.87 }, // Guitar lowest
+  { title: "A3", freq: 220.0 },
+  { title: "G3", freq: 196.0 }, // Violin's lowest
+  { title: "C4", freq: 261.63 }, // Piano middle C
+  { title: "G4", freq: 392.0 },
+  { title: "A4", freq: 440.0 },
+  { title: "A5", freq: 880.0 },
+  { title: "C8", freq: 4186.01 }, // Piano's highest
+]
 
 const styles = StyleSheet.create({
   container: {
@@ -53,8 +70,14 @@ export const Tuneo = () => {
   const window = useWindowDimensions()
   const { width, height } = window
 
+  // TODO: get from hw
+  const sampleRate = 44100
+
   // Microphone audio buffer, initialized with 0
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
+
+  // For test mode
+  const [testIdx, setTestIdx] = useState(0)
 
   useEffect(() => {
     console.log(`Microphone buffer: ${BUF_SIZE}`)
@@ -69,11 +92,21 @@ export const Tuneo = () => {
   }, [])
 
   useEffect(() => {
-    console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-    MicrophoneStreamModule.startRecording((samples) => {
-      setAudio(samples)
-    })
-  }, [])
+    if (TEST_MODE && testIdx < TEST_TONES.length) {
+      const freq = TEST_TONES[testIdx]
+      console.log(`Test ${freq.title}: ${freq.freq}Hz`)
+      setAudio(getSineOfFrequency(freq.freq, sampleRate, BUF_SIZE))
+      const timeout = setTimeout(() => {
+        setTestIdx(testIdx + 1)
+      }, 1000)
+      return () => clearTimeout(timeout)
+    } else {
+      console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
+      MicrophoneStreamModule.startRecording((samples) => {
+        setAudio(samples)
+      })
+    }
+  }, [testIdx])
 
   // setInterval(() => {
   //   console.log(`Max. audio sample: ${Math.max(...audio)}`)
@@ -103,7 +136,7 @@ export const Tuneo = () => {
   // Get frequency of the sound
   const pitch = useMemo(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    return DSPModule.pitch(audio, 44100)
+    return DSPModule.pitch(audio, sampleRate)
   }, [audio])
 
   // Nearest note name and octave
