@@ -32,6 +32,7 @@ import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
+import { getFrequencyFromNote, getNoteFromFrequency } from "@/MusicalNotes"
 
 const touchableCursorSize = 80
 
@@ -99,10 +100,17 @@ export const Tuneo = () => {
   //   }
   // }, [audio])
 
+  // Get frequency of the sound
   const pitch = useMemo(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
     return DSPModule.pitch(audio, 44100)
   }, [audio])
+
+  // Nearest note name and octave
+  const note = useMemo(() => getNoteFromFrequency(pitch), [pitch])
+
+  // Frequency of the nearest note
+  const refFreq = useMemo(() => getFrequencyFromNote(note), [note])
 
   // animation value to transition from one graph to the next
   const transition = useSharedValue(0)
@@ -162,9 +170,8 @@ export const Tuneo = () => {
   const radius = height
 
   // TODO: auto detect strings
-  const refTone = 110 // Frequency of A4
-  const angleRads = Math.atan((100 * (pitch - refTone)) / refTone) / 4
-  const gaugeX = centerX - radius * Math.sin(angleRads)
+  const angleRads = Math.atan((50 * (pitch - refFreq)) / refFreq) / 4
+  const gaugeX = centerX + radius * Math.sin(angleRads)
   const gaugeY = centerY - radius * Math.cos(angleRads)
   const fontSize = 32
   const pitchFont = useFont(sfMono, 32)
@@ -175,10 +182,14 @@ export const Tuneo = () => {
         <Canvas style={{ width, height }}>
           <Group transform={[{ translateY: height / 8 }]}>
             <Text
-              text={pitch > 0 ? `${pitch.toFixed(0)}Hz` : "No tone"}
+              text={
+                pitch > 0 && note
+                  ? `${note.name}${note.octave} (${refFreq.toFixed(0)}Hz) ${pitch.toFixed(0)}Hz`
+                  : "No tone"
+              }
               color={Colors.primary}
               font={pitchFont}
-              x={width / 2}
+              x={width / 10}
             />
             <Path
               style="stroke"
