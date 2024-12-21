@@ -2,11 +2,23 @@ import type { Vector, PathCommand } from "@shopify/react-native-skia"
 import { cartesian2Polar, PathVerb, vec, Skia } from "@shopify/react-native-skia"
 import { exhaustiveCheck } from "@shopify/react-native-skia/src/renderer/typeddash"
 
-export const waveFormPath = (samples: number[], width: number, height: number) => {
+export const waveFormPath = (samples: number[], width: number, height: number, maxGain: number) => {
   "worklet"
-  const amplitude = height / 2
+
+  // Determine gain level to fit the signal in -1,1
+  let maxAmplitude = 0
+  samples.forEach((sample) => {
+    if (Math.abs(sample) > maxAmplitude) {
+      maxAmplitude = Math.abs(sample)
+    }
+  })
+  const gain = Math.max(1 / maxAmplitude, maxGain)
+
+  // X and Y scales for each sample
+  const amplitude = (gain * height) / 2
   const dx = width / samples.length
 
+  // Create waveform path
   const path = Skia.Path.Make()
   let prevX = 0
   let prevY = 0
