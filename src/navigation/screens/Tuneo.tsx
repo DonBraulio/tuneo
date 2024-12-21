@@ -55,6 +55,9 @@ const TEST_TONES: Array<{ title: string; freq: number }> = [
   { title: "C8", freq: 4186.01 }, // Piano's highest
 ]
 
+// Latest max audio level detected (cannot be in state)
+let maxAudio = 0
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.bgInactive,
@@ -74,6 +77,7 @@ export const Tuneo = () => {
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
 
+  // Request recording permission
   useEffect(() => {
     console.log(`Microphone buffer: ${BUF_SIZE}`)
     console.log(`DSP buffers: IN[${FFT_IN_SIZE}] -> OUT[${FFT_OUT_SIZE}]`)
@@ -103,6 +107,45 @@ export const Tuneo = () => {
       })
     }
   }, [testIdx])
+
+  const alignedAudio = useMemo(() => {
+    /* Triggering algorithm:
+      Purpose: align the audio segments like an oscilloscope does.
+      How: Using a signal level as "trigger", set that as x=0, y=trigger.
+      The trigger is 1/2 of the previous level maximum amplitude.
+      It's only searched within the first 1/4 of the signal buffer, otherwise
+      trigger automatically.
+    */
+    const searchLength = Math.floor(BUF_SIZE / 4)
+    const alignedBuffer = new Array<number>(BUF_SIZE - searchLength)
+    const triggerLevel = maxAudio / 2
+
+    let currentMax = 0
+    let newIdx = 0
+    audio.forEach((sample, idx) => {
+      // If newIdx is 0, signal was not triggered
+      if (newIdx === 0) {
+        // Trigger conditions
+        if (sample >= triggerLevel || idx === searchLength) {
+          alignedBuffer[0] = sample
+          newIdx++
+        }
+      } else {
+        // Fill buffer after trigger
+        alignedBuffer[newIdx++] = sample
+      }
+      // Keep track of maximum level
+      if (sample > currentMax) {
+        currentMax = sample
+      }
+      // Finish filling buffer
+      if (newIdx === alignedBuffer.length) {
+        return
+      }
+    })
+    maxAudio = currentMax
+    return alignedBuffer
+  }, [audio])
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
@@ -135,7 +178,7 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  const path = useMemo(() => waveFormPath(audio, width, height / 5), [audio])
+  const path = useMemo(() => waveFormPath(alignedAudio, width, height / 5, 3), [alignedAudio])
   // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
   // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
@@ -187,7 +230,6 @@ export const Tuneo = () => {
               strokeJoin="round"
               strokeCap="round"
               color={Colors.secondary}
-              end={0.95}
             />
           </Group>
           <Group transform={[{ translateY: height / 2 }]}>
