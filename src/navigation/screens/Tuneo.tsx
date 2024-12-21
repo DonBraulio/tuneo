@@ -19,20 +19,15 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated"
-import { GestureDetector, ScrollView } from "react-native-gesture-handler"
+import { ScrollView } from "react-native-gesture-handler"
 
-import { PADDING, COLORS, getGraph, arrayToPath } from "@/Model"
-import { getYForX } from "@/Math"
-import { Cursor } from "@/components/Cursor"
-import { Selection } from "@/components/Selection"
-import { Label } from "@/components/Label"
-import { useGraphTouchHandler } from "@/components/useGraphTouchHandler"
-
+import { arrayToPath } from "@/Model"
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
+import { waveFormPath } from "@/Math"
 
 const touchableCursorSize = 80
 
@@ -91,6 +86,7 @@ export const Tuneo = () => {
     })()
   }, [])
 
+  // Audio readings from microphone or test signals
   useEffect(() => {
     if (TEST_MODE && testIdx < TEST_TONES.length) {
       const freq = TEST_TONES[testIdx]
@@ -107,31 +103,6 @@ export const Tuneo = () => {
       })
     }
   }, [testIdx])
-
-  // setInterval(() => {
-  //   console.log(`Max. audio sample: ${Math.max(...audio)}`)
-  // }, 1000)
-
-  //const graphs = useMemo(() => getGraph(width, height), [width, height])
-
-  // const test = useMemo(() => {
-  //   const CYCLES = 500
-  //   const sineWave: number[] = []
-  //   for (let i = 0; i < BUF_SIZE; i++) {
-  //     sineWave[i] = Math.sin((2 * Math.PI * CYCLES * i) / BUF_SIZE)
-  //   }
-  //   return sineWave
-  // }, [])
-
-  // const fourier = useMemo(() => {
-  //   try {
-  //     const fft = DSPModule.fft(audio)
-  //     return fft
-  //   } catch (e: unknown) {
-  //     console.log(`Exception caught: ${e}`)
-  //     return []
-  //   }
-  // }, [audio])
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
@@ -164,7 +135,8 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  const path = useMemo(() => arrayToPath(audio, width, height), [audio])
+  const path = useMemo(() => waveFormPath(audio, width, height / 5), [audio])
+  // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
   // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
 
@@ -182,22 +154,6 @@ export const Tuneo = () => {
   //   }
   // })
 
-  // // Animate plots automatically
-  // const dt = 1000 // ms
-  // const inter = setInterval(() => {
-  //   // Toggle from 0 to 1
-  //   const next = state.value.current === 0 ? 1 : 0
-  //   state.value = { current: state.value.next, next }
-  //   transition.value = 0
-  //   transition.value = withTiming(1, {
-  //     duration: dt,
-  //     easing: Easing.inOut(Easing.quad),
-  //   })
-  // }, dt)
-  // // Stop animation after 10 secs
-  // setTimeout(() => {
-  //   clearInterval(inter)
-  // }, 10000)
   const centerY = height * 0.75
   const centerX = width / 2
   const radius = height

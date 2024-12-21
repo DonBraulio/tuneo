@@ -2,6 +2,33 @@ import type { Vector, PathCommand } from "@shopify/react-native-skia"
 import { cartesian2Polar, PathVerb, vec, Skia } from "@shopify/react-native-skia"
 import { exhaustiveCheck } from "@shopify/react-native-skia/src/renderer/typeddash"
 
+export const waveFormPath = (samples: number[], width: number, height: number) => {
+  "worklet"
+  const amplitude = height / 2
+  const dx = width / samples.length
+
+  const path = Skia.Path.Make()
+  let prevX = 0
+  let prevY = 0
+  samples.forEach((sample, idx) => {
+    const x = idx * dx
+    const y = sample * amplitude
+
+    if (idx === 0) {
+      path.moveTo(x, y)
+    } else {
+      // use midpoint as control point
+      const cpX = (prevX + x) / 2
+      const cpY = (prevY + y) / 2
+      path.quadTo(cpX, cpY, x, y)
+    }
+    prevX = x
+    prevY = y
+  })
+
+  return path
+}
+
 const round = (value: number, precision = 0) => {
   "worklet"
   const p = Math.pow(10, precision)
