@@ -12,7 +12,7 @@ export const waveFormPath = (samples: number[], width: number, height: number, m
       maxAmplitude = Math.abs(sample)
     }
   })
-  const gain = Math.max(1 / maxAmplitude, maxGain)
+  const gain = Math.min(1 / maxAmplitude, maxGain)
 
   // X and Y scales for each sample
   const amplitude = (gain * height) / 2

@@ -55,9 +55,6 @@ const TEST_TONES: Array<{ title: string; freq: number }> = [
   { title: "C8", freq: 4186.01 }, // Piano's highest
 ]
 
-// Latest max audio level detected (cannot be in state)
-let maxAudio = 0
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.bgInactive,
@@ -110,41 +107,23 @@ export const Tuneo = () => {
 
   const alignedAudio = useMemo(() => {
     /* Triggering algorithm:
-      Purpose: align the audio segments like an oscilloscope does.
-      How: Using a signal level as "trigger", set that as x=0, y=trigger.
-      The trigger is 1/2 of the previous level maximum amplitude.
-      It's only searched within the first 1/4 of the signal buffer, otherwise
-      trigger automatically.
+      Purpose: align the audio segments similar to an oscilloscope.
+      How: find highest peak within 1/4 of the signal and set that as x=0.
     */
     const searchLength = Math.floor(BUF_SIZE / 4)
-    const alignedBuffer = new Array<number>(BUF_SIZE - searchLength)
-    const triggerLevel = maxAudio / 2
+    const newLength = BUF_SIZE - searchLength
 
-    let currentMax = 0
-    let newIdx = 0
-    audio.forEach((sample, idx) => {
-      // If newIdx is 0, signal was not triggered
-      if (newIdx === 0) {
-        // Trigger conditions
-        if (sample >= triggerLevel || idx === searchLength) {
-          alignedBuffer[0] = sample
-          newIdx++
-        }
-      } else {
-        // Fill buffer after trigger
-        alignedBuffer[newIdx++] = sample
+    // Find peak within 0-searchLength
+    let maxValue = 0
+    let maxIdx = 0
+    for (let idx = 0; idx < searchLength; idx++) {
+      if (audio[idx] > maxValue) {
+        maxValue = audio[idx]
+        maxIdx = idx
       }
-      // Keep track of maximum level
-      if (sample > currentMax) {
-        currentMax = sample
-      }
-      // Finish filling buffer
-      if (newIdx === alignedBuffer.length) {
-        return
-      }
-    })
-    maxAudio = currentMax
-    return alignedBuffer
+    }
+    // Return new signal starting at the peak
+    return audio.slice(maxIdx, audio.length - searchLength + maxIdx)
   }, [audio])
 
   // Get frequency of the sound
@@ -178,7 +157,7 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  const path = useMemo(() => waveFormPath(alignedAudio, width, height / 5, 3), [alignedAudio])
+  const path = useMemo(() => waveFormPath(alignedAudio, width, height / 5, 100), [alignedAudio])
   // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
   // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
