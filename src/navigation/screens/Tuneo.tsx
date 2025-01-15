@@ -27,9 +27,8 @@ import { arrayToPath } from "@/Model"
 // import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
-import { waveFormPath } from "@/Math"
-
-const touchableCursorSize = 80
+import { waveformPath } from "@/Math"
+import MovingGrid from "@/components/MovingGrid"
 
 const sfMono = require("@/assets/SF-Mono-Medium.otf")
 
@@ -161,7 +160,7 @@ export const Tuneo = () => {
   //   return end.interpolate(start, transition.value)!
   // })
 
-  const path = useMemo(() => waveFormPath(alignedAudio, width, height / 5, 100), [alignedAudio])
+  const path = useMemo(() => waveformPath(alignedAudio, width, height / 5, 100), [alignedAudio])
   // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
   // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
   // const path = useMemo(() => arrayToPath(test, width, height), [test])
@@ -206,6 +205,8 @@ export const Tuneo = () => {
               font={pitchFont}
               x={width / 10}
             />
+
+            {/* Waveform */}
             <Path
               style="stroke"
               path={path}
@@ -215,6 +216,7 @@ export const Tuneo = () => {
               color={Colors.secondary}
             />
           </Group>
+          {/* Gauge */}
           <Group transform={[{ translateY: height / 2 }]}>
             <Circle cy={centerY} cx={centerX} r={radius}>
               <Paint style="stroke" strokeWidth={4} color={Colors.secondary} />
@@ -228,6 +230,7 @@ export const Tuneo = () => {
               color={Colors.primary}
             />
           </Group>
+          <MovingGrid />
         </Canvas>
         {/*<Selection graphs={graphs} state={state} transition={transition} />
         <GestureDetector gesture={gesture}>

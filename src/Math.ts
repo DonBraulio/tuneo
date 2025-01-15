@@ -2,7 +2,7 @@ import type { Vector, PathCommand } from "@shopify/react-native-skia"
 import { cartesian2Polar, PathVerb, vec, Skia } from "@shopify/react-native-skia"
 import { exhaustiveCheck } from "@shopify/react-native-skia/src/renderer/typeddash"
 
-export const waveFormPath = (samples: number[], width: number, height: number, maxGain: number) => {
+export const waveformPath = (samples: number[], width: number, height: number, maxGain: number) => {
   "worklet"
 
   // Determine gain level to fit the signal in -1,1
