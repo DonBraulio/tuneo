@@ -22,9 +22,9 @@ import Animated, {
 import { ScrollView } from "react-native-gesture-handler"
 
 import { arrayToPath } from "@/Model"
-import DSPModule from "@/../specs/NativeDSPModule"
-import MicrophoneStreamModule from "@/../modules/microphone-stream"
-import { AudioModule } from "expo-audio"
+// import DSPModule from "@/../specs/NativeDSPModule"
+// import MicrophoneStreamModule from "@/../modules/microphone-stream"
+// import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
 import { waveFormPath } from "@/Math"
@@ -34,9 +34,10 @@ const touchableCursorSize = 80
 const sfMono = require("@/assets/SF-Mono-Medium.otf")
 
 // Keep this in sync with NativeDSPModule.cpp
-const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
-const FFT_IN_SIZE = DSPModule.getInputBufSize()
-const FFT_OUT_SIZE = DSPModule.getInputBufSize()
+// const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
+const BUF_SIZE = 1024
+// const FFT_IN_SIZE = DSPModule.getInputBufSize()
+// const FFT_OUT_SIZE = DSPModule.getInputBufSize()
 
 const TEST_MODE = true
 const TEST_TONES: Array<{ title: string; freq: number }> = [
@@ -75,6 +76,7 @@ export const Tuneo = () => {
   const [testIdx, setTestIdx] = useState(0)
 
   // Request recording permission
+  /*
   useEffect(() => {
     console.log(`Microphone buffer: ${BUF_SIZE}`)
     console.log(`DSP buffers: IN[${FFT_IN_SIZE}] -> OUT[${FFT_OUT_SIZE}]`)
@@ -86,6 +88,7 @@ export const Tuneo = () => {
       }
     })()
   }, [])
+  */
 
   // Audio readings from microphone or test signals
   useEffect(() => {
@@ -99,9 +102,9 @@ export const Tuneo = () => {
       return () => clearTimeout(timeout)
     } else {
       console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-      MicrophoneStreamModule.startRecording((samples) => {
-        setAudio(samples)
-      })
+      // MicrophoneStreamModule.startRecording((samples) => {
+      //   setAudio(samples)
+      // })
     }
   }, [testIdx])
 
@@ -129,7 +132,8 @@ export const Tuneo = () => {
   // Get frequency of the sound
   const pitch = useMemo(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    return DSPModule.pitch(audio, sampleRate)
+    // return DSPModule.pitch(audio, sampleRate)
+    return 435
   }, [audio])
 
   // Nearest note name and octave
