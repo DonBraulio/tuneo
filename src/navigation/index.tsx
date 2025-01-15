@@ -66,6 +66,15 @@ const HomeTabs = createBottomTabNavigator({
 
 const RootStack = createNativeStackNavigator({
   screens: {
+    Tuneo: {
+      screen: Tuneo,
+      options: {
+        title: "",
+        headerTransparent: true,
+        headerTitle: () => undefined,
+      },
+    },
+    // TODO: REMOVE OR CHANGE
     HomeTabs: {
       screen: HomeTabs,
       options: {
