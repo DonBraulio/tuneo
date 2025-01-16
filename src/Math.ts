@@ -2,6 +2,44 @@ import type { Vector, PathCommand } from "@shopify/react-native-skia"
 import { cartesian2Polar, PathVerb, vec, Skia } from "@shopify/react-native-skia"
 import { exhaustiveCheck } from "@shopify/react-native-skia/src/renderer/typeddash"
 
+export const pitchPath = (
+  samples: number[],
+  currentIdx: number,
+  nSamples: number,
+  width: number,
+  height: number,
+  maxLength: number
+) => {
+  "worklet"
+  const dy = height / maxLength
+
+  const path = Skia.Path.Make()
+  let prevX = 0
+  let prevY = 0
+  const hw = width / 2
+  // Iterate reversed array (last pitch draws first)
+  for (let i = 0; i < nSamples; i++) {
+    // samples[i] is a circular queue where currentIdx points to next insert position
+    const idx = (currentIdx - i - 1 + maxLength) % maxLength
+    const sample = samples[idx]
+    const y = idx * dy
+    const x = hw + sample * hw
+
+    if (idx === 0) {
+      path.moveTo(x, y)
+    } else {
+      // use midpoint as control point
+      const cpX = (prevX + x) / 2
+      const cpY = (prevY + y) / 2
+      path.quadTo(cpX, cpY, x, y)
+    }
+    prevX = x
+    prevY = y
+  }
+
+  return path
+}
+
 export const waveformPath = (samples: number[], width: number, height: number, maxGain: number) => {
   "worklet"
 

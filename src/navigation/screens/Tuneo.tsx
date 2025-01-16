@@ -72,7 +72,8 @@ export const Tuneo = () => {
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
 
   // For test mode
-  const [testIdx, setTestIdx] = useState(0)
+  const [testIdx, setTestIdx] = useState(300)
+  const [testPitchIdx, setTestPitchIdx] = useState(0)
 
   // Request recording permission
   /*
@@ -91,8 +92,8 @@ export const Tuneo = () => {
 
   // Audio readings from microphone or test signals
   useEffect(() => {
-    if (TEST_MODE && testIdx < TEST_TONES.length) {
-      const freq = TEST_TONES[testIdx]
+    if (TEST_MODE) {
+      const freq = TEST_TONES[testIdx % TEST_TONES.length]
       console.log(`Test ${freq.title}: ${freq.freq}Hz`)
       setAudio(getSineOfFrequency(freq.freq, sampleRate, BUF_SIZE))
       const timeout = setTimeout(() => {
@@ -127,6 +128,18 @@ export const Tuneo = () => {
     // Return new signal starting at the peak
     return audio.slice(maxIdx, audio.length - searchLength + maxIdx)
   }, [audio])
+
+  // Fake pitch sweep for testing
+  useEffect(() => {
+    if (!TEST_MODE) return
+
+    const timeout = setTimeout(() => {
+      setTestPitchIdx(testPitchIdx + 1)
+    }, 10)
+    return () => clearTimeout(timeout)
+  }, [testIdx])
+
+  const pitchDx = useMemo(() => Math.sin((testPitchIdx * 2 * Math.PI) / 300), [testPitchIdx])
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
@@ -230,7 +243,7 @@ export const Tuneo = () => {
               color={Colors.primary}
             />
           </Group>
-          <MovingGrid />
+          <MovingGrid pitch={pitchDx} />
         </Canvas>
         {/*<Selection graphs={graphs} state={state} transition={transition} />
         <GestureDetector gesture={gesture}>
