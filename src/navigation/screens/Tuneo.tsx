@@ -7,7 +7,13 @@ import DSPModule from "@/../specs/NativeDSPModule"
 // import MicrophoneStreamModule from "@/../modules/microphone-stream"
 // import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
-import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
+import {
+  getFrequencyFromNote,
+  getNearestGuitarString,
+  getNoteFromFrequency,
+  getSineOfFrequency,
+  GUITAR_STRING_NOTES,
+} from "@/MusicalNotes"
 import { getWaveformPath } from "@/Math"
 import MovingGrid from "@/components/MovingGrid"
 
@@ -106,8 +112,12 @@ export const Tuneo = () => {
   // Nearest note name and octave
   const note = useMemo(() => getNoteFromFrequency(pitch), [pitch])
 
-  // Frequency of the nearest note
-  const refFreq = useMemo(() => getFrequencyFromNote(note), [note])
+  // Nearest guitar string
+  const stringIdx = useMemo(() => getNearestGuitarString(pitch), [pitch])
+  const nearestString = useMemo(() => GUITAR_STRING_NOTES[stringIdx], [stringIdx])
+
+  // Frequency of the nearest guitar string
+  const refFreq = useMemo(() => getFrequencyFromNote(nearestString), [nearestString])
 
   // Waveform drawing
   const waveform = useMemo(
@@ -116,27 +126,16 @@ export const Tuneo = () => {
   )
 
   const gaugeRadius = 12
-  const pitchDeviation = Math.atan((120 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
+  const pitchDeviation = Math.atan((10 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
   const gaugeX = (width / 2) * (1 + pitchDeviation)
-  const pitchFont = useFont(sfMono, 32)
+  const pitchFont = useFont(sfMono, 16)
 
   return (
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height }}>
+          {/* Waveform */}
           <Group transform={[{ translateY: height / 8 }]}>
-            <Text
-              text={
-                pitch > 0 && note
-                  ? `${note.name}${note.octave} (${refFreq.toFixed(0)}Hz) ${pitch.toFixed(0)}Hz`
-                  : "No tone"
-              }
-              color={Colors.primary}
-              font={pitchFont}
-              x={width / 10}
-            />
-
-            {/* Waveform */}
             <Path
               style="stroke"
               path={waveform}
@@ -146,7 +145,26 @@ export const Tuneo = () => {
               color={Colors.secondary}
             />
           </Group>
+
+          {/* Debug text */}
+          <Group transform={[{ translateY: height / 3 }]}>
+            <Text
+              text={
+                pitch > 0 && note
+                  ? `${6 - stringIdx}-th ${nearestString.name}${
+                      nearestString.octave
+                    } (${refFreq.toFixed(0)}Hz) ${pitch.toFixed(0)}Hz`
+                  : "No tone"
+              }
+              color={Colors.primary}
+              font={pitchFont}
+              x={width / 10}
+            />
+          </Group>
+
+          {/* Grid */}
           <MovingGrid deviation={pitchDeviation} note={note} />
+
           {/* Gauge */}
           <Group transform={[{ translateY: height * 0.5 - gaugeRadius }]}>
             <Line
