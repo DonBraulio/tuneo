@@ -4,8 +4,8 @@ import { Canvas, Path, Group, Circle, Text, useFont, Line } from "@shopify/react
 import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
-// import MicrophoneStreamModule from "@/../modules/microphone-stream"
-// import { AudioModule } from "expo-audio"
+import MicrophoneStreamModule from "@/../modules/microphone-stream"
+import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import {
   getFrequencyFromNote,
@@ -20,10 +20,13 @@ import MovingGrid from "@/components/MovingGrid"
 const sfMono = require("@/assets/SF-Mono-Medium.otf")
 
 // Keep this in sync with NativeDSPModule.cpp
-// const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
+const BUF_SIZE_MICRO = MicrophoneStreamModule.BUFFER_SIZE
 const BUF_SIZE = DSPModule.getInputBufSize()
+if (BUF_SIZE !== BUF_SIZE_MICRO) {
+  throw Error("Buffer sizes don't match")
+}
 
-const TEST_MODE = true
+const TEST_MODE = false
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -48,11 +51,8 @@ export const Tuneo = () => {
   const [testIdx, setTestIdx] = useState(0)
 
   // Request recording permission
-  /*
   useEffect(() => {
-    console.log(`Microphone buffer: ${BUF_SIZE}`)
-    console.log(`DSP buffers: IN[${FFT_IN_SIZE}] -> OUT[${FFT_OUT_SIZE}]`)
-    console.log("Checking recording permissions")
+    console.log(`Buffer size: ${BUF_SIZE}`)
     ;(async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync()
       if (!status.granted) {
@@ -60,7 +60,6 @@ export const Tuneo = () => {
       }
     })()
   }, [])
-  */
 
   // Audio readings from microphone or test signals
   useEffect(() => {
@@ -77,9 +76,9 @@ export const Tuneo = () => {
       return () => clearTimeout(timeout)
     } else {
       console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-      // MicrophoneStreamModule.startRecording((samples) => {
-      //   setAudio(samples)
-      // })
+      MicrophoneStreamModule.startRecording((samples) => {
+        setAudio(samples)
+      })
     }
   }, [testIdx])
 
@@ -126,7 +125,7 @@ export const Tuneo = () => {
   )
 
   const gaugeRadius = 12
-  const pitchDeviation = Math.atan((10 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
+  const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
   const gaugeX = (width / 2) * (1 + pitchDeviation)
   const pitchFont = useFont(sfMono, 16)
 
@@ -173,6 +172,13 @@ export const Tuneo = () => {
               style="stroke"
               strokeWidth={2 * gaugeRadius - 4}
               color={Colors.secondary}
+            />
+            <Line
+              p1={{ x: width / 2, y: -gaugeRadius }}
+              p2={{ x: width / 2, y: gaugeRadius }}
+              style="stroke"
+              strokeWidth={1}
+              color={Colors.primary}
             />
             <Circle
               cx={gaugeX}
