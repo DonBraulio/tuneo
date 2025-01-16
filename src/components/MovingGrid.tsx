@@ -20,7 +20,6 @@ import {
   Points,
 } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
-import { pitchPath } from "@/Math"
 import Colors from "@/Colors"
 import { Note } from "@/MusicalNotes"
 

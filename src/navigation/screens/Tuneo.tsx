@@ -1,34 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
-import {
-  Canvas,
-  Path,
-  Group,
-  LinearGradient,
-  vec,
-  Circle,
-  Paint,
-  Text,
-  useFont,
-  Line,
-} from "@shopify/react-native-skia"
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated"
+import { Canvas, Path, Group, Circle, Text, useFont, Line } from "@shopify/react-native-skia"
 import { ScrollView } from "react-native-gesture-handler"
 
-import { arrayToPath } from "@/Model"
 import DSPModule from "@/../specs/NativeDSPModule"
 // import MicrophoneStreamModule from "@/../modules/microphone-stream"
 // import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import { getFrequencyFromNote, getNoteFromFrequency, getSineOfFrequency } from "@/MusicalNotes"
-import { waveformPath } from "@/Math"
+import { getWaveformPath } from "@/Math"
 import MovingGrid from "@/components/MovingGrid"
 
 const sfMono = require("@/assets/SF-Mono-Medium.otf")
@@ -36,27 +16,8 @@ const sfMono = require("@/assets/SF-Mono-Medium.otf")
 // Keep this in sync with NativeDSPModule.cpp
 // const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
 const BUF_SIZE = DSPModule.getInputBufSize()
-// const FFT_IN_SIZE = DSPModule.getInputBufSize()
-// const FFT_OUT_SIZE = DSPModule.getInputBufSize()
 
 const TEST_MODE = true
-
-// See: https://mixbutton.com/mixing-articles/music-note-to-frequency-chart/
-const TEST_TONES: Array<{ title: string; freq: number }> = [
-  { title: "A0", freq: 27.5 }, // Piano lowest
-  { title: "B0", freq: 30.87 }, // 5 string bass lowest
-  { title: "E1", freq: 41.2 }, // 4 string bass lowest
-  { title: "E1+5%", freq: 41.2 * 1.05 },
-  { title: "E1-5%", freq: 41.2 * 0.95 },
-  { title: "E2", freq: 82.41 }, // Guitar lowest
-  { title: "A3", freq: 220.0 },
-  { title: "G3", freq: 196.0 }, // Violin's lowest
-  { title: "C4", freq: 261.63 }, // Piano middle C
-  { title: "G4", freq: 392.0 },
-  { title: "A4", freq: 440.0 },
-  { title: "A5", freq: 880.0 },
-  { title: "C8", freq: 4186.01 }, // Piano's highest
-]
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -122,7 +83,6 @@ export const Tuneo = () => {
       How: find highest peak within 1/4 of the signal and set that as x=0.
     */
     const searchLength = Math.floor(BUF_SIZE / 4)
-    const newLength = BUF_SIZE - searchLength
 
     // Find peak within 0-searchLength
     let maxValue = 0
@@ -149,43 +109,11 @@ export const Tuneo = () => {
   // Frequency of the nearest note
   const refFreq = useMemo(() => getFrequencyFromNote(note), [note])
 
-  // animation value to transition from one graph to the next
-  const transition = useSharedValue(0)
-
-  // indicices of the current and next graphs
-  const state = useSharedValue({
-    next: 0,
-    current: 0,
-  })
-
-  // path to display
-  // const path0 = useMemo(() => arrayToPath(test, width, height), [test])
-  // const path1 = useMemo(() => arrayToPath(fourier, width, height), [fourier])
-  // const path = useDerivedValue(() => {
-  //   const { current, next } = state.value
-  //   const start = current == 0 ? path0 : path1
-  //   const end = next == 0 ? path0 : path1
-  //   return end.interpolate(start, transition.value)!
-  // })
-
-  const path = useMemo(() => waveformPath(alignedAudio, width, height / 5, 100), [alignedAudio])
-  // const path = useMemo(() => arrayToPath(audio, width, height), [audio])
-  // const path = useMemo(() => arrayToPath(fourier, width, height), [fourier])
-  // const path = useMemo(() => arrayToPath(test, width, height), [test])
-
-  // x and y values of the cursor
-  // const x = useSharedValue(0)
-  // const y = useDerivedValue(() => getYForX(path.value.toCmds(), x.value))
-  // const gesture = useGraphTouchHandler(x, width)
-  // const style = useAnimatedStyle(() => {
-  //   return {
-  //     position: "absolute",
-  //     width: touchableCursorSize,
-  //     height: touchableCursorSize,
-  //     left: x.value - touchableCursorSize / 2,
-  //     top: translateY + y.value - touchableCursorSize / 2,
-  //   }
-  // })
+  // Waveform drawing
+  const waveform = useMemo(
+    () => getWaveformPath(alignedAudio, width, height / 5, 100),
+    [alignedAudio]
+  )
 
   const gaugeRadius = 12
   const pitchDeviation = Math.atan((120 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
@@ -211,7 +139,7 @@ export const Tuneo = () => {
             {/* Waveform */}
             <Path
               style="stroke"
-              path={path}
+              path={waveform}
               strokeWidth={2}
               strokeJoin="round"
               strokeCap="round"
@@ -238,11 +166,6 @@ export const Tuneo = () => {
             />
           </Group>
         </Canvas>
-        {/*<Selection graphs={graphs} state={state} transition={transition} />
-        <GestureDetector gesture={gesture}>
-          <Animated.View style={style} />
-        </GestureDetector>
-        */}
       </View>
     </ScrollView>
   )
