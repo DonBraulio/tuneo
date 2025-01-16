@@ -10,6 +10,7 @@ import {
   Paint,
   Text,
   useFont,
+  Line,
 } from "@shopify/react-native-skia"
 import Animated, {
   Easing,
@@ -186,15 +187,9 @@ export const Tuneo = () => {
   //   }
   // })
 
-  const centerY = height * 0.75
-  const centerX = width / 2
-  const radius = height
-
-  // TODO: auto detect strings
-  const angleRads = Math.atan((50 * (pitch - refFreq)) / refFreq) / 4
-  const gaugeX = centerX + radius * Math.sin(angleRads)
-  const gaugeY = centerY - radius * Math.cos(angleRads)
-  const pitchDeviation = (gaugeX - width / 2) / (width / 2)
+  const gaugeRadius = 12
+  const pitchDeviation = Math.atan((120 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
+  const gaugeX = (width / 2) * (1 + pitchDeviation)
   const pitchFont = useFont(sfMono, 32)
 
   return (
@@ -223,21 +218,25 @@ export const Tuneo = () => {
               color={Colors.secondary}
             />
           </Group>
+          <MovingGrid deviation={pitchDeviation} note={note} />
           {/* Gauge */}
-          <Group transform={[{ translateY: height * 0.6 }]}>
-            <Circle cy={centerY} cx={centerX} r={radius}>
-              <Paint style="stroke" strokeWidth={4} color={Colors.secondary} />
-              <Paint color={Colors.bgActive} />
-            </Circle>
-            <Path
-              path={`M ${centerX} ${centerY} L ${gaugeX} ${gaugeY} Z`}
+          <Group transform={[{ translateY: height * 0.5 - gaugeRadius }]}>
+            <Line
+              p1={{ x: 0, y: 0 }}
+              p2={{ x: width, y: 0 }}
               style="stroke"
-              strokeWidth={2}
-              strokeJoin="round"
+              strokeWidth={2 * gaugeRadius - 4}
+              color={Colors.secondary}
+            />
+            <Circle
+              cx={gaugeX}
+              cy={0}
+              r={gaugeRadius}
+              style="stroke"
               color={Colors.primary}
+              strokeWidth={3}
             />
           </Group>
-          <MovingGrid deviation={pitchDeviation} note={note} />
         </Canvas>
         {/*<Selection graphs={graphs} state={state} transition={transition} />
         <GestureDetector gesture={gesture}>
