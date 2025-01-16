@@ -132,12 +132,13 @@ export const Tuneo = () => {
   // Fake pitch sweep for testing
   useEffect(() => {
     if (!TEST_MODE) return
+    let pitchIdx = 0
 
-    const timeout = setTimeout(() => {
-      setTestPitchIdx(testPitchIdx + 1)
-    }, 10)
-    return () => clearTimeout(timeout)
-  }, [testIdx])
+    const interval = setInterval(() => {
+      setTestPitchIdx(pitchIdx++)
+    }, 15)
+    return () => clearInterval(interval)
+  }, [])
 
   const pitchDx = useMemo(() => Math.sin((testPitchIdx * 2 * Math.PI) / 300), [testPitchIdx])
 

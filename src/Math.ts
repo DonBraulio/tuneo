@@ -36,6 +36,7 @@ export const pitchPath = (
     prevX = x
     prevY = y
   }
+  path.close()
 
   return path
 }
