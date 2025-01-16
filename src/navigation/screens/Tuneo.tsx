@@ -22,7 +22,7 @@ import Animated, {
 import { ScrollView } from "react-native-gesture-handler"
 
 import { arrayToPath } from "@/Model"
-// import DSPModule from "@/../specs/NativeDSPModule"
+import DSPModule from "@/../specs/NativeDSPModule"
 // import MicrophoneStreamModule from "@/../modules/microphone-stream"
 // import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
@@ -34,18 +34,20 @@ const sfMono = require("@/assets/SF-Mono-Medium.otf")
 
 // Keep this in sync with NativeDSPModule.cpp
 // const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
-const BUF_SIZE = 1024
+const BUF_SIZE = DSPModule.getInputBufSize()
 // const FFT_IN_SIZE = DSPModule.getInputBufSize()
 // const FFT_OUT_SIZE = DSPModule.getInputBufSize()
 
 const TEST_MODE = true
+
+// See: https://mixbutton.com/mixing-articles/music-note-to-frequency-chart/
 const TEST_TONES: Array<{ title: string; freq: number }> = [
   { title: "A0", freq: 27.5 }, // Piano lowest
   { title: "B0", freq: 30.87 }, // 5 string bass lowest
   { title: "E1", freq: 41.2 }, // 4 string bass lowest
   { title: "E1+5%", freq: 41.2 * 1.05 },
   { title: "E1-5%", freq: 41.2 * 0.95 },
-  { title: "E2", freq: 30.87 }, // Guitar lowest
+  { title: "E2", freq: 82.41 }, // Guitar lowest
   { title: "A3", freq: 220.0 },
   { title: "G3", freq: 196.0 }, // Violin's lowest
   { title: "C4", freq: 261.63 }, // Piano middle C
@@ -54,6 +56,9 @@ const TEST_TONES: Array<{ title: string; freq: number }> = [
   { title: "A5", freq: 880.0 },
   { title: "C8", freq: 4186.01 }, // Piano's highest
 ]
+
+const TEST_LOWEST = 80
+const TEST_HIGHEST = 500
 
 const styles = StyleSheet.create({
   container: {
@@ -72,8 +77,7 @@ export const Tuneo = () => {
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
 
   // For test mode
-  const [testIdx, setTestIdx] = useState(300)
-  const [testPitchIdx, setTestPitchIdx] = useState(0)
+  const [testIdx, setTestIdx] = useState(0)
 
   // Request recording permission
   /*
@@ -93,12 +97,15 @@ export const Tuneo = () => {
   // Audio readings from microphone or test signals
   useEffect(() => {
     if (TEST_MODE) {
-      const freq = TEST_TONES[testIdx % TEST_TONES.length]
-      console.log(`Test ${freq.title}: ${freq.freq}Hz`)
-      setAudio(getSineOfFrequency(freq.freq, sampleRate, BUF_SIZE))
+      // Test frequency is a sawtooth with sinusoidal ripple
+      const progress = (testIdx % 2000) / 2000 // linear increase frequency
+      const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
+      const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 100
+      const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testIdx) / 50)
+      setAudio(getSineOfFrequency(freq, sampleRate, BUF_SIZE))
       const timeout = setTimeout(() => {
         setTestIdx(testIdx + 1)
-      }, 1000)
+      }, 30)
       return () => clearTimeout(timeout)
     } else {
       console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
@@ -129,24 +136,10 @@ export const Tuneo = () => {
     return audio.slice(maxIdx, audio.length - searchLength + maxIdx)
   }, [audio])
 
-  // Fake pitch sweep for testing
-  useEffect(() => {
-    if (!TEST_MODE) return
-    let pitchIdx = 0
-
-    const interval = setInterval(() => {
-      setTestPitchIdx(pitchIdx++)
-    }, 15)
-    return () => clearInterval(interval)
-  }, [])
-
-  const pitchDx = useMemo(() => Math.sin((testPitchIdx * 2 * Math.PI) / 300), [testPitchIdx])
-
   // Get frequency of the sound
   const pitch = useMemo(() => {
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    // return DSPModule.pitch(audio, sampleRate)
-    return 435
+    return DSPModule.pitch(audio, sampleRate)
   }, [audio])
 
   // Nearest note name and octave
@@ -201,7 +194,7 @@ export const Tuneo = () => {
   const angleRads = Math.atan((50 * (pitch - refFreq)) / refFreq) / 4
   const gaugeX = centerX + radius * Math.sin(angleRads)
   const gaugeY = centerY - radius * Math.cos(angleRads)
-  const fontSize = 32
+  const pitchDeviation = (gaugeX - width / 2) / (width / 2)
   const pitchFont = useFont(sfMono, 32)
 
   return (
@@ -231,7 +224,7 @@ export const Tuneo = () => {
             />
           </Group>
           {/* Gauge */}
-          <Group transform={[{ translateY: height / 2 }]}>
+          <Group transform={[{ translateY: height * 0.6 }]}>
             <Circle cy={centerY} cx={centerX} r={radius}>
               <Paint style="stroke" strokeWidth={4} color={Colors.secondary} />
               <Paint color={Colors.bgActive} />
@@ -244,7 +237,7 @@ export const Tuneo = () => {
               color={Colors.primary}
             />
           </Group>
-          <MovingGrid pitch={pitchDx} />
+          <MovingGrid deviation={pitchDeviation} note={note} />
         </Canvas>
         {/*<Selection graphs={graphs} state={state} transition={transition} />
         <GestureDetector gesture={gesture}>

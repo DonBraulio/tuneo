@@ -22,6 +22,7 @@ import {
 import { useWindowDimensions } from "react-native"
 import { pitchPath } from "@/Math"
 import Colors from "@/Colors"
+import { Note } from "@/MusicalNotes"
 
 const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black
@@ -30,49 +31,54 @@ const GRID_SPACING = 30
 const GRID_SPEED = 30 // Pixels per second
 const MAX_HISTORY = 900
 
-const MovingGrid = ({ pitch }: { pitch: number }) => {
+const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
-  const [pitchHistory, setPitchHistory] = useState(new Array<number>(MAX_HISTORY).fill(0))
+  const [history, setHistory] = useState(new Array<number>(MAX_HISTORY).fill(0))
   const [timestamps, setTimestamps] = useState(new Array<number>(MAX_HISTORY).fill(0))
-  const [pitchIdx, setPitchIdx] = useState(0)
+  const [currentIdx, setPitchIdx] = useState(0)
   const [historyLength, setHistoryLength] = useState(0)
+  const [currentNote, setCurrentNote] = useState<Note>()
 
-  // Add a new pitch to pitchHistory
+  // Add a new deviation to history
   useEffect(() => {
-    // Writes the new pitch in pitchIdx
-    const newHistory = [...pitchHistory]
-    newHistory[pitchIdx] = pitch
-    setPitchHistory(newHistory)
+    // Add deviation value to history in currentIdx
+    const newHistory = [...history]
+    newHistory[currentIdx] = deviation
+    setHistory(newHistory)
     const newTimestamps = [...timestamps]
-    newTimestamps[pitchIdx] = Date.now()
+    newTimestamps[currentIdx] = Date.now()
     setTimestamps(newTimestamps)
-    setPitchIdx((pitchIdx + 1) % MAX_HISTORY)
+    setPitchIdx((currentIdx + 1) % MAX_HISTORY)
     setHistoryLength(Math.min(historyLength + 1, MAX_HISTORY))
-  }, [pitch])
+  }, [deviation])
 
-  // const pitchHistoryPath = useMemo(
-  //   () => pitchPath(pitchHistory, pitchIdx, historyLength, width, boxHeight, MAX_HISTORY),
-  //   [pitchHistory, pitchIdx, historyLength]
-  // )
-  const pitchPoints = useMemo(() => {
+  // When the note changes, reset history
+  useEffect(() => {
+    if (note?.name !== currentNote?.name || note?.octave != currentNote?.octave) {
+      setCurrentNote(note)
+      setHistoryLength(0)
+    }
+  }, [note])
+
+  const historyPoints = useMemo(() => {
     const points = new Array(historyLength)
     let y = 0
     for (let i = 0; i < historyLength; i++) {
       // start drawing from last point (top)
-      const idx = (pitchIdx - 1 - i + MAX_HISTORY) % MAX_HISTORY
+      const idx = (currentIdx - 1 - i + MAX_HISTORY) % MAX_HISTORY
       // Horizontal displacement
-      const x = ((1 + pitchHistory[idx]) * width) / 2
+      const x = ((1 + history[idx]) * width) / 2
 
       // Vertical displacement
-      const next_idx = (pitchIdx - i + MAX_HISTORY) % MAX_HISTORY
+      const next_idx = (currentIdx - i + MAX_HISTORY) % MAX_HISTORY
       const dt = i == 0 ? 0 : (timestamps[next_idx] - timestamps[idx]) / 1000
       y = y + GRID_SPEED * dt
       points[i] = vec(x, y)
       // console.log(`Point x=${x}  y=${y} dt=${dt}`)
     }
     return points
-  }, [pitchHistory, pitchIdx, timestamps, historyLength])
+  }, [history, currentIdx, timestamps, historyLength])
 
   // Vertical offset for animating grid lines
   const translateY = useSharedValue(0)
@@ -128,7 +134,7 @@ const MovingGrid = ({ pitch }: { pitch: number }) => {
       </Group>
 
       {/* <Path path={pitchHistoryPath} style="stroke" color={Colors.secondary} /> */}
-      <Points points={pitchPoints} mode="points" color={Colors.primary} strokeWidth={1} />
+      <Points points={historyPoints} mode="points" color={Colors.primary} strokeWidth={1} />
     </Group>
   )
 }
