@@ -50,3 +50,40 @@ export function getSineOfFrequency(frequency: number, sampleRate: number, bufSiz
   }
   return sineWave
 }
+
+/* ----------------- Guitar-specific stuff ---------------- */
+// See: https://mixbutton.com/mixing-articles/music-note-to-frequency-chart/
+
+// First element is 6th string
+export const GUITAR_STRING_NOTES: Array<Note> = [
+  { name: "E", octave: 2 },
+  { name: "A", octave: 2 },
+  { name: "D", octave: 3 },
+  { name: "G", octave: 3 },
+  { name: "B", octave: 3 },
+  { name: "E", octave: 4 },
+]
+export const GUITAR_STRING_FREQS: Array<number> = GUITAR_STRING_NOTES.map((note) =>
+  getFrequencyFromNote(note)
+)
+
+/**
+ * Find the nearest guitar string for the given frequency.
+ * @param frequency Frequency in Hz.
+ * @returns index of the string in GUITAR_STRING_NOTES or -1
+ */
+export function getNearestGuitarString(frequency: number) {
+  if (frequency <= 0) {
+    return -1
+  }
+  let minDistance = Infinity
+  let minIdx = 0
+  for (let i = 0; i < GUITAR_STRING_FREQS.length; i++) {
+    const d = Math.abs(frequency - GUITAR_STRING_FREQS[i])
+    if (d < minDistance) {
+      minDistance = d
+      minIdx = i
+    }
+  }
+  return minIdx
+}
