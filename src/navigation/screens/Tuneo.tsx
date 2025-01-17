@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
-import { Canvas, Path, Group, Circle, Text, useFont, Line } from "@shopify/react-native-skia"
+import { Canvas, Path, Group, Circle, Text, useFont, Line, Paint } from "@shopify/react-native-skia"
 import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
@@ -26,7 +26,7 @@ if (BUF_SIZE !== BUF_SIZE_MICRO) {
   throw Error("Buffer sizes don't match")
 }
 
-const TEST_MODE = false
+const TEST_MODE = true
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -67,7 +67,7 @@ export const Tuneo = () => {
       // Test frequency is a sawtooth with sinusoidal ripple
       const progress = (testIdx % 2000) / 2000 // linear increase frequency
       const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
-      const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 100
+      const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 200
       const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testIdx) / 50)
       setAudio(getSineOfFrequency(freq, sampleRate, BUF_SIZE))
       const timeout = setTimeout(() => {
@@ -127,7 +127,9 @@ export const Tuneo = () => {
   const gaugeRadius = 12
   const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
   const gaugeX = (width / 2) * (1 + pitchDeviation)
+  const barWidth = 2 * gaugeRadius - 2
   const pitchFont = useFont(sfMono, 16)
+  const gaugeColor = "#ff0000"
 
   return (
     <ScrollView style={styles.container}>
@@ -164,15 +166,26 @@ export const Tuneo = () => {
           {/* Grid */}
           <MovingGrid deviation={pitchDeviation} note={note} />
 
-          {/* Gauge */}
+          {/* Gauge bar */}
           <Group transform={[{ translateY: height * 0.5 - gaugeRadius }]}>
+            {/* Grey background line */}
             <Line
               p1={{ x: 0, y: 0 }}
               p2={{ x: width, y: 0 }}
               style="stroke"
-              strokeWidth={2 * gaugeRadius - 4}
+              strokeWidth={barWidth}
               color={Colors.secondary}
             />
+            {/* Moving colored bar */}
+            <Line
+              p1={{ x: width / 2, y: 0 }}
+              p2={{ x: gaugeX, y: 0 }}
+              style="stroke"
+              strokeWidth={barWidth}
+              color={gaugeColor}
+              strokeCap={"butt"}
+            />
+            {/* Center reference line */}
             <Line
               p1={{ x: width / 2, y: -gaugeRadius }}
               p2={{ x: width / 2, y: gaugeRadius }}
@@ -180,14 +193,11 @@ export const Tuneo = () => {
               strokeWidth={1}
               color={Colors.primary}
             />
-            <Circle
-              cx={gaugeX}
-              cy={0}
-              r={gaugeRadius}
-              style="stroke"
-              color={Colors.primary}
-              strokeWidth={3}
-            />
+            {/* Moving circle */}
+            <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
+              <Paint style="fill" color={gaugeColor} />
+              <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
+            </Circle>
           </Group>
         </Canvas>
       </View>
