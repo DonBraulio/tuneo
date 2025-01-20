@@ -70,7 +70,7 @@ export const Tuneo = () => {
     ],
   })
 
-  const noteFontSize = 48
+  const noteFontSize = 64
 
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
@@ -157,6 +157,24 @@ export const Tuneo = () => {
       fontFamilies: ["Roboto"],
       fontSize: noteFontSize,
       fontStyle: { weight: 600 },
+      color: Skia.Color(Colors.primary),
+    }
+    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
+      .pushStyle(textStyle)
+      .addText(text)
+      .pop()
+      .build()
+  }, [fontMgr])
+
+  const freqText = useMemo(() => {
+    if (!fontMgr) return null
+
+    const text = refFreq ? `${refFreq.toFixed(1)}Hz` : `No tone`
+    const textStyle = {
+      fontFamilies: ["Roboto"],
+      fontSize: 14,
+      fontStyle: { weight: 500 },
+      color: Skia.Color(Colors.primary),
     }
     return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
       .pushStyle(textStyle)
@@ -171,8 +189,8 @@ export const Tuneo = () => {
   const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
   const barWidth = 2 * gaugeRadius - 2
   // Box size for string note text
-  const boxWidth = 55
-  const boxHeight = 70
+  const boxWidth = 75
+  const boxHeight = 90
 
   return (
     <ScrollView style={styles.container}>
@@ -217,6 +235,12 @@ export const Tuneo = () => {
               color={Colors.secondary}
             />
             <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
+            <Paragraph
+              paragraph={freqText}
+              x={width / 2 - boxWidth / 2}
+              y={boxHeight - 18}
+              width={boxWidth}
+            />
           </Group>
 
           {/* Grid */}
