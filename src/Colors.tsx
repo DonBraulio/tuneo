@@ -18,11 +18,11 @@ const Colors = {
   primary: "#ffffff",
 
   // tuner indicators
-  low: "rgb(255, 120, 0)",
-  high: "rgb(255, 120, 0)",
+  low: "rgb(255, 60, 0)",
+  high: "rgb(255, 60, 0)",
   center: "rgb(120, 255, 0)",
-  lowTuple: [255, 120, 0],
-  highTuple: [255, 120, 0],
+  lowTuple: [255, 60, 0],
+  highTuple: [255, 60, 0],
   centerTuple: [120, 255, 0],
 
   combineColorTuples,

@@ -26,7 +26,7 @@ if (BUF_SIZE !== BUF_SIZE_MICRO) {
   throw Error("Buffer sizes don't match")
 }
 
-const TEST_MODE = true
+const TEST_MODE = false
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -185,6 +185,11 @@ export const Tuneo = () => {
               color={gaugeColor}
               strokeCap={"butt"}
             />
+            {/* Moving circle */}
+            <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
+              <Paint style="fill" color={gaugeColor} />
+              <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
+            </Circle>
             {/* Center reference line */}
             <Line
               p1={{ x: width / 2, y: -gaugeRadius }}
@@ -193,11 +198,6 @@ export const Tuneo = () => {
               strokeWidth={1}
               color={Colors.primary}
             />
-            {/* Moving circle */}
-            <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
-              <Paint style="fill" color={gaugeColor} />
-              <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
-            </Circle>
           </Group>
         </Canvas>
       </View>

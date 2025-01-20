@@ -18,6 +18,7 @@ import {
   Circle,
   vec,
   Points,
+  Mask,
 } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/Colors"
@@ -109,6 +110,18 @@ const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => 
     return [{ translateY: translateY.value }]
   }, [translateY])
 
+  /*
+  Points in pitch history are colored with linear gradients.
+  Since gauge colors are nonlinear with pitchDeviation, use 4 linear gradients to
+  interpolate at:
+  pitchDeviation = [-1, -0.2, 0, 0.2, 1]
+  x = [0, 0.4, 0.5, 0.6, 1]  // Correspond to pitchDeviation above
+  The gauge color is very nonlinear near the center.
+  */
+  const tr = Math.floor
+  const pitchPoints = 0.2 // Pitches corresponding to x=0.4 and x=0.6
+  const pts = [0, tr(width * 0.4), tr(width * 0.5), tr(width * 0.6), width]
+
   return (
     <Group transform={[{ translateY: boxHeight }]}>
       {/* Draw background */}
@@ -133,13 +146,46 @@ const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => 
       </Group>
 
       {/* <Path path={pitchHistoryPath} style="stroke" color={Colors.secondary} /> */}
-      <Points
-        points={historyPoints}
-        mode="points"
-        color={Colors.primary}
-        strokeWidth={3}
-        strokeCap={"round"}
-      />
+      <Mask
+        mask={
+          <Points
+            points={historyPoints}
+            mode="points"
+            color={Colors.primary}
+            strokeWidth={3}
+            strokeCap={"round"}
+          />
+        }
+      >
+        <Rect x={pts[0]} y={0} width={pts[1]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[0], y: 0 }}
+            end={{ x: pts[1], y: 0 }}
+            colors={[Colors.low, Colors.getColorFromPitchDeviation(-pitchPoints)]}
+          />
+        </Rect>
+        <Rect x={pts[1]} y={0} width={pts[2]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[1], y: 0 }}
+            end={{ x: pts[2], y: 0 }}
+            colors={[Colors.getColorFromPitchDeviation(-pitchPoints), Colors.center]}
+          />
+        </Rect>
+        <Rect x={pts[2]} y={0} width={pts[3]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[2], y: 0 }}
+            end={{ x: pts[3], y: 0 }}
+            colors={[Colors.center, Colors.getColorFromPitchDeviation(pitchPoints)]}
+          />
+        </Rect>
+        <Rect x={pts[3]} y={0} width={pts[4]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[3], y: 0 }}
+            end={{ x: pts[4], y: 0 }}
+            colors={[Colors.getColorFromPitchDeviation(pitchPoints), Colors.high]}
+          />
+        </Rect>
+      </Mask>
     </Group>
   )
 }
