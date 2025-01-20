@@ -40,7 +40,7 @@ if (BUF_SIZE !== BUF_SIZE_MICRO) {
   throw Error("Buffer sizes don't match")
 }
 
-const TEST_MODE = true
+const TEST_MODE = false
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
 export const Tuneo = () => {
   const window = useWindowDimensions()
   const { width, height } = window
+  const [frameIdx, setFrameIdx] = useState(0)
 
   // TODO: get from hw
   const sampleRate = 44100
@@ -106,6 +107,11 @@ export const Tuneo = () => {
       })
     }
   }, [testIdx])
+
+  // frameIdx forces grid to move even if pitch didn't change
+  useEffect(() => {
+    setFrameIdx(frameIdx + 1)
+  }, [audio])
 
   const alignedAudio = useMemo(() => {
     /* Triggering algorithm:
@@ -197,7 +203,7 @@ export const Tuneo = () => {
   }, [fontMgr, refText, refFreq])
 
   const freqText = useMemo(() => {
-    if (!fontMgr || refText === readText) return null
+    if (!fontMgr || !refFreq || refText === readText) return null
 
     // Show << or >> characters next to frequency read
     let prevText = " "
@@ -220,7 +226,7 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refText, readText, pitchDeviation])
+  }, [fontMgr, refFreq, refText, readText, pitchDeviation])
 
   const movingGridY = height * 0.55
 
@@ -289,7 +295,7 @@ export const Tuneo = () => {
 
           {/* Grid */}
           <Group transform={[{ translateY: movingGridY }]}>
-            <MovingGrid deviation={pitchDeviation} note={note} />
+            <MovingGrid frameIdx={frameIdx} deviation={pitchDeviation} note={note} />
           </Group>
 
           {/* Gauge bar */}

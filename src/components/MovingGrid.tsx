@@ -31,7 +31,15 @@ const GRID_SPACING = 30
 const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
 
-const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => {
+const MovingGrid = ({
+  frameIdx,
+  deviation,
+  note,
+}: {
+  frameIdx: number
+  deviation: number
+  note?: Note
+}) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
   const [history, setHistory] = useState(new Array<number>(MAX_HISTORY).fill(0))
@@ -44,18 +52,18 @@ const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => 
   useEffect(() => {
     // Add deviation value to history in currentIdx
     const newHistory = [...history]
-    newHistory[currentIdx] = deviation
+    newHistory[currentIdx] = note ? deviation : -2 // Out of screen if no note
     setHistory(newHistory)
     const newTimestamps = [...timestamps]
     newTimestamps[currentIdx] = Date.now()
     setTimestamps(newTimestamps)
     setPitchIdx((currentIdx + 1) % MAX_HISTORY)
     setHistoryLength(Math.min(historyLength + 1, MAX_HISTORY))
-  }, [deviation])
+  }, [deviation, frameIdx])
 
   // When the note changes, reset history
   useEffect(() => {
-    if (note?.name !== currentNote?.name || note?.octave != currentNote?.octave) {
+    if (note && (note?.name !== currentNote?.name || note?.octave != currentNote?.octave)) {
       setCurrentNote(note)
       setHistoryLength(0)
     }
