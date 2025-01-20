@@ -149,6 +149,16 @@ export const Tuneo = () => {
     [alignedAudio]
   )
 
+  const gaugeRadius = 12
+  const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
+  const gaugeX = (width / 2) * (1 + pitchDeviation)
+  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
+  const barWidth = 2 * gaugeRadius - 2
+  // Box size for string note text
+  const boxWidth = 80
+  const boxHeight = 90
+  const sideTxtWidth = 85
+
   const noteText = useMemo(() => {
     if (!fontMgr) return null
 
@@ -164,12 +174,15 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr])
+  }, [fontMgr, pitch, note, nearestString])
 
-  const freqText = useMemo(() => {
+  const refText = refFreq.toFixed(1)
+  const readText = pitch.toFixed(1)
+
+  const refFreqText = useMemo(() => {
     if (!fontMgr) return null
 
-    const text = refFreq ? `${refFreq.toFixed(1)}Hz` : `No tone`
+    const text = refFreq ? `${refText}Hz` : `No tone`
     const textStyle = {
       fontFamilies: ["Roboto"],
       fontSize: 14,
@@ -181,16 +194,33 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr])
+  }, [fontMgr, refText, refFreq])
 
-  const gaugeRadius = 12
-  const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
-  const gaugeX = (width / 2) * (1 + pitchDeviation)
-  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
-  const barWidth = 2 * gaugeRadius - 2
-  // Box size for string note text
-  const boxWidth = 75
-  const boxHeight = 90
+  const freqText = useMemo(() => {
+    if (!fontMgr || refText === readText) return null
+
+    // Show << or >> characters next to frequency read
+    let prevText = " "
+    let postText = " "
+    if (pitchDeviation > 0) prevText += "<"
+    if (pitchDeviation > 0.2) prevText += "<"
+    if (pitchDeviation < 0) postText += ">"
+    if (pitchDeviation < -0.2) postText += ">"
+    const diffTxt = Math.abs(pitch - refFreq).toFixed(1)
+    const text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
+
+    const textStyle = {
+      fontFamilies: ["Roboto"],
+      fontSize: 14,
+      fontStyle: { weight: 500 },
+      color: Skia.Color(gaugeColor),
+    }
+    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
+      .pushStyle(textStyle)
+      .addText(text)
+      .pop()
+      .build()
+  }, [fontMgr, refText, readText, pitchDeviation])
 
   return (
     <ScrollView style={styles.container}>
@@ -236,11 +266,23 @@ export const Tuneo = () => {
             />
             <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
             <Paragraph
-              paragraph={freqText}
+              paragraph={refFreqText}
               x={width / 2 - boxWidth / 2}
               y={boxHeight - 18}
               width={boxWidth}
             />
+            {readText !== refText && (
+              <Paragraph
+                paragraph={freqText}
+                x={
+                  pitchDeviation > 0
+                    ? width / 2 + sideTxtWidth / 2
+                    : width / 2 - (3 * sideTxtWidth) / 2
+                }
+                y={boxHeight - 18}
+                width={sideTxtWidth}
+              />
+            )}
           </Group>
 
           {/* Grid */}
