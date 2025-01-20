@@ -5,12 +5,6 @@ import * as React from "react"
 import { Navigation } from "./navigation"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 
-Asset.loadAsync([
-  ...NavigationAssets,
-  require("./assets/newspaper.png"),
-  require("./assets/bell.png"),
-])
-
 SplashScreen.preventAutoHideAsync()
 
 export function App() {
