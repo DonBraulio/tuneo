@@ -222,12 +222,14 @@ export const Tuneo = () => {
       .build()
   }, [fontMgr, refText, readText, pitchDeviation])
 
+  const movingGridY = height * 0.55
+
   return (
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height }}>
           {/* Waveform */}
-          <Group transform={[{ translateY: height / 8 }]}>
+          <Group transform={[{ translateY: height / 6 }]}>
             <Path
               style="stroke"
               path={waveform}
@@ -255,7 +257,7 @@ export const Tuneo = () => {
           </Group> */}
 
           {/* Note text */}
-          <Group transform={[{ translateY: height / 2 - boxHeight - barWidth - 10 }]}>
+          <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
             <RoundedRect
               x={width / 2 - boxWidth / 2}
               y={0}
@@ -286,10 +288,12 @@ export const Tuneo = () => {
           </Group>
 
           {/* Grid */}
-          <MovingGrid deviation={pitchDeviation} note={note} />
+          <Group transform={[{ translateY: movingGridY }]}>
+            <MovingGrid deviation={pitchDeviation} note={note} />
+          </Group>
 
           {/* Gauge bar */}
-          <Group transform={[{ translateY: height * 0.5 - gaugeRadius }]}>
+          <Group transform={[{ translateY: movingGridY - gaugeRadius }]}>
             {/* Grey background line */}
             <Line
               p1={{ x: 0, y: 0 }}

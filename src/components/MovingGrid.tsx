@@ -123,7 +123,7 @@ const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => 
   const pts = [0, tr(width * 0.4), tr(width * 0.5), tr(width * 0.6), width]
 
   return (
-    <Group transform={[{ translateY: boxHeight }]}>
+    <Group>
       {/* Draw background */}
       <Rect x={0} y={0} width={width} height={boxHeight} />
       <LinearGradient
