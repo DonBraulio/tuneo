@@ -27,7 +27,7 @@ const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black
 const BACKGROUND_GRADIENT_END = "#3a3a3a" // Dark grey
 const GRID_SPACING = 30
-const GRID_SPEED = 30 // Pixels per second
+const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
 
 const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => {
@@ -133,7 +133,13 @@ const MovingGrid = ({ deviation, note }: { deviation: number; note?: Note }) => 
       </Group>
 
       {/* <Path path={pitchHistoryPath} style="stroke" color={Colors.secondary} /> */}
-      <Points points={historyPoints} mode="points" color={Colors.primary} strokeWidth={1} />
+      <Points
+        points={historyPoints}
+        mode="points"
+        color={Colors.primary}
+        strokeWidth={3}
+        strokeCap={"round"}
+      />
     </Group>
   )
 }

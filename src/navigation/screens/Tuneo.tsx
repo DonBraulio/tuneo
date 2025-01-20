@@ -129,7 +129,7 @@ export const Tuneo = () => {
   const gaugeX = (width / 2) * (1 + pitchDeviation)
   const barWidth = 2 * gaugeRadius - 2
   const pitchFont = useFont(sfMono, 16)
-  const gaugeColor = "#ff0000"
+  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
 
   return (
     <ScrollView style={styles.container}>
