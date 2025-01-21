@@ -20,6 +20,7 @@ export const getWaveformPath = (
   // X and Y scales for each sample
   const amplitude = (gain * height) / 2
   const dx = width / samples.length
+  const zeroY = height / 2 // vertical axis 0
 
   // Create waveform path
   const path = Skia.Path.Make()
@@ -27,7 +28,7 @@ export const getWaveformPath = (
   let prevY = 0
   samples.forEach((sample, idx) => {
     const x = idx * dx
-    const y = sample * amplitude
+    const y = zeroY - sample * amplitude
 
     if (idx === 0) {
       path.moveTo(x, y)

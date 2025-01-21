@@ -140,7 +140,7 @@ const MovingGrid = ({
         colors={[BACKGROUND_GRADIENT_START, BACKGROUND_GRADIENT_END]}
       />
 
-      {/* Draw grid */}
+      {/* Horizontal grid lines */}
       <Group transform={transform}>
         {horizontalLines.map((line, index) => (
           <Line
@@ -152,6 +152,29 @@ const MovingGrid = ({
           />
         ))}
       </Group>
+
+      {/* Vertical grid lines */}
+      <Line
+        p1={{ x: width / 2, y: 0 }}
+        p2={{ x: width / 2, y: boxHeight }}
+        color={GRID_COLOR}
+        strokeWidth={1}
+        key={"v1"}
+      />
+      <Line
+        p1={{ x: pts[1], y: 0 }}
+        p2={{ x: pts[1], y: boxHeight }}
+        color={GRID_COLOR}
+        strokeWidth={1}
+        key={"v2"}
+      />
+      <Line
+        p1={{ x: pts[3], y: 0 }}
+        p2={{ x: pts[3], y: boxHeight }}
+        color={GRID_COLOR}
+        strokeWidth={1}
+        key={"v3"}
+      />
 
       {/* <Path path={pitchHistoryPath} style="stroke" color={Colors.secondary} /> */}
       <Mask

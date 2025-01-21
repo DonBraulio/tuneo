@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
 import {
   Canvas,
@@ -52,6 +52,14 @@ const styles = StyleSheet.create({
 })
 
 export const Tuneo = () => {
+  const fontMgr = useFonts({
+    Roboto: [
+      require("@/../assets/Roboto-Regular.ttf"),
+      require("@/../assets/Roboto-Medium.ttf"),
+      require("@/../assets/Roboto-Bold.ttf"),
+      require("@/../assets/Roboto-Italic.ttf"),
+    ],
+  })
   const window = useWindowDimensions()
   const { width, height } = window
   const [frameIdx, setFrameIdx] = useState(0)
@@ -61,17 +69,6 @@ export const Tuneo = () => {
 
   // Microphone audio buffer, initialized with 0
   const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
-
-  const fontMgr = useFonts({
-    Roboto: [
-      require("@/../assets/Roboto-Regular.ttf"),
-      require("@/../assets/Roboto-Medium.ttf"),
-      require("@/../assets/Roboto-Bold.ttf"),
-      require("@/../assets/Roboto-Italic.ttf"),
-    ],
-  })
-
-  const noteFontSize = 64
 
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
@@ -149,21 +146,31 @@ export const Tuneo = () => {
   // Frequency of the nearest guitar string
   const refFreq = useMemo(() => getFrequencyFromNote(nearestString), [nearestString])
 
-  // Waveform drawing
-  const waveform = useMemo(
-    () => getWaveformPath(alignedAudio, width, height / 5, 100),
-    [alignedAudio]
-  )
-
   const gaugeRadius = 12
   const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
   const gaugeX = (width / 2) * (1 + pitchDeviation)
   const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
   const barWidth = 2 * gaugeRadius - 2
-  // Box size for string note text
+  // Box size for string note text at the center
   const boxWidth = 80
   const boxHeight = 90
   const sideTxtWidth = 85
+  const noteFontSize = 64
+  const waveformY = 60
+  const waveformH = height / 8
+  const movingGridY = height * 0.55
+
+  // 6 buttons equally spaced vertically (waveform to gauge)
+  const stringBoxH = 32
+  const stringBoxW = 50
+  const stringBoxBorder = 1
+  const stringBoxSpacing = (movingGridY - barWidth - waveformH - waveformY - 6 * stringBoxH) / 7
+
+  // Waveform drawing
+  const waveform = useMemo(
+    () => getWaveformPath(alignedAudio, width, waveformH, 100),
+    [alignedAudio]
+  )
 
   const noteText = useMemo(() => {
     if (!fontMgr) return null
@@ -228,14 +235,31 @@ export const Tuneo = () => {
       .build()
   }, [fontMgr, refFreq, refText, readText, pitchDeviation])
 
-  const movingGridY = height * 0.55
+  const stringsText = useCallback(
+    (text: string, active: boolean) => {
+      if (!fontMgr) return null
+
+      const textStyle = {
+        fontFamilies: ["Roboto"],
+        fontSize: 16,
+        fontStyle: { weight: active ? 600 : 300 },
+        color: Skia.Color(Colors.primary),
+      }
+      return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
+        .pushStyle(textStyle)
+        .addText(text)
+        .pop()
+        .build()
+    },
+    [fontMgr, refText, refFreq]
+  )
 
   return (
     <ScrollView style={styles.container}>
       <View>
         <Canvas style={{ width, height }}>
           {/* Waveform */}
-          <Group transform={[{ translateY: height / 6 }]}>
+          <Group transform={[{ translateY: waveformY }]}>
             <Path
               style="stroke"
               path={waveform}
@@ -246,21 +270,38 @@ export const Tuneo = () => {
             />
           </Group>
 
-          {/* Debug text 
-          <Group transform={[{ translateY: height / 3 }]}>
-            <Text
-              text={
-                pitch > 0 && note
-                  ? `${6 - stringIdx}-th ${nearestString.name}${
-                      nearestString.octave
-                    } (${refFreq.toFixed(0)}Hz) ${pitch.toFixed(0)}Hz`
-                  : "No tone"
-              }
-              color={Colors.primary}
-              font={pitchFont}
-              x={width / 10}
-            />
-          </Group> */}
+          {/* Strings list */}
+          <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
+            {GUITAR_STRING_NOTES.map((note, idx) => {
+              const active = idx === stringIdx
+              const posX = 5
+              const posY = idx * (stringBoxH + stringBoxSpacing)
+              return (
+                <Group key={idx}>
+                  <RoundedRect
+                    x={posX}
+                    y={posY}
+                    height={stringBoxH - 2 * stringBoxBorder}
+                    width={stringBoxW}
+                    r={10}
+                  >
+                    <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
+                    <Paint
+                      style="stroke"
+                      color={active ? Colors.primary : Colors.secondary}
+                      strokeWidth={stringBoxBorder}
+                    />
+                  </RoundedRect>
+                  <Paragraph
+                    paragraph={stringsText(`${6 - idx} • ${note.name}`, active)}
+                    x={posX}
+                    y={posY + 6}
+                    width={stringBoxW}
+                  />
+                </Group>
+              )
+            })}
+          </Group>
 
           {/* Note text */}
           <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
@@ -299,14 +340,15 @@ export const Tuneo = () => {
           </Group>
 
           {/* Gauge bar */}
-          <Group transform={[{ translateY: movingGridY - gaugeRadius }]}>
+          <Group transform={[{ translateY: movingGridY - gaugeRadius / 2 }]}>
             {/* Grey background line */}
             <Line
-              p1={{ x: 0, y: 0 }}
-              p2={{ x: width, y: 0 }}
+              p1={{ x: barWidth / 2, y: 0 }}
+              p2={{ x: width - barWidth / 2, y: 0 }}
               style="stroke"
               strokeWidth={barWidth}
               color={Colors.secondary}
+              strokeCap={"round"}
             />
             {/* Moving colored bar */}
             <Line
