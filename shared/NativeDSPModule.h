@@ -18,8 +18,6 @@ public:
   int getInputBufSize(jsi::Runtime& rt);
   int getOutputBufSize(jsi::Runtime& rt);
 
-  std::vector<float> fft(jsi::Runtime& rt, const std::vector<float>& input);
-
   float pitch(jsi::Runtime& rt, const std::vector<float>& input, const float sampleRate);
 
 };

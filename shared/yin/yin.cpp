@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "Yin.h"
+#include "yin.h"
 
 /*
 Yin algorithm from: https://github.com/JorenSix/Pidato
