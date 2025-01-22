@@ -20,7 +20,7 @@ import {
 import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
-import MicrophoneStreamModule from "@/../modules/microphone-stream"
+// import MicrophoneStreamModule from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import {
@@ -34,13 +34,13 @@ import { getWaveformPath } from "@/Math"
 import MovingGrid from "@/components/MovingGrid"
 
 // Keep this in sync with NativeDSPModule.cpp
-const BUF_SIZE_MICRO = MicrophoneStreamModule.BUFFER_SIZE
+// const BUF_SIZE_MICRO = MicrophoneStreamModule.BUFFER_SIZE
 const BUF_SIZE = DSPModule.getInputBufSize()
-if (BUF_SIZE !== BUF_SIZE_MICRO) {
-  throw Error("Buffer sizes don't match")
-}
+// if (BUF_SIZE !== BUF_SIZE_MICRO) {
+//   throw Error("Buffer sizes don't match")
+// }
 
-const TEST_MODE = false
+const TEST_MODE = true
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -98,10 +98,10 @@ export const Tuneo = () => {
       }, 30)
       return () => clearTimeout(timeout)
     } else {
-      console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-      MicrophoneStreamModule.startRecording((samples) => {
-        setAudio(samples)
-      })
+      // console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
+      // MicrophoneStreamModule.startRecording((samples) => {
+      //   setAudio(samples)
+      // })
     }
   }, [testIdx])
 
