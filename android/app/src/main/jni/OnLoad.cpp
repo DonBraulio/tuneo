@@ -33,7 +33,7 @@
 #include <fbjni/fbjni.h>
 #include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
 #include <rncore.h>
-#include <NativeSampleModule.h>
+#include <NativeDSPModule.h>
 
 #ifdef REACT_NATIVE_APP_CODEGEN_HEADER
 #include REACT_NATIVE_APP_CODEGEN_HEADER
@@ -71,8 +71,8 @@ std::shared_ptr<TurboModule> cxxModuleProvider(
   // if (name == NativeCxxModuleExample::kModuleName) {
   //   return std::make_shared<NativeCxxModuleExample>(jsInvoker);
   // }
-  if (name == NativeCxxModuleExample::kModuleName) {
-    return std::make_shared<NativeCxxModuleExample>(jsInvoker);
+  if (name == NativeDSPModule::kModuleName) {
+    return std::make_shared<NativeDSPModule>(jsInvoker);
   }
 
   // And we fallback to the CXX module providers autolinked
