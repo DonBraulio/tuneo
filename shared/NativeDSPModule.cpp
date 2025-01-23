@@ -3,23 +3,23 @@
 #include <stdexcept>
 #include <iostream>
 #include "NativeDSPModule.h"
-#include "yin.h"
 
 
 namespace facebook::react {
 
-
 NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
-    : NativeDSPModuleCxxSpec(std::move(jsInvoker)) {}
+    : NativeDSPModuleCxxSpec(std::move(jsInvoker)), yinInstance(nullptr) {}
 
-float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input, float sampleRate) {
-  Yin yin(sampleRate, IN_BUF_SIZE);
-  return yin.getPitch(input.data());
+void NativeDSPModule::initialize(jsi::Runtime& rt, float sampleRate, int bufferSize) {
+  yinInstance = std::make_unique<Yin>(sampleRate, bufferSize);
 }
 
-int NativeDSPModule::getBufferSize(jsi::Runtime& rt) {
-  return IN_BUF_SIZE;
-}
+float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input) {
+  if (!yinInstance) {
+    throw std::runtime_error("DSPModule not initialized.");
+  }
 
+  return yinInstance->getPitch(input.data());
+}
 
 } // namespace facebook::react

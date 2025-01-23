@@ -33,10 +33,7 @@ import {
 import { getWaveformPath } from "@/Math"
 import MovingGrid from "@/components/MovingGrid"
 
-// Keep this in sync with NativeDSPModule.cpp
-const BUF_SIZE = DSPModule.getBufferSize()
-
-const TEST_MODE = true
+const TEST_MODE = false
 
 const TEST_LOWEST = 80
 const TEST_HIGHEST = 500
@@ -59,6 +56,9 @@ export const Tuneo = () => {
   const window = useWindowDimensions()
   const { width, height } = window
   const [frameIdx, setFrameIdx] = useState(0)
+  const [initDSP, setInitDSP] = useState(false)
+
+  const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
 
   // TODO: get from hw
   const sampleRate = 44100
@@ -69,17 +69,13 @@ export const Tuneo = () => {
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
 
+  useEffect(() => {
+    DSPModule.initialize(sampleRate, BUF_SIZE)
+    setInitDSP(true)
+  }, [])
+
   // Request recording permission
   useEffect(() => {
-    console.log("Getting Buffer size...")
-    const BUF_SIZE_MICRO = MicrophoneStreamModule.BUFFER_SIZE
-    console.log(`Buffer size: ${BUF_SIZE_MICRO}`)
-    // if (BUF_SIZE !== BUF_SIZE_MICRO) {
-    //   const msg = `Buffer sizes don't match. ${BUF_SIZE_MICRO} != ${BUF_SIZE}`
-    //   console.error(msg)
-    //   Alert.alert(msg)
-    // }
-    console.log(`Buffer size: ${BUF_SIZE}`)
     ;(async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync()
       if (!status.granted) {
@@ -102,10 +98,9 @@ export const Tuneo = () => {
       }, 30)
       return () => clearTimeout(timeout)
     } else {
-      // console.log(`Start microphone buffer (BUFFER: ${BUF_SIZE})`)
-      // MicrophoneStreamModule.startRecording((samples) => {
-      //   setAudio(samples)
-      // })
+      MicrophoneStreamModule.startRecording((samples) => {
+        setAudio(samples)
+      })
     }
   }, [testIdx])
 
@@ -136,8 +131,9 @@ export const Tuneo = () => {
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
+    if (!initDSP) return -1
     // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    return DSPModule.pitch(audio, sampleRate)
+    return DSPModule.pitch(audio)
   }, [audio])
 
   // Nearest note name and octave
