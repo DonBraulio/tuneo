@@ -25,6 +25,14 @@ Yin::Yin(float yinSampleRate,int yinBufferSize){
 	initialize(yinSampleRate,yinBufferSize);
 }
 
+int Yin::getBufferSize() {
+	return bufferSize;
+}
+
+float Yin::getSampleRate() {
+	return sampleRate;
+}
+
 float Yin::getProbability(){
 	return probability;
 }

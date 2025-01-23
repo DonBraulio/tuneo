@@ -56,23 +56,12 @@ export const Tuneo = () => {
   const window = useWindowDimensions()
   const { width, height } = window
   const [frameIdx, setFrameIdx] = useState(0)
-  const [initDSP, setInitDSP] = useState(false)
-
-  const BUF_SIZE = MicrophoneStreamModule.BUFFER_SIZE
-
-  // TODO: get from hw
-  const sampleRate = 44100
-
-  // Microphone audio buffer, initialized with 0
-  const [audio, setAudio] = useState<number[]>(new Array<number>(BUF_SIZE).fill(0))
-
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
 
-  useEffect(() => {
-    DSPModule.initialize(sampleRate, BUF_SIZE)
-    setInitDSP(true)
-  }, [])
+  // Initialize audio buffer
+  const [sampleRate, setSampleRate] = useState(0)
+  const [audio, setAudio] = useState<number[]>([])
 
   // Request recording permission
   useEffect(() => {
@@ -88,11 +77,14 @@ export const Tuneo = () => {
   useEffect(() => {
     if (TEST_MODE) {
       // Test frequency is a sawtooth with sinusoidal ripple
+      const bufSize = 4410
+      const sampleRate = 44100
       const progress = (testIdx % 2000) / 2000 // linear increase frequency
       const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
       const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 200
       const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testIdx) / 50)
-      setAudio(getSineOfFrequency(freq, sampleRate, BUF_SIZE))
+      setAudio(getSineOfFrequency(freq, sampleRate, bufSize))
+      setSampleRate(sampleRate)
       const timeout = setTimeout(() => {
         setTestIdx(testIdx + 1)
       }, 30)
@@ -101,6 +93,7 @@ export const Tuneo = () => {
       MicrophoneStreamModule.startRecording((samples) => {
         setAudio(samples)
       })
+      setSampleRate(MicrophoneStreamModule.getSampleRate())
     }
   }, [testIdx])
 
@@ -114,7 +107,8 @@ export const Tuneo = () => {
       Purpose: align the audio segments similar to an oscilloscope.
       How: find highest peak within 1/4 of the signal and set that as x=0.
     */
-    const searchLength = Math.floor(BUF_SIZE / 4)
+    if (!audio.length) return []
+    const searchLength = Math.floor(audio.length / 4)
 
     // Find peak within 0-searchLength
     let maxValue = 0
@@ -131,9 +125,8 @@ export const Tuneo = () => {
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
-    if (!initDSP) return -1
-    // TODO: FIX SAMPLE RATE DEPENDING ON HW
-    return DSPModule.pitch(audio)
+    if (!sampleRate || !audio.length) return 0
+    return DSPModule.pitch(audio, sampleRate)
   }, [audio])
 
   // Nearest note name and octave

@@ -9,25 +9,18 @@ class Yin{
 	
 public: 
 	Yin();	
-public:
 	Yin(float sampleRate,int bufferSize);
-public:
 	void initialize(float sampleRate,int bufferSize);
-	
-public: 
 	float getPitch(const float* buffer);
-public: 
 	float getProbability();
+	int getBufferSize();
+	float getSampleRate();
 	
 private: 
 	float parabolicInterpolation(int tauEstimate);
-private: 
 	int absoluteThreshold();
-private: 
 	void cumulativeMeanNormalizedDifference();
-private: 
 	void difference(const float* buffer);
-private:
 	double threshold;
 	int bufferSize;
 	int halfBufferSize;
