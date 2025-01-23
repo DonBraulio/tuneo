@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03039F5A2D0B858100BC2B9F /* yin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F522D0B858100BC2B9F /* yin.cpp */; };
-		03039F5B2D0B858100BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */; };
+		03039F622D42ADE000BC2B9F /* yin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F5C2D42ADE000BC2B9F /* yin.cpp */; };
+		03039F632D42ADE000BC2B9F /* NativeDSPModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03039F5F2D42ADE000BC2B9F /* NativeDSPModule.cpp */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -21,10 +21,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		03039F522D0B858100BC2B9F /* yin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = yin.cpp; sourceTree = "<group>"; };
-		03039F532D0B858100BC2B9F /* yin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yin.h; sourceTree = "<group>"; };
-		03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
-		03039F562D0B858100BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
+		03039F5C2D42ADE000BC2B9F /* yin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = yin.cpp; sourceTree = "<group>"; };
+		03039F5D2D42ADE000BC2B9F /* yin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yin.h; sourceTree = "<group>"; };
+		03039F5F2D42ADE000BC2B9F /* NativeDSPModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeDSPModule.cpp; sourceTree = "<group>"; };
+		03039F602D42ADE000BC2B9F /* NativeDSPModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeDSPModule.h; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tuneo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tuneo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tuneo/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = tuneo/AppDelegate.mm; sourceTree = "<group>"; };
@@ -55,21 +55,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		03039F542D0B858100BC2B9F /* yin */ = {
+		03039F5E2D42ADE000BC2B9F /* yin */ = {
 			isa = PBXGroup;
 			children = (
-				03039F522D0B858100BC2B9F /* yin.cpp */,
-				03039F532D0B858100BC2B9F /* yin.h */,
+				03039F5C2D42ADE000BC2B9F /* yin.cpp */,
+				03039F5D2D42ADE000BC2B9F /* yin.h */,
 			);
 			path = yin;
 			sourceTree = "<group>";
 		};
-		03039F572D0B858100BC2B9F /* shared */ = {
+		03039F612D42ADE000BC2B9F /* shared */ = {
 			isa = PBXGroup;
 			children = (
-				03039F542D0B858100BC2B9F /* yin */,
-				03039F552D0B858100BC2B9F /* NativeDSPModule.cpp */,
-				03039F562D0B858100BC2B9F /* NativeDSPModule.h */,
+				03039F5E2D42ADE000BC2B9F /* yin */,
+				03039F5F2D42ADE000BC2B9F /* NativeDSPModule.cpp */,
+				03039F602D42ADE000BC2B9F /* NativeDSPModule.h */,
 			);
 			name = shared;
 			path = ../shared;
@@ -111,7 +111,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				03039F572D0B858100BC2B9F /* shared */,
+				03039F612D42ADE000BC2B9F /* shared */,
 				13B07FAE1A68108700A75B9A /* tuneo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -358,9 +358,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03039F5B2D0B858100BC2B9F /* NativeDSPModule.cpp in Sources */,
-				03039F5A2D0B858100BC2B9F /* yin.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				03039F622D42ADE000BC2B9F /* yin.cpp in Sources */,
+				03039F632D42ADE000BC2B9F /* NativeDSPModule.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
 				422CADFCFEE343248AFC6D95 /* noop-file.swift in Sources */,

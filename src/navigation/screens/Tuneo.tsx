@@ -34,7 +34,7 @@ import { getWaveformPath } from "@/Math"
 import MovingGrid from "@/components/MovingGrid"
 
 // Keep this in sync with NativeDSPModule.cpp
-const BUF_SIZE = DSPModule.getInputBufSize()
+const BUF_SIZE = DSPModule.getBufferSize()
 
 const TEST_MODE = true
 

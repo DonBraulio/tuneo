@@ -15,8 +15,7 @@ class NativeDSPModule : public NativeDSPModuleCxxSpec<NativeDSPModule> {
 public:
   NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker);
 
-  int getInputBufSize(jsi::Runtime& rt);
-  int getOutputBufSize(jsi::Runtime& rt);
+  int getBufferSize(jsi::Runtime& rt);
 
   float pitch(jsi::Runtime& rt, const std::vector<float>& input, const float sampleRate);
 

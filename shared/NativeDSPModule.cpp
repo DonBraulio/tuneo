@@ -17,12 +17,9 @@ float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input, 
   return yin.getPitch(input.data());
 }
 
-int NativeDSPModule::getInputBufSize(jsi::Runtime& rt) {
+int NativeDSPModule::getBufferSize(jsi::Runtime& rt) {
   return IN_BUF_SIZE;
 }
 
-int NativeDSPModule::getOutputBufSize(jsi::Runtime& rt) {
-  return OUT_BUF_SIZE;
-}
 
 } // namespace facebook::react
