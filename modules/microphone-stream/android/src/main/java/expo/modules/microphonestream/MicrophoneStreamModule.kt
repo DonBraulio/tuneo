@@ -1,50 +1,81 @@
 package expo.modules.microphonestream
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.os.Handler
+import android.os.Looper
+import androidx.core.app.ActivityCompat
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.net.URL
+import expo.modules.kotlin.Promise
+import java.nio.ByteBuffer
+import kotlin.concurrent.thread
 
 class MicrophoneStreamModule : Module() {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
+  private val bufferSize = AudioRecord.getMinBufferSize(
+    44100,
+    AudioFormat.CHANNEL_IN_MONO,
+    AudioFormat.ENCODING_PCM_FLOAT
+  )
+  private var audioRecord: AudioRecord? = null
+  private var recordingThread: Thread? = null
+  private var isRecording = false
+
   override fun definition() = ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('MicrophoneStream')` in JavaScript.
     Name("MicrophoneStream")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
     Constants(
-      "PI" to Math.PI
+        "BUFFER_SIZE" to bufferSize
     )
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Function("startRecording") {
+      /*val context = appContext.reactContext ?: throw RuntimeException("React context is not available.")
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
-    }
-
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { value: String ->
-      // Send an event to JavaScript.
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
-    View(MicrophoneStreamView::class) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { view: MicrophoneStreamView, url: URL ->
-        view.webView.loadUrl(url.toString())
+      if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        throw RuntimeException("Microphone permission not granted.")
       }
-      // Defines an event that the view can send to JavaScript.
-      Events("onLoad")
+
+      audioRecord = AudioRecord(
+        MediaRecorder.AudioSource.MIC,
+        44100,
+        AudioFormat.CHANNEL_IN_MONO,
+        AudioFormat.ENCODING_PCM_FLOAT,
+        bufferSize
+      )
+
+      audioRecord?.startRecording()
+      isRecording = true
+
+      recordingThread = thread(start = true) {
+        val buffer = FloatArray(bufferSize / 4) // Float takes 4 bytes
+        while (isRecording && audioRecord != null) {
+          val result = audioRecord!!.read(buffer, 0, buffer.size, AudioRecord.READ_BLOCKING)
+          if (result > 0) {
+            try {
+              // TODO: send event
+            } catch (e: Exception) {
+              e.printStackTrace()
+            }
+          }
+        }
+      }*/
+    }
+
+    Function("stopRecording") {
+      try {
+        isRecording = false
+        recordingThread?.join()
+        recordingThread = null
+
+        audioRecord?.stop()
+        audioRecord?.release()
+        audioRecord = null
+      } catch (e: Exception) {
+        // Log error if needed
+      }
     }
   }
 }
