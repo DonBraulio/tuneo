@@ -1,10 +1,17 @@
 import { NativeModule, requireNativeModule } from "expo"
+import { EventSubscription } from "expo-modules-core"
 
-import { MicrophoneStreamModuleEvents } from "./MicrophoneStream.types"
+export type MicrophoneStreamModuleEvents = {
+  onAudioBuffer: (params: AudioBuffer) => void
+}
+
+export type AudioBuffer = {
+  samples: number[]
+}
 
 declare class MicrophoneStreamModule extends NativeModule<MicrophoneStreamModuleEvents> {
   stopRecording(): void
-  startRecording(callback: (buffer: number[]) => void): void
+  startRecording(): void
   getSampleRate(): number
 }
 

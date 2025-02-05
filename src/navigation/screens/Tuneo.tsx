@@ -20,7 +20,7 @@ import {
 import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
-import MicrophoneStreamModule from "@/../modules/microphone-stream"
+import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
 import {
@@ -90,12 +90,21 @@ export const Tuneo = () => {
       }, 30)
       return () => clearTimeout(timeout)
     } else {
-      MicrophoneStreamModule.startRecording((samples) => {
-        setAudio(samples)
-      })
+      console.log("Start recording")
+      MicrophoneStreamModule.startRecording()
       setSampleRate(MicrophoneStreamModule.getSampleRate())
     }
   }, [testIdx])
+
+  useEffect(() => {
+    const subscriber = MicrophoneStreamModule.addListener(
+      "onAudioBuffer",
+      (buffer: AudioBuffer) => {
+        setAudio(buffer.samples)
+      }
+    )
+    return () => subscriber.remove()
+  }, [setAudio])
 
   // frameIdx forces grid to move even if pitch didn't change
   useEffect(() => {

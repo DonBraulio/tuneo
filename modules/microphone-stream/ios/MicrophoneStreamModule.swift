@@ -17,9 +17,9 @@ public class MicrophoneStreamModule: Module {
     Name("MicrophoneStream")
 
     // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Events("onAudioBuffer")
 
-    Function("startRecording") {(callback: JavaScriptFunction<Void>) -> Void in
+    Function("startRecording") {
       // audioBufferHandler = handler
 
       // Request microphone permission
@@ -43,12 +43,9 @@ public class MicrophoneStreamModule: Module {
                       guard let channelData = buffer.floatChannelData else { return }
                       let frameLength = Int(buffer.frameLength)
                       let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
-                      do{
-                        print("Calling callback")
-                        try callback.call(samples)
-                      } catch {
-                          print("Error handling the callback")
-                      }
+                      self.sendEvent("onAudioBuffer", [
+                        "samples": samples
+                      ])
                   }
 
                   try self.audioEngine.start()
