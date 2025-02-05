@@ -61,7 +61,8 @@ public class MicrophoneStreamModule: Module {
     }
 
     Function("getSampleRate") { () -> Double in
-      return self.audioSession.sampleRate
+      // Requires initializing inputNode before retrieving sampleRate
+      return self.audioEngine.inputNode.inputFormat(forBus: 0).sampleRate
     }
   }
 

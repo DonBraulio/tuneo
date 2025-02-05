@@ -38,6 +38,9 @@ export const Tuneo = () => {
   const [audioBuffer, setAudioBuffer] = useState<number[]>([])
   const [bufferId, setBufferId] = useState(0)
 
+  // Detected pitch
+  const [pitch, setPitch] = useState(-1)
+
   // Request recording permission
   useEffect(() => {
     ;(async () => {
@@ -54,9 +57,6 @@ export const Tuneo = () => {
 
     // Start microphone
     MicrophoneStreamModule.startRecording()
-    const sampleRate = MicrophoneStreamModule.getSampleRate()
-    setSampleRate(sampleRate)
-    console.log(`Start recording at ${sampleRate}Hz`)
 
     // Suscribe to microphone buffer
     const subscriber = MicrophoneStreamModule.addListener(
@@ -84,10 +84,19 @@ export const Tuneo = () => {
     return () => clearTimeout(timeout)
   }, [bufferId])
 
-  // Get frequency of the sound
-  const pitch = useMemo(() => {
-    if (!sampleRate || !audioBuffer.length) return 0
-    return DSPModule.pitch(audioBuffer, sampleRate)
+  // Get pitch of the audio
+  useEffect(() => {
+    if (!audioBuffer.length) return
+
+    let sr = sampleRate
+    if (!sr) {
+      // Assume microphone already configured ()
+      sr = MicrophoneStreamModule.getSampleRate()
+      setSampleRate(sr)
+    }
+
+    // Set pitch value
+    setPitch(DSPModule.pitch(audioBuffer, sr))
   }, [audioBuffer, sampleRate])
 
   // Nearest note name and octave
