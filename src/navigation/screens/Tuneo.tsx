@@ -90,9 +90,10 @@ export const Tuneo = () => {
       }, 30)
       return () => clearTimeout(timeout)
     } else {
-      console.log("Start recording")
       MicrophoneStreamModule.startRecording()
-      setSampleRate(MicrophoneStreamModule.getSampleRate())
+      const sampleRate = MicrophoneStreamModule.getSampleRate()
+      setSampleRate(sampleRate)
+      console.log(`Start recording at ${sampleRate}Hz`)
     }
   }, [testIdx])
 
