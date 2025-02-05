@@ -1,5 +1,4 @@
-#ifndef Yin_h
-#define Yin_h
+#pragma once
 
 /*
 Yin algorithm from: https://github.com/JorenSix/Pidato
@@ -28,5 +27,3 @@ private:
 	float* yinBuffer;
 	float probability;
 };
-
-#endif

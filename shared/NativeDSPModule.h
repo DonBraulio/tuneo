@@ -1,11 +1,14 @@
 #pragma once
 
 #include <AppSpecsJSI.h>
+#include <jsi/jsi.h>
 
 #include <memory>
 #include <string>
 #include <vector>
 #include "yin.h"
+#include "util.h"
+
 
 namespace facebook::react {
 
