@@ -12,36 +12,47 @@ const BACKGROUND_GRADIENT_END = "#3a3a3a" // Dark grey
 const GRID_SPACING = 30
 const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
+const MISSING_NOTE = -2
 
 const MovingGrid = ({
-  audio,
+  pitchId,
   deviation,
   note,
 }: {
-  audio: number[]
-  deviation: number
+  pitchId: number
+  deviation?: number
   note?: Note
 }) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
-  const [history, setHistory] = useState(new Array<number>(MAX_HISTORY).fill(0))
-  const [timestamps, setTimestamps] = useState(new Array<number>(MAX_HISTORY).fill(0))
-  const [currentIdx, setPitchIdx] = useState(0)
+
+  // Circular queues to store pitch history
+  const [history, setHistory] = useState(() => new Array<number>(MAX_HISTORY).fill(0))
+  const [timestamps, setTimestamps] = useState(() => new Array<number>(MAX_HISTORY).fill(0))
+  // Current position in the circular queues
+  const currentIdx = useMemo(() => pitchId % MAX_HISTORY, [pitchId])
+  // Number of valid entries in circular queues
   const [historyLength, setHistoryLength] = useState(0)
+
   const [currentNote, setCurrentNote] = useState<Note>()
 
   // Add a new deviation to history
   useEffect(() => {
     // Add deviation value to history in currentIdx
-    const newHistory = [...history]
-    newHistory[currentIdx] = note ? deviation : -2 // Out of screen if no note
-    setHistory(newHistory)
-    const newTimestamps = [...timestamps]
-    newTimestamps[currentIdx] = Date.now()
-    setTimestamps(newTimestamps)
-    setPitchIdx((currentIdx + 1) % MAX_HISTORY)
-    setHistoryLength(Math.min(historyLength + 1, MAX_HISTORY))
-  }, [deviation, currentIdx, history, historyLength, note, timestamps])
+    setHistory((h) => {
+      // Copy and add deviation to history array
+      const newH = [...h]
+      newH[currentIdx] = deviation ?? MISSING_NOTE
+      return newH
+    })
+    setTimestamps((t) => {
+      // Copy and add timestamp
+      const newT = [...t]
+      newT[currentIdx] = Date.now()
+      return newT
+    })
+    setHistoryLength((prevLength) => Math.min(prevLength + 1, MAX_HISTORY))
+  }, [deviation, currentIdx])
 
   // When the note changes, reset history
   useEffect(() => {

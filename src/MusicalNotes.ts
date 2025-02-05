@@ -44,14 +44,6 @@ export function getFrequencyFromNote(note?: Note): number {
   return A4_FREQUENCY * Math.pow(2, semitonesFromA4 / 12)
 }
 
-export function getSineOfFrequency(frequency: number, sampleRate: number, bufSize: number) {
-  const sineWave: number[] = []
-  for (let i = 0; i < bufSize; i++) {
-    sineWave[i] = Math.sin((2 * Math.PI * i * frequency) / sampleRate)
-  }
-  return sineWave
-}
-
 /* ----------------- Guitar-specific stuff ---------------- */
 // See: https://mixbutton.com/mixing-articles/music-note-to-frequency-chart/
 

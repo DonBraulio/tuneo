@@ -1,38 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { View, StyleSheet, useWindowDimensions, Alert } from "react-native"
-import {
-  Canvas,
-  Path,
-  Group,
-  Circle,
-  Line,
-  Paint,
-  RoundedRect,
-  TextAlign,
-  useFonts,
-  Skia,
-  Paragraph,
-} from "@shopify/react-native-skia"
+import { Canvas, Path, Group, Circle, Line, Paint } from "@shopify/react-native-skia"
+import { RoundedRect, TextAlign, useFonts, Skia, Paragraph } from "@shopify/react-native-skia"
 import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/Colors"
-import {
-  getFrequencyFromNote,
-  getNearestGuitarString,
-  getNoteFromFrequency,
-  getSineOfFrequency,
-  GUITAR_STRING_NOTES,
-} from "@/MusicalNotes"
-import { getWaveformPath } from "@/Math"
+import { getFrequencyFromNote, getNearestGuitarString } from "@/MusicalNotes"
+import { getNoteFromFrequency, GUITAR_STRING_NOTES } from "@/MusicalNotes"
+import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/Waveform"
 import MovingGrid from "@/components/MovingGrid"
 
 const TEST_MODE = false
-
-const TEST_LOWEST = 80
-const TEST_HIGHEST = 500
 
 const styles = StyleSheet.create({
   container: {
@@ -51,12 +32,11 @@ export const Tuneo = () => {
   })
   const window = useWindowDimensions()
   const { width, height } = window
-  // For test mode
-  const [testIdx, setTestIdx] = useState(0)
 
-  // Initialize audio buffer
+  // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
-  const [audio, setAudio] = useState<number[]>([])
+  const [audioBuffer, setAudioBuffer] = useState<number[]>([])
+  const [bufferId, setBufferId] = useState(0)
 
   // Request recording permission
   useEffect(() => {
@@ -68,66 +48,47 @@ export const Tuneo = () => {
     })()
   }, [])
 
-  // Audio readings from microphone or test signals
+  // Start microphone recording
   useEffect(() => {
-    if (TEST_MODE) {
-      // Test frequency is a sawtooth with sinusoidal ripple
-      const bufSize = 4410
-      const sampleRate = 44100
-      const progress = (testIdx % 2000) / 2000 // linear increase frequency
-      const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
-      const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 200
-      const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testIdx) / 50)
-      setAudio(getSineOfFrequency(freq, sampleRate, bufSize))
-      setSampleRate(sampleRate)
-      const timeout = setTimeout(() => {
-        setTestIdx(testIdx + 1)
-      }, 30)
-      return () => clearTimeout(timeout)
-    } else {
-      MicrophoneStreamModule.startRecording()
-      const sampleRate = MicrophoneStreamModule.getSampleRate()
-      setSampleRate(sampleRate)
-      console.log(`Start recording at ${sampleRate}Hz`)
-    }
-  }, [testIdx])
+    if (TEST_MODE) return
 
-  useEffect(() => {
+    // Start microphone
+    MicrophoneStreamModule.startRecording()
+    const sampleRate = MicrophoneStreamModule.getSampleRate()
+    setSampleRate(sampleRate)
+    console.log(`Start recording at ${sampleRate}Hz`)
+
+    // Suscribe to microphone buffer
     const subscriber = MicrophoneStreamModule.addListener(
       "onAudioBuffer",
       (buffer: AudioBuffer) => {
-        setAudio(buffer.samples)
+        setAudioBuffer(buffer.samples)
+        setBufferId((prevId) => prevId + 1)
       }
     )
     return () => subscriber.remove()
-  }, [setAudio])
+  }, [])
 
-  const alignedAudio = useMemo(() => {
-    /* Triggering algorithm:
-      Purpose: align the audio segments similar to an oscilloscope.
-      How: find highest peak within 1/4 of the signal and set that as x=0.
-    */
-    if (!audio.length) return []
-    const searchLength = Math.floor(audio.length / 4)
+  // Test audio buffers
+  useEffect(() => {
+    if (!TEST_MODE) return
 
-    // Find peak within 0-searchLength
-    let maxValue = 0
-    let maxIdx = 0
-    for (let idx = 0; idx < searchLength; idx++) {
-      if (audio[idx] > maxValue) {
-        maxValue = audio[idx]
-        maxIdx = idx
-      }
-    }
-    // Return new signal starting at the peak
-    return audio.slice(maxIdx, audio.length - searchLength + maxIdx)
-  }, [audio])
+    const sampleRate = 44100
+    setAudioBuffer(getTestSignal(bufferId, sampleRate))
+    setSampleRate(sampleRate)
+
+    // Trigger for next buffer
+    const timeout = setTimeout(() => {
+      setBufferId((id) => id + 1)
+    }, 30)
+    return () => clearTimeout(timeout)
+  }, [bufferId])
 
   // Get frequency of the sound
   const pitch = useMemo(() => {
-    if (!sampleRate || !audio.length) return 0
-    return DSPModule.pitch(audio, sampleRate)
-  }, [audio, sampleRate])
+    if (!sampleRate || !audioBuffer.length) return 0
+    return DSPModule.pitch(audioBuffer, sampleRate)
+  }, [audioBuffer, sampleRate])
 
   // Nearest note name and octave
   const note = useMemo(() => getNoteFromFrequency(pitch), [pitch])
@@ -140,9 +101,12 @@ export const Tuneo = () => {
   const refFreq = useMemo(() => getFrequencyFromNote(nearestString), [nearestString])
 
   const gaugeRadius = 12
-  const pitchDeviation = Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2)
-  const gaugeX = (width / 2) * (1 + pitchDeviation)
-  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation)
+  const pitchDeviation = useMemo(
+    () => (pitch > 0 ? Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2) : undefined),
+    [pitch, refFreq]
+  )
+  const gaugeX = (width / 2) * (1 + (pitchDeviation ?? 0))
+  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation ?? 0)
   const barWidth = 2 * gaugeRadius - 2
   // Box size for string note text at the center
   const boxWidth = 80
@@ -160,7 +124,8 @@ export const Tuneo = () => {
   const stringBoxSpacing = (movingGridY - barWidth - waveformH - waveformY - 6 * stringBoxH) / 7
 
   // Waveform drawing
-  const waveform = useMemo(
+  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer), [audioBuffer])
+  const waveformPath = useMemo(
     () => getWaveformPath(alignedAudio, width, waveformH, 100),
     [alignedAudio, width, waveformH]
   )
@@ -183,7 +148,7 @@ export const Tuneo = () => {
   }, [fontMgr, pitch, note, nearestString])
 
   const refText = refFreq.toFixed(1)
-  const readText = pitch.toFixed(1)
+  const pitchText = pitch.toFixed(1)
 
   const refFreqText = useMemo(() => {
     if (!fontMgr) return null
@@ -203,17 +168,20 @@ export const Tuneo = () => {
   }, [fontMgr, refText, refFreq])
 
   const freqText = useMemo(() => {
-    if (!fontMgr || !refFreq || refText === readText) return null
+    if (!fontMgr || !refFreq || refText === pitchText) return null
 
     // Show << or >> characters next to frequency read
-    let prevText = " "
-    let postText = " "
-    if (pitchDeviation > 0) prevText += "<"
-    if (pitchDeviation > 0.2) prevText += "<"
-    if (pitchDeviation < 0) postText += ">"
-    if (pitchDeviation < -0.2) postText += ">"
-    const diffTxt = Math.abs(pitch - refFreq).toFixed(1)
-    const text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
+    let text = ""
+    if (pitchDeviation) {
+      let prevText = " "
+      let postText = " "
+      if (pitchDeviation > 0) prevText += "<"
+      if (pitchDeviation > 0.2) prevText += "<"
+      if (pitchDeviation < 0) postText += ">"
+      if (pitchDeviation < -0.2) postText += ">"
+      const diffTxt = Math.abs(pitch - refFreq).toFixed(1)
+      text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
+    }
 
     const textStyle = {
       fontFamilies: ["Roboto"],
@@ -226,7 +194,7 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refFreq, refText, readText, pitchDeviation, gaugeColor, pitch])
+  }, [fontMgr, refFreq, refText, pitchText, pitchDeviation, gaugeColor, pitch])
 
   const stringsText = useCallback(
     (text: string, active: boolean) => {
@@ -255,7 +223,7 @@ export const Tuneo = () => {
           <Group transform={[{ translateY: waveformY }]}>
             <Path
               style="stroke"
-              path={waveform}
+              path={waveformPath}
               strokeWidth={2}
               strokeJoin="round"
               strokeCap="round"
@@ -313,11 +281,11 @@ export const Tuneo = () => {
               y={boxHeight - 18}
               width={boxWidth}
             />
-            {readText !== refText && (
+            {pitchText !== refText && (
               <Paragraph
                 paragraph={freqText}
                 x={
-                  pitchDeviation > 0
+                  (pitchDeviation ?? 0) > 0
                     ? width / 2 + sideTxtWidth / 2
                     : width / 2 - (3 * sideTxtWidth) / 2
                 }
@@ -329,7 +297,7 @@ export const Tuneo = () => {
 
           {/* Grid */}
           <Group transform={[{ translateY: movingGridY }]}>
-            <MovingGrid audio={audio} deviation={pitchDeviation} note={note} />
+            <MovingGrid pitchId={bufferId} deviation={pitchDeviation} note={note} />
           </Group>
 
           {/* Gauge bar */}
