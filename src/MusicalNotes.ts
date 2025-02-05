@@ -1,5 +1,6 @@
 const A4_FREQUENCY = 440.0 // Reference frequency (A4)
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const OCTAVE_NUMBERS = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 export type NoteName = (typeof NOTE_NAMES)[number]
@@ -55,7 +56,7 @@ export function getSineOfFrequency(frequency: number, sampleRate: number, bufSiz
 // See: https://mixbutton.com/mixing-articles/music-note-to-frequency-chart/
 
 // First element is 6th string
-export const GUITAR_STRING_NOTES: Array<Note> = [
+export const GUITAR_STRING_NOTES: Note[] = [
   { name: "E", octave: 2 },
   { name: "A", octave: 2 },
   { name: "D", octave: 3 },
@@ -63,7 +64,7 @@ export const GUITAR_STRING_NOTES: Array<Note> = [
   { name: "B", octave: 3 },
   { name: "E", octave: 4 },
 ]
-export const GUITAR_STRING_FREQS: Array<number> = GUITAR_STRING_NOTES.map((note) =>
+export const GUITAR_STRING_FREQS: number[] = GUITAR_STRING_NOTES.map((note) =>
   getFrequencyFromNote(note)
 )
 

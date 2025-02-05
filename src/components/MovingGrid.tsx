@@ -1,25 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react"
-import {
-  useSharedValue,
-  useDerivedValue,
-  Easing,
-  withTiming,
-  withRepeat,
-} from "react-native-reanimated"
-import {
-  Canvas,
-  Paint,
-  Rect,
-  Line,
-  useCanvasRef,
-  LinearGradient,
-  Group,
-  Path,
-  Circle,
-  vec,
-  Points,
-  Mask,
-} from "@shopify/react-native-skia"
+import { useSharedValue, useDerivedValue, Easing } from "react-native-reanimated"
+import { withTiming, withRepeat } from "react-native-reanimated"
+import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/Colors"
 import { Note } from "@/MusicalNotes"
@@ -32,11 +14,11 @@ const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
 
 const MovingGrid = ({
-  frameIdx,
+  audio,
   deviation,
   note,
 }: {
-  frameIdx: number
+  audio: number[]
   deviation: number
   note?: Note
 }) => {
@@ -59,15 +41,15 @@ const MovingGrid = ({
     setTimestamps(newTimestamps)
     setPitchIdx((currentIdx + 1) % MAX_HISTORY)
     setHistoryLength(Math.min(historyLength + 1, MAX_HISTORY))
-  }, [deviation, frameIdx])
+  }, [deviation, currentIdx, history, historyLength, note, timestamps])
 
   // When the note changes, reset history
   useEffect(() => {
-    if (note && (note?.name !== currentNote?.name || note?.octave != currentNote?.octave)) {
+    if (note && (note?.name !== currentNote?.name || note?.octave !== currentNote?.octave)) {
       setCurrentNote(note)
       setHistoryLength(0)
     }
-  }, [note])
+  }, [note, currentNote])
 
   const historyPoints = useMemo(() => {
     const points = new Array(historyLength)
@@ -80,13 +62,13 @@ const MovingGrid = ({
 
       // Vertical displacement
       const next_idx = (currentIdx - i + MAX_HISTORY) % MAX_HISTORY
-      const dt = i == 0 ? 0 : (timestamps[next_idx] - timestamps[idx]) / 1000
+      const dt = i === 0 ? 0 : (timestamps[next_idx] - timestamps[idx]) / 1000
       y = y + GRID_SPEED * dt
       points[i] = vec(x, y)
       // console.log(`Point x=${x}  y=${y} dt=${dt}`)
     }
     return points
-  }, [history, currentIdx, timestamps, historyLength])
+  }, [history, currentIdx, timestamps, historyLength, width])
 
   // Vertical offset for animating grid lines
   const translateY = useSharedValue(0)
@@ -112,7 +94,7 @@ const MovingGrid = ({
       })
     }
     return lines
-  }, [])
+  }, [boxHeight, width])
 
   const transform = useDerivedValue(() => {
     return [{ translateY: translateY.value }]

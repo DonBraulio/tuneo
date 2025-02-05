@@ -1,21 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { View, StyleSheet, useWindowDimensions, Alert, PermissionsAndroid } from "react-native"
+import { View, StyleSheet, useWindowDimensions, Alert } from "react-native"
 import {
   Canvas,
   Path,
   Group,
   Circle,
-  Text,
-  useFont,
   Line,
   Paint,
-  Rect,
   RoundedRect,
   TextAlign,
   useFonts,
   Skia,
   Paragraph,
-  TextHeightBehavior,
 } from "@shopify/react-native-skia"
 import { ScrollView } from "react-native-gesture-handler"
 
@@ -55,7 +51,6 @@ export const Tuneo = () => {
   })
   const window = useWindowDimensions()
   const { width, height } = window
-  const [frameIdx, setFrameIdx] = useState(0)
   // For test mode
   const [testIdx, setTestIdx] = useState(0)
 
@@ -107,11 +102,6 @@ export const Tuneo = () => {
     return () => subscriber.remove()
   }, [setAudio])
 
-  // frameIdx forces grid to move even if pitch didn't change
-  useEffect(() => {
-    setFrameIdx(frameIdx + 1)
-  }, [audio])
-
   const alignedAudio = useMemo(() => {
     /* Triggering algorithm:
       Purpose: align the audio segments similar to an oscilloscope.
@@ -137,7 +127,7 @@ export const Tuneo = () => {
   const pitch = useMemo(() => {
     if (!sampleRate || !audio.length) return 0
     return DSPModule.pitch(audio, sampleRate)
-  }, [audio])
+  }, [audio, sampleRate])
 
   // Nearest note name and octave
   const note = useMemo(() => getNoteFromFrequency(pitch), [pitch])
@@ -172,7 +162,7 @@ export const Tuneo = () => {
   // Waveform drawing
   const waveform = useMemo(
     () => getWaveformPath(alignedAudio, width, waveformH, 100),
-    [alignedAudio]
+    [alignedAudio, width, waveformH]
   )
 
   const noteText = useMemo(() => {
@@ -236,7 +226,7 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refFreq, refText, readText, pitchDeviation])
+  }, [fontMgr, refFreq, refText, readText, pitchDeviation, gaugeColor, pitch])
 
   const stringsText = useCallback(
     (text: string, active: boolean) => {
@@ -254,7 +244,7 @@ export const Tuneo = () => {
         .pop()
         .build()
     },
-    [fontMgr, refText, refFreq]
+    [fontMgr]
   )
 
   return (
@@ -339,7 +329,7 @@ export const Tuneo = () => {
 
           {/* Grid */}
           <Group transform={[{ translateY: movingGridY }]}>
-            <MovingGrid frameIdx={frameIdx} deviation={pitchDeviation} note={note} />
+            <MovingGrid audio={audio} deviation={pitchDeviation} note={note} />
           </Group>
 
           {/* Gauge bar */}

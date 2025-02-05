@@ -1,5 +1,4 @@
 import { NativeModule, requireNativeModule } from "expo"
-import { EventSubscription } from "expo-modules-core"
 
 export type MicrophoneStreamModuleEvents = {
   onAudioBuffer: (params: AudioBuffer) => void
