@@ -7,7 +7,7 @@ NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
 
 float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
                              float sampleRate) {
-    // (re)initialize yinInstance
+  // (re)initialize yinInstance
   if (!yinInstance || yinInstance->getBufferSize() != input.size() ||
       sampleRate != yinInstance->getSampleRate()) {
     yinInstance = std::make_unique<Yin>(sampleRate, input.size());
@@ -19,7 +19,13 @@ float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
     log(rt, message);
   }
 
-  return yinInstance->getPitch(input.data());
+  auto pitch = yinInstance->getPitch(input.data());
+
+  // Log pitch probability
+  // auto prob_msg = string_format("Prob: %.2f", yinInstance->getProbability());
+  // log(rt, prob_msg);
+
+  return pitch;
 }
 
 }  // namespace facebook::react

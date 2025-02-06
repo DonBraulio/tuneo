@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { View, StyleSheet, useWindowDimensions, Alert } from "react-native"
+import { View, useWindowDimensions, Alert } from "react-native"
 import { Canvas, Path, Group, Circle, Line, Paint } from "@shopify/react-native-skia"
 import { RoundedRect, TextAlign, useFonts, Skia, Paragraph } from "@shopify/react-native-skia"
-import { ScrollView } from "react-native-gesture-handler"
 
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
@@ -12,14 +11,9 @@ import { getFrequencyFromNote, getNearestGuitarString } from "@/MusicalNotes"
 import { getNoteFromFrequency, GUITAR_STRING_NOTES } from "@/MusicalNotes"
 import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/Waveform"
 import MovingGrid from "@/components/MovingGrid"
+import ConfigButton from "@/components/ConfigButton"
 
 const TEST_MODE = false
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.bgInactive,
-  },
-})
 
 export const Tuneo = () => {
   const fontMgr = useFonts({
@@ -135,7 +129,7 @@ export const Tuneo = () => {
   // Waveform drawing
   const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer), [audioBuffer])
   const waveformPath = useMemo(
-    () => getWaveformPath(alignedAudio, width, waveformH, 100),
+    () => getWaveformPath(alignedAudio, width, waveformH),
     [alignedAudio, width, waveformH]
   )
 
@@ -225,126 +219,125 @@ export const Tuneo = () => {
   )
 
   return (
-    <ScrollView style={styles.container}>
-      <View>
-        <Canvas style={{ width, height }}>
-          {/* Waveform */}
-          <Group transform={[{ translateY: waveformY }]}>
-            <Path
-              style="stroke"
-              path={waveformPath}
-              strokeWidth={2}
-              strokeJoin="round"
-              strokeCap="round"
-              color={Colors.secondary}
-            />
-          </Group>
+    <View>
+      <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
+        {/* Waveform */}
+        <Group transform={[{ translateY: waveformY }]}>
+          <Path
+            style="stroke"
+            path={waveformPath}
+            strokeWidth={2}
+            strokeJoin="round"
+            strokeCap="round"
+            color={Colors.secondary}
+          />
+        </Group>
 
-          {/* Strings list */}
-          <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
-            {GUITAR_STRING_NOTES.map((note, idx) => {
-              const active = idx === stringIdx
-              const posX = 5
-              const posY = idx * (stringBoxH + stringBoxSpacing)
-              return (
-                <Group key={idx}>
-                  <RoundedRect
-                    x={posX}
-                    y={posY}
-                    height={stringBoxH - 2 * stringBoxBorder}
-                    width={stringBoxW}
-                    r={10}
-                  >
-                    <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
-                    <Paint
-                      style="stroke"
-                      color={active ? Colors.primary : Colors.secondary}
-                      strokeWidth={stringBoxBorder}
-                    />
-                  </RoundedRect>
-                  <Paragraph
-                    paragraph={stringsText(`${6 - idx} • ${note.name}`, active)}
-                    x={posX}
-                    y={posY + 6}
-                    width={stringBoxW}
+        {/* Strings list */}
+        <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
+          {GUITAR_STRING_NOTES.map((note, idx) => {
+            const active = idx === stringIdx
+            const posX = stringBoxSpacing
+            const posY = idx * (stringBoxH + stringBoxSpacing)
+            return (
+              <Group key={idx}>
+                <RoundedRect
+                  x={posX}
+                  y={posY}
+                  height={stringBoxH - 2 * stringBoxBorder}
+                  width={stringBoxW}
+                  r={10}
+                >
+                  <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
+                  <Paint
+                    style="stroke"
+                    color={active ? Colors.primary : Colors.secondary}
+                    strokeWidth={stringBoxBorder}
                   />
-                </Group>
-              )
-            })}
-          </Group>
+                </RoundedRect>
+                <Paragraph
+                  paragraph={stringsText(`${6 - idx} • ${note.name}`, active)}
+                  x={posX}
+                  y={posY + 6}
+                  width={stringBoxW}
+                />
+              </Group>
+            )
+          })}
+        </Group>
 
-          {/* Note text */}
-          <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
-            <RoundedRect
-              x={width / 2 - boxWidth / 2}
-              y={0}
-              height={boxHeight}
-              width={boxWidth}
-              r={10}
-              color={Colors.secondary}
-            />
-            <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
+        {/* Note text */}
+        <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
+          <RoundedRect
+            x={width / 2 - boxWidth / 2}
+            y={0}
+            height={boxHeight}
+            width={boxWidth}
+            r={10}
+            color={Colors.secondary}
+          />
+          <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
+          <Paragraph
+            paragraph={refFreqText}
+            x={width / 2 - boxWidth / 2}
+            y={boxHeight - 18}
+            width={boxWidth}
+          />
+          {pitchText !== refText && (
             <Paragraph
-              paragraph={refFreqText}
-              x={width / 2 - boxWidth / 2}
+              paragraph={freqText}
+              x={
+                (pitchDeviation ?? 0) > 0
+                  ? width / 2 + sideTxtWidth / 2
+                  : width / 2 - (3 * sideTxtWidth) / 2
+              }
               y={boxHeight - 18}
-              width={boxWidth}
+              width={sideTxtWidth}
             />
-            {pitchText !== refText && (
-              <Paragraph
-                paragraph={freqText}
-                x={
-                  (pitchDeviation ?? 0) > 0
-                    ? width / 2 + sideTxtWidth / 2
-                    : width / 2 - (3 * sideTxtWidth) / 2
-                }
-                y={boxHeight - 18}
-                width={sideTxtWidth}
-              />
-            )}
-          </Group>
+          )}
+        </Group>
 
-          {/* Grid */}
-          <Group transform={[{ translateY: movingGridY }]}>
-            <MovingGrid pitchId={bufferId} deviation={pitchDeviation} note={note} />
-          </Group>
+        {/* Grid */}
+        <Group transform={[{ translateY: movingGridY }]}>
+          <MovingGrid pitchId={bufferId} deviation={pitchDeviation} note={note} />
+        </Group>
 
-          {/* Gauge bar */}
-          <Group transform={[{ translateY: movingGridY - gaugeRadius / 2 }]}>
-            {/* Grey background line */}
-            <Line
-              p1={{ x: barWidth / 2, y: 0 }}
-              p2={{ x: width - barWidth / 2, y: 0 }}
-              style="stroke"
-              strokeWidth={barWidth}
-              color={Colors.secondary}
-              strokeCap={"round"}
-            />
-            {/* Moving colored bar */}
-            <Line
-              p1={{ x: width / 2, y: 0 }}
-              p2={{ x: gaugeX, y: 0 }}
-              style="stroke"
-              strokeWidth={barWidth}
-              color={gaugeColor}
-              strokeCap={"butt"}
-            />
-            {/* Moving circle */}
-            <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
-              <Paint style="fill" color={gaugeColor} />
-              <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
-            </Circle>
-            {/* Center reference line */}
-            <Line
-              p1={{ x: width / 2, y: -gaugeRadius }}
-              p2={{ x: width / 2, y: gaugeRadius }}
-              style="stroke"
-              strokeWidth={1}
-              color={Colors.primary}
-            />
-          </Group>
-        </Canvas>
-      </View>
-    </ScrollView>
+        {/* Gauge bar */}
+        <Group transform={[{ translateY: movingGridY - gaugeRadius / 2 }]}>
+          {/* Grey background line */}
+          <Line
+            p1={{ x: barWidth / 2, y: 0 }}
+            p2={{ x: width - barWidth / 2, y: 0 }}
+            style="stroke"
+            strokeWidth={barWidth}
+            color={Colors.secondary}
+            strokeCap={"round"}
+          />
+          {/* Moving colored bar */}
+          <Line
+            p1={{ x: width / 2, y: 0 }}
+            p2={{ x: gaugeX, y: 0 }}
+            style="stroke"
+            strokeWidth={barWidth}
+            color={gaugeColor}
+            strokeCap={"butt"}
+          />
+          {/* Moving circle */}
+          <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
+            <Paint style="fill" color={gaugeColor} />
+            <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
+          </Circle>
+          {/* Center reference line */}
+          <Line
+            p1={{ x: width / 2, y: -gaugeRadius }}
+            p2={{ x: width / 2, y: gaugeRadius }}
+            style="stroke"
+            strokeWidth={1}
+            color={Colors.primary}
+          />
+        </Group>
+      </Canvas>
+      <ConfigButton x={width - 60} y={waveformY} />
+    </View>
   )
 }

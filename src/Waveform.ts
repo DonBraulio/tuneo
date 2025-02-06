@@ -1,11 +1,8 @@
 import { Skia } from "@shopify/react-native-skia"
 
-export const getWaveformPath = (
-  samples: number[],
-  width: number,
-  height: number,
-  maxGain: number
-) => {
+const MAX_WAVEFORM_GAIN = 20
+
+export const getWaveformPath = (samples: number[], width: number, height: number) => {
   "worklet"
 
   // Determine gain level to fit the signal in -1,1
@@ -15,7 +12,7 @@ export const getWaveformPath = (
       maxAmplitude = Math.abs(sample)
     }
   })
-  const gain = Math.min(1 / maxAmplitude, maxGain)
+  const gain = Math.min(1 / maxAmplitude, MAX_WAVEFORM_GAIN)
 
   // X and Y scales for each sample
   const amplitude = (gain * height) / 2

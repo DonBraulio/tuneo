@@ -2,7 +2,6 @@ import { HeaderButton, Text } from "@react-navigation/elements"
 import { createStaticNavigation, StaticParamList } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { Settings } from "./screens/Settings"
-import { NotFound } from "./screens/NotFound"
 import { Tuneo } from "./screens/Tuneo"
 
 const RootStack = createNativeStackNavigator({
@@ -10,9 +9,7 @@ const RootStack = createNativeStackNavigator({
     Tuneo: {
       screen: Tuneo,
       options: {
-        title: "",
-        headerTransparent: true,
-        headerTitle: () => undefined,
+        headerShown: false,
       },
     },
     Settings: {
@@ -25,15 +22,6 @@ const RootStack = createNativeStackNavigator({
           </HeaderButton>
         ),
       }),
-    },
-    NotFound: {
-      screen: NotFound,
-      options: {
-        title: "404",
-      },
-      linking: {
-        path: "*",
-      },
     },
   },
 })
