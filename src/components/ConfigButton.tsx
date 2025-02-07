@@ -5,15 +5,15 @@ import Colors from "@/Colors"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 
-const ConfigButton = ({ x, y }: { x: number; y: number }) => {
+const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)
   const navigation = useNavigation()
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
     backgroundColor: `#ffffff55`,
-    padding: 5,
-    borderRadius: 50,
+    padding: 5 * size,
+    borderRadius: 50 * size,
   }))
 
   const handlePress = () => {
@@ -24,12 +24,9 @@ const ConfigButton = ({ x, y }: { x: number; y: number }) => {
   }
 
   return (
-    <Pressable
-      onPressIn={handlePress}
-      style={{ position: "absolute", left: x, top: y, zIndex: 10 }}
-    >
+    <Pressable onPressIn={handlePress} style={{ position: "absolute", left: x, top: y }}>
       <Animated.View style={animatedStyle}>
-        <Ionicons name="settings-outline" size={28} color={Colors.primary} />
+        <Ionicons name="settings-outline" size={28 * size} color={Colors.primary} />
       </Animated.View>
     </Pressable>
   )

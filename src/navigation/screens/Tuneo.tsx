@@ -13,7 +13,7 @@ import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/Waveform"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 
-const TEST_MODE = false
+const TEST_MODE = true
 
 export const Tuneo = () => {
   const fontMgr = useFonts({
@@ -125,6 +125,10 @@ export const Tuneo = () => {
   const stringBoxW = 50
   const stringBoxBorder = 1
   const stringBoxSpacing = (movingGridY - barWidth - waveformH - waveformY - 6 * stringBoxH) / 7
+
+  // Config button
+  const cfgBtnSize = 1.5
+  const cfgBtnMargin = 50
 
   // Waveform drawing
   const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer), [audioBuffer])
@@ -337,7 +341,11 @@ export const Tuneo = () => {
           />
         </Group>
       </Canvas>
-      <ConfigButton x={width - 60} y={waveformY} />
+      <ConfigButton
+        x={width - cfgBtnMargin * cfgBtnSize}
+        y={height - cfgBtnMargin * cfgBtnSize}
+        size={cfgBtnSize}
+      />
     </View>
   )
 }

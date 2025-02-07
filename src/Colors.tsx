@@ -14,6 +14,7 @@ const getColorFromPitchDeviation = (pitchDeviation: number) => {
 const Colors = {
   bgInactive: "#222222",
   bgActive: "#333333",
+  bgTitle: "#222222",
   secondary: "#7a7a7a",
   primary: "#ffffff",
 

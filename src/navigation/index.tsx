@@ -3,6 +3,7 @@ import { createStaticNavigation, StaticParamList } from "@react-navigation/nativ
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { Settings } from "./screens/Settings"
 import { Tuneo } from "./screens/Tuneo"
+import Colors from "@/Colors"
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -18,9 +19,12 @@ const RootStack = createNativeStackNavigator({
         presentation: "modal",
         headerRight: () => (
           <HeaderButton onPress={navigation.goBack}>
-            <Text>Close</Text>
+            <Text style={{ color: Colors.primary }}>Close</Text>
           </HeaderButton>
         ),
+        headerTitleStyle: { color: Colors.primary },
+        headerStyle: { backgroundColor: Colors.bgTitle },
+        headerShadowVisible: false,
       }),
     },
   },

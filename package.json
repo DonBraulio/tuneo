@@ -20,6 +20,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-menu/menu": "^1.2.2",
     "@react-navigation/bottom-tabs": "^7.1.1",
     "@react-navigation/elements": "^2.2.3",
     "@react-navigation/native": "^7.0.12",
