@@ -1,9 +1,16 @@
 import React from "react"
 import { Pressable } from "react-native-gesture-handler"
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDecay,
+  withTiming,
+} from "react-native-reanimated"
 import Colors from "@/Colors"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import { MenuView } from "@react-native-menu/menu"
+import { View } from "react-native"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)
@@ -16,19 +23,31 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
     borderRadius: 50 * size,
   }))
 
-  const handlePress = () => {
-    rotation.value = withTiming(rotation.value + 180, { duration: 400 })
-    setTimeout(() => {
-      navigation.navigate("Settings")
-    }, 150)
+  const spinWheel = () => {
+    rotation.value = withDecay({ velocity: 360 })
+    // setTimeout(() => {
+    //   navigation.navigate("Settings")
+    // }, 150)
   }
 
   return (
-    <Pressable onPressIn={handlePress} style={{ position: "absolute", left: x, top: y }}>
-      <Animated.View style={animatedStyle}>
-        <Ionicons name="settings-outline" size={28 * size} color={Colors.primary} />
-      </Animated.View>
-    </Pressable>
+    <View style={{ position: "absolute", left: x, top: y }}>
+      {/* Workaround, onOpenMenu handler doesn't work */}
+      <Pressable onPressIn={spinWheel}>
+        <MenuView
+          themeVariant="dark"
+          actions={[
+            { id: "settings", title: "More settings..." },
+            { id: "instr-free", title: "Free notes" },
+            { id: "instr-gtr", title: "Guitar" },
+          ]}
+        >
+          <Animated.View style={animatedStyle}>
+            <Ionicons name="settings-outline" size={28 * size} color={Colors.primary} />
+          </Animated.View>
+        </MenuView>
+      </Pressable>
+    </View>
   )
 }
 
