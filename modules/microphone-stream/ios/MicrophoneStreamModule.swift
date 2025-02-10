@@ -1,6 +1,8 @@
 import AVFoundation
 import ExpoModulesCore
 
+let BUF_PER_SEC = 5
+
 public class MicrophoneStreamModule: Module {
 
   private let audioSession = AVAudioSession.sharedInstance()
@@ -18,6 +20,10 @@ public class MicrophoneStreamModule: Module {
 
     // Defines event names that the module can send to JavaScript.
     Events("onAudioBuffer")
+
+    Constants([
+      "BUF_PER_SEC": BUF_PER_SEC
+    ])
 
     Function("startRecording") {
       // audioBufferHandler = handler
@@ -37,7 +43,7 @@ public class MicrophoneStreamModule: Module {
 
                   let inputNode = self.audioEngine.inputNode
                   let hwFormat = inputNode.inputFormat(forBus: 0)
-                  let bufferSize = AVAudioFrameCount(self.audioSession.sampleRate / 10)
+                  let bufferSize = AVAudioFrameCount(self.audioSession.sampleRate / Double(BUF_PER_SEC))
 
                   inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: hwFormat) { buffer, _ in
                       guard let channelData = buffer.floatChannelData else { return }

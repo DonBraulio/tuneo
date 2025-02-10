@@ -13,7 +13,11 @@ import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/Waveform"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 
-const TEST_MODE = true
+const TEST_MODE = false
+
+// This is just a preference, may be set differently
+const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
+console.log(`Preferred buffers per second: ${BUF_PER_SEC}`)
 
 export const Tuneo = () => {
   const fontMgr = useFonts({
@@ -68,13 +72,14 @@ export const Tuneo = () => {
     if (!TEST_MODE) return
 
     const sampleRate = 44100
-    setAudioBuffer(getTestSignal(bufferId, sampleRate))
+    const bufSize = sampleRate / BUF_PER_SEC
+    setAudioBuffer(getTestSignal(bufferId, sampleRate, bufSize))
     setSampleRate(sampleRate)
 
     // Trigger for next buffer
     const timeout = setTimeout(() => {
       setBufferId((id) => id + 1)
-    }, 30)
+    }, 1000 / BUF_PER_SEC)
     return () => clearTimeout(timeout)
   }, [bufferId])
 
@@ -86,6 +91,8 @@ export const Tuneo = () => {
     if (!sr) {
       // Assume microphone already configured ()
       sr = MicrophoneStreamModule.getSampleRate()
+      console.log(`Setting sample rate to ${sr}Hz`)
+
       setSampleRate(sr)
     }
 
@@ -104,10 +111,8 @@ export const Tuneo = () => {
   const refFreq = useMemo(() => getFrequencyFromNote(nearestString), [nearestString])
 
   const gaugeRadius = 12
-  const pitchDeviation = useMemo(
-    () => (pitch > 0 ? Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2) : undefined),
-    [pitch, refFreq]
-  )
+  const pitchDeviation =
+    pitch > 0 ? Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2) : undefined
   const gaugeX = (width / 2) * (1 + (pitchDeviation ?? 0))
   const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation ?? 0)
   const barWidth = 2 * gaugeRadius - 2

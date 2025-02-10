@@ -47,7 +47,7 @@ export const getWaveformPath = (samples: number[], width: number, height: number
  * @param audioBuffer the array with audio samples to align.
  * @returns a slice of the audioBuffer such that it has a peak at x=0.
  */
-export function getAlignedAudio(audioBuffer: number[]) {
+export function getAlignedAudio(audioBuffer: number[], maxSize: number = 1024) {
   if (!audioBuffer.length) return []
 
   // Find highest peak within 1/4 of the signal.
@@ -61,7 +61,7 @@ export function getAlignedAudio(audioBuffer: number[]) {
     }
   }
   // Return new signal starting at the peak
-  return audioBuffer.slice(maxIdx, audioBuffer.length - searchLength + maxIdx)
+  return audioBuffer.slice(maxIdx, maxIdx + Math.min(maxSize, audioBuffer.length - searchLength))
 }
 
 /**
@@ -71,7 +71,7 @@ export function getAlignedAudio(audioBuffer: number[]) {
  * @param bufSize buffer size to return.
  * @returns a signal that can be used as an audio buffer.
  */
-export function getTestSignal(testId: number, sampleRate: number, bufSize: number = 4410) {
+export function getTestSignal(testId: number, sampleRate: number, bufSize: number) {
   // Test frequency is a sawtooth with sinusoidal ripple
   const TEST_LOWEST = 80
   const TEST_HIGHEST = 500

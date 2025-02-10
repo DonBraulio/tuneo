@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { useSharedValue, useDerivedValue, Easing } from "react-native-reanimated"
+import { useSharedValue, useDerivedValue, Easing, cancelAnimation } from "react-native-reanimated"
 import { withTiming, withRepeat } from "react-native-reanimated"
 import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
@@ -34,8 +34,6 @@ const MovingGrid = ({
   // Number of valid entries in circular queues
   const [historyLength, setHistoryLength] = useState(0)
 
-  const [currentNote, setCurrentNote] = useState<Note>()
-
   // Add a new deviation to history
   useEffect(() => {
     // Add deviation value to history in currentIdx
@@ -53,14 +51,6 @@ const MovingGrid = ({
     })
     setHistoryLength((prevLength) => Math.min(prevLength + 1, MAX_HISTORY))
   }, [deviation, currentIdx])
-
-  // When the note changes, reset history
-  useEffect(() => {
-    if (note && (note?.name !== currentNote?.name || note?.octave !== currentNote?.octave)) {
-      setCurrentNote(note)
-      setHistoryLength(0)
-    }
-  }, [note, currentNote])
 
   const historyPoints = useMemo(() => {
     const points = new Array(historyLength)
@@ -86,6 +76,8 @@ const MovingGrid = ({
 
   // Animate the verticalOffset value
   useEffect(() => {
+    cancelAnimation(translateY)
+
     translateY.value = withRepeat(
       withTiming(GRID_SPACING, {
         duration: (1000 * GRID_SPACING) / GRID_SPEED,
@@ -93,7 +85,9 @@ const MovingGrid = ({
       }),
       -1
     )
-  }, [translateY])
+    return () => cancelAnimation(translateY)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Calculate grid lines dynamically
   const horizontalLines = useMemo(() => {

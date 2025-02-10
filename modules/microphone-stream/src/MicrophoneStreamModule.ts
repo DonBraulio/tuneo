@@ -12,6 +12,7 @@ declare class MicrophoneStreamModule extends NativeModule<MicrophoneStreamModule
   stopRecording(): void
   startRecording(): void
   getSampleRate(): number
+  BUF_PER_SEC: number
 }
 
 // This call loads the native module object from the JSI.

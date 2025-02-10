@@ -51,11 +51,13 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
                   id: "instr-any",
                   title: "Any instrument",
                   state: config.instrument === "any" ? "on" : "off",
+                  displayInline: true,
                 },
                 {
                   id: "instr-gtr",
                   title: "Guitar",
                   state: config.instrument === "guitar" ? "on" : "off",
+                  displayInline: true,
                 },
               ],
             },

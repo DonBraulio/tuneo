@@ -1,6 +1,6 @@
 import { MenuAction } from "@react-native-menu/menu"
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { createJSONStorage, persist } from "zustand/middleware"
 
 export const INSTRUMENT_IDS = ["guitar", "any"] as const
 export const THEME_IDS = ["dark"] as const
@@ -33,7 +33,7 @@ export const useConfigStore = create<ConfigState>()(
       setInstrument: (instrument: InstrumentType) => set({ instrument }),
       setTheme: (theme: ThemeType) => set({ theme }),
     }),
-    { name: "config-store" }
+    { name: "config-store", storage: createJSONStorage(() => localStorage) }
   )
 )
 
