@@ -1,6 +1,6 @@
 import Colors from "@/Colors"
-import { MenuAction, MenuComponentRef, MenuView } from "@react-native-menu/menu"
-import { useRef, useState } from "react"
+import { MenuAction, MenuView } from "@react-native-menu/menu"
+import { useState } from "react"
 import { StyleSheet, Text, View } from "react-native"
 
 export const FormPicker = ({

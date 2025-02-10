@@ -1,20 +1,17 @@
 import React from "react"
 import { Pressable } from "react-native-gesture-handler"
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDecay,
-  withTiming,
-} from "react-native-reanimated"
+import Animated, { useAnimatedStyle, useSharedValue, withDecay } from "react-native-reanimated"
 import Colors from "@/Colors"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { MenuView } from "@react-native-menu/menu"
 import { View } from "react-native"
+import { useConfigStore } from "@/Config"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)
   const navigation = useNavigation()
+  const config = useConfigStore()
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -25,9 +22,6 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
 
   const spinWheel = () => {
     rotation.value = withDecay({ velocity: 360 })
-    // setTimeout(() => {
-    //   navigation.navigate("Settings")
-    // }, 150)
   }
 
   return (
@@ -36,10 +30,35 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
       <Pressable onPressIn={spinWheel}>
         <MenuView
           themeVariant="dark"
+          onPressAction={({ nativeEvent }) => {
+            const action = nativeEvent.event
+            if (action === "settings") {
+              navigation.navigate("Settings")
+            } else if (action === "instr-any") {
+              config.setInstrument("any")
+            } else {
+              config.setInstrument("guitar")
+            }
+          }}
           actions={[
             { id: "settings", title: "More settings..." },
-            { id: "instr-free", title: "Free notes" },
-            { id: "instr-gtr", title: "Guitar" },
+            {
+              id: "instrument",
+              title: "Instrument",
+              displayInline: true,
+              subactions: [
+                {
+                  id: "instr-any",
+                  title: "Any instrument",
+                  state: config.instrument === "any" ? "on" : "off",
+                },
+                {
+                  id: "instr-gtr",
+                  title: "Guitar",
+                  state: config.instrument === "guitar" ? "on" : "off",
+                },
+              ],
+            },
           ]}
         >
           <Animated.View style={animatedStyle}>

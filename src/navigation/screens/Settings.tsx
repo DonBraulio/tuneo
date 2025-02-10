@@ -1,51 +1,28 @@
 import Colors from "@/Colors"
 import { FormPicker } from "@/components/FormPicker"
-import { useState } from "react"
+import { getLanguages, getThemes, LanguageType, ThemeType, useConfigStore } from "@/Config"
+import { useMemo } from "react"
 import { StyleSheet, View } from "react-native"
 
-const LANGUAGES = [
-  {
-    title: "English",
-    id: "en",
-  },
-  {
-    title: "Español",
-    id: "es",
-  },
-]
-const INSTRUMENTS = [
-  {
-    title: "Guitar",
-    id: "gtr",
-  },
-  {
-    title: "Free Notes",
-    id: "free",
-  },
-]
-
-const THEMES = [
-  {
-    title: "Dark",
-    id: "dark",
-  },
-]
-
 export function Settings() {
-  const [, setLanguage] = useState("en")
-  const [, setInstrument] = useState("gtr")
-  const [, setTheme] = useState("dark")
+  const config = useConfigStore()
+  const languages = useMemo(getLanguages, [])
+  const themes = useMemo(getThemes, [])
 
   return (
     <View style={styles.container}>
-      <FormPicker label="Language" actions={LANGUAGES} defaultId="en" onSelect={setLanguage} />
       <FormPicker
-        label="Instrument"
-        actions={INSTRUMENTS}
-        defaultId="gtr"
-        onSelect={setInstrument}
+        label="Language"
+        actions={languages}
+        defaultId={languages[0].id ?? ""}
+        onSelect={(lang) => config.setLanguage(lang as LanguageType)}
       />
-      <FormPicker label="Theme" actions={THEMES} defaultId="dark" onSelect={setTheme} />
+      <FormPicker
+        label="Theme"
+        actions={themes}
+        defaultId={themes[0].id ?? ""}
+        onSelect={(theme) => config.setTheme(theme as ThemeType)}
+      />
     </View>
   )
 }
