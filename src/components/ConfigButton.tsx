@@ -1,12 +1,12 @@
 import React from "react"
 import { Pressable } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
-import Colors from "@/Colors"
+import Colors from "@/colors"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { MenuView } from "@react-native-menu/menu"
 import { Platform, View } from "react-native"
-import { useConfigStore } from "@/Config"
+import { useConfigStore } from "@/config"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)

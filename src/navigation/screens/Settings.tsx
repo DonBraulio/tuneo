@@ -1,6 +1,6 @@
-import Colors from "@/Colors"
+import Colors from "@/colors"
 import { FormPicker } from "@/components/FormPicker"
-import { getLanguages, getThemes, LanguageType, ThemeType, useConfigStore } from "@/Config"
+import { getLanguages, getThemes, LanguageType, ThemeType, useConfigStore } from "@/config"
 import { useMemo } from "react"
 import { StyleSheet, View } from "react-native"
 

@@ -1,4 +1,4 @@
-import Colors from "@/Colors"
+import Colors from "@/colors"
 import { MenuAction, MenuView } from "@react-native-menu/menu"
 import { useState } from "react"
 import { StyleSheet, Text, View } from "react-native"

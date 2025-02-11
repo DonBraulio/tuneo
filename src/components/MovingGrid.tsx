@@ -3,8 +3,8 @@ import { useSharedValue, useDerivedValue, Easing, cancelAnimation } from "react-
 import { withTiming, withRepeat } from "react-native-reanimated"
 import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
-import Colors from "@/Colors"
-import { Note } from "@/MusicalNotes"
+import Colors from "@/colors"
+import { Note } from "@/fretboard"
 
 const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black

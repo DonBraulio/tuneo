@@ -3,7 +3,7 @@ import { createStaticNavigation, StaticParamList } from "@react-navigation/nativ
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { Settings } from "./screens/Settings"
 import { Tuneo } from "./screens/Tuneo"
-import Colors from "@/Colors"
+import Colors from "@/colors"
 
 const RootStack = createNativeStackNavigator({
   screens: {
