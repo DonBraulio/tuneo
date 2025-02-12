@@ -1,8 +1,42 @@
+import Colors from "@/colors"
+import { Group, Path } from "@shopify/react-native-skia"
+import { useMemo } from "react"
+import { useWindowDimensions } from "react-native"
 import { Skia } from "@shopify/react-native-skia"
 
 const MAX_WAVEFORM_GAIN = 20
 
-export const getWaveformPath = (samples: number[], width: number, height: number) => {
+export const Waveform = ({
+  audioBuffer,
+  positionY,
+  height,
+}: {
+  audioBuffer: number[]
+  positionY: number
+  height: number
+}) => {
+  const { width } = useWindowDimensions()
+  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [audioBuffer])
+  const waveformPath = useMemo(
+    () => getWaveformPath(alignedAudio, width, height),
+    [alignedAudio, width, height]
+  )
+
+  return (
+    <Group transform={[{ translateY: positionY }]}>
+      <Path
+        style="stroke"
+        path={waveformPath}
+        strokeWidth={2}
+        strokeJoin="round"
+        strokeCap="round"
+        color={Colors.secondary}
+      />
+    </Group>
+  )
+}
+
+const getWaveformPath = (samples: number[], width: number, height: number) => {
   "worklet"
 
   // Determine gain level to fit the signal in -1,1
@@ -47,7 +81,7 @@ export const getWaveformPath = (samples: number[], width: number, height: number
  * @param audioBuffer the array with audio samples to align.
  * @returns a slice of the audioBuffer such that it has a peak at x=0.
  */
-export function getAlignedAudio(audioBuffer: number[], maxSize: number) {
+function getAlignedAudio(audioBuffer: number[], maxSize: number) {
   if (!audioBuffer.length) return []
 
   // Find highest peak within 1/4 of the signal.
@@ -62,32 +96,4 @@ export function getAlignedAudio(audioBuffer: number[], maxSize: number) {
   }
   // Return new signal starting at the peak
   return audioBuffer.slice(maxIdx, maxIdx + Math.min(maxSize, audioBuffer.length - searchLength))
-}
-
-/**
- * Gets a test signal with varying frequency.
- * @param testId incremental counter that indicates the current test step.
- * @param sampleRate sample rate for the audio.
- * @param bufSize buffer size to return.
- * @returns a signal that can be used as an audio buffer.
- */
-export function getTestSignal(testId: number, sampleRate: number, bufSize: number) {
-  // Test frequency is a sawtooth with sinusoidal ripple
-  const TEST_LOWEST = 80
-  const TEST_HIGHEST = 500
-  const progress = (testId % 2000) / 2000 // linear increase frequency
-  const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
-  const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 200
-  const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testId) / 50)
-
-  // Generate sine of freq
-  return getSineOfFrequency(freq, sampleRate, bufSize)
-}
-
-function getSineOfFrequency(frequency: number, sampleRate: number, bufSize: number) {
-  const sineWave: number[] = []
-  for (let i = 0; i < bufSize; i++) {
-    sineWave[i] = Math.sin((2 * Math.PI * i * frequency) / sampleRate)
-  }
-  return sineWave
 }

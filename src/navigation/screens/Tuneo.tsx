@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { View, useWindowDimensions, Alert } from "react-native"
-import { Canvas, Path, Group, Circle, Line, Paint } from "@shopify/react-native-skia"
+import { Canvas, Group, Circle, Line, Paint } from "@shopify/react-native-skia"
 import { RoundedRect, TextAlign, useFonts, Skia, Paragraph } from "@shopify/react-native-skia"
 
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/colors"
-import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/waveform"
+import { getTestSignal } from "@/test"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 import { useTranslation } from "@/translations"
 import { useConfigStore } from "@/config"
 import { Chromatic, Guitar, Instrument } from "@/instruments"
+import { Waveform } from "@/components/Waveform"
 
-const TEST_MODE = false
+const TEST_MODE = true
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -146,13 +147,6 @@ export const Tuneo = () => {
   const cfgBtnSize = 1.5
   const cfgBtnMargin = 50
 
-  // Waveform drawing
-  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [audioBuffer])
-  const waveformPath = useMemo(
-    () => getWaveformPath(alignedAudio, width, waveformH),
-    [alignedAudio, width, waveformH]
-  )
-
   const noteText = useMemo(() => {
     if (!fontMgr) return null
 
@@ -241,17 +235,7 @@ export const Tuneo = () => {
   return (
     <View>
       <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
-        {/* Waveform */}
-        <Group transform={[{ translateY: waveformY }]}>
-          <Path
-            style="stroke"
-            path={waveformPath}
-            strokeWidth={2}
-            strokeJoin="round"
-            strokeCap="round"
-            color={Colors.secondary}
-          />
-        </Group>
+        <Waveform audioBuffer={audioBuffer} positionY={waveformY} height={waveformH} />
 
         {/* Strings list */}
         <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
