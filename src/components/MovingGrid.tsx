@@ -13,7 +13,15 @@ const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
 const MISSING_NOTE = -2
 
-const MovingGrid = ({ pitchId, deviation }: { pitchId: number; deviation?: number }) => {
+const MovingGrid = ({
+  positionY,
+  pitchId,
+  deviation,
+}: {
+  positionY: number
+  pitchId: number
+  deviation?: number
+}) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
 
@@ -109,7 +117,7 @@ const MovingGrid = ({ pitchId, deviation }: { pitchId: number; deviation?: numbe
   const pts = [0, tr(width * 0.4), tr(width * 0.5), tr(width * 0.6), width]
 
   return (
-    <Group>
+    <Group transform={[{ translateY: positionY }]}>
       {/* Draw background */}
       <Rect x={0} y={0} width={width} height={boxHeight} />
       <LinearGradient
