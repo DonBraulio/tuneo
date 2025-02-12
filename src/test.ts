@@ -7,12 +7,12 @@
  */
 export function getTestSignal(testId: number, sampleRate: number, bufSize: number) {
   // Test frequency is a sawtooth with sinusoidal ripple
-  const TEST_LOWEST = 80
-  const TEST_HIGHEST = 500
-  const progress = (testId % 2000) / 2000 // linear increase frequency
+  const TEST_LOWEST = 50
+  const TEST_HIGHEST = 400
+  const progress = (testId % 100) / 100 // linear increase frequency
   const center_freq = TEST_LOWEST + (TEST_HIGHEST - TEST_LOWEST) * progress
   const amp_freq = (TEST_HIGHEST - TEST_LOWEST) / 200
-  const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testId) / 50)
+  const freq = center_freq + amp_freq * Math.sin((2 * Math.PI * testId) / 10)
 
   // Generate sine of freq
   return getSineOfFrequency(freq, sampleRate, bufSize)

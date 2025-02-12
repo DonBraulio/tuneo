@@ -14,6 +14,8 @@ import { useTranslation } from "@/translations"
 import { useConfigStore } from "@/config"
 import { Chromatic, Guitar, Instrument } from "@/instruments"
 import { Waveform } from "@/components/Waveform"
+import { Strings } from "@/components/Strings"
+import { useParagraphBuilder } from "@/paragraphs"
 
 const TEST_MODE = true
 
@@ -22,17 +24,9 @@ const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
 console.log(`Preferred buffers per second: ${BUF_PER_SEC}`)
 
 export const Tuneo = () => {
-  const fontMgr = useFonts({
-    Roboto: [
-      require("@/../assets/Roboto-Regular.ttf"),
-      require("@/../assets/Roboto-Medium.ttf"),
-      require("@/../assets/Roboto-Bold.ttf"),
-      require("@/../assets/Roboto-Italic.ttf"),
-    ],
-  })
-  const window = useWindowDimensions()
-  const { width, height } = window
+  const { width, height } = useWindowDimensions()
   const config = useConfigStore()
+  const paragraphs = useParagraphBuilder()
 
   // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
@@ -115,7 +109,6 @@ export const Tuneo = () => {
         return new Chromatic(config.tuning)
     }
   }, [config.instrument, config.tuning])
-  const stringNotes = useMemo(() => instrument.getStrings(), [instrument])
 
   // Nearest string (reference)
   const nearestString = useMemo(() => instrument.getNearestString(pitch), [pitch, instrument])
@@ -138,56 +131,19 @@ export const Tuneo = () => {
   const movingGridY = height * 0.55
 
   // 6 buttons equally spaced vertically (waveform to gauge)
-  const stringBoxH = 32
-  const stringBoxW = 50
-  const stringBoxBorder = 1
-  const stringBoxSpacing = (movingGridY - barWidth - waveformH - waveformY - 6 * stringBoxH) / 7
+  const stringsHeight = movingGridY - barWidth - waveformH - waveformY
 
   // Config button
   const cfgBtnSize = 1.5
   const cfgBtnMargin = 50
 
-  const noteText = useMemo(() => {
-    if (!fontMgr) return null
-
-    const text = nearestString?.note?.name ?? "-"
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: noteFontSize,
-      fontStyle: { weight: 600 },
-      color: Skia.Color(Colors.primary),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, nearestString])
-
   const stringText = nearestString?.freq.toFixed(1)
   const pitchText = pitch.toFixed(1)
 
-  const refFreqText = useMemo(() => {
-    if (!fontMgr) return null
+  // Show << or >> characters next to frequency read
+  const freqDiffTxt = useMemo(() => {
+    if (!nearestString || stringText === pitchText) return null
 
-    const text = stringText ? `${stringText}Hz` : t("no_tone")
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: 14,
-      fontStyle: { weight: 500 },
-      color: Skia.Color(Colors.primary),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, stringText, t])
-
-  const freqText = useMemo(() => {
-    if (!fontMgr || !nearestString || stringText === pitchText) return null
-
-    // Show << or >> characters next to frequency read
     let text = ""
     if (pitchDeviation) {
       let prevText = " "
@@ -199,77 +155,20 @@ export const Tuneo = () => {
       const diffTxt = Math.abs(pitch - nearestString.freq).toFixed(1)
       text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
     }
-
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: 14,
-      fontStyle: { weight: 500 },
-      color: Skia.Color(gaugeColor),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, nearestString, stringText, pitchText, pitchDeviation, gaugeColor, pitch])
-
-  const stringsText = useCallback(
-    (text: string, active: boolean) => {
-      if (!fontMgr) return null
-
-      const textStyle = {
-        fontFamilies: ["Roboto"],
-        fontSize: 16,
-        fontStyle: { weight: active ? 600 : 300 },
-        color: Skia.Color(Colors.primary),
-      }
-      return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-        .pushStyle(textStyle)
-        .addText(text)
-        .pop()
-        .build()
-    },
-    [fontMgr]
-  )
+    return text
+  }, [nearestString, stringText, pitchText, pitchDeviation, pitch])
 
   return (
     <View>
       <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
         <Waveform audioBuffer={audioBuffer} positionY={waveformY} height={waveformH} />
 
-        {/* Strings list */}
-        <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
-          {stringNotes.map((note, idx) => {
-            const nearestNote = nearestString?.note
-            const active = note.name === nearestNote?.name && note.octave === nearestNote?.octave
-            const posX = stringBoxSpacing
-            const posY = idx * (stringBoxH + stringBoxSpacing)
-            return (
-              <Group key={idx}>
-                <RoundedRect
-                  x={posX}
-                  y={posY}
-                  height={stringBoxH - 2 * stringBoxBorder}
-                  width={stringBoxW}
-                  r={10}
-                >
-                  <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
-                  <Paint
-                    style="stroke"
-                    color={active ? Colors.primary : Colors.secondary}
-                    strokeWidth={stringBoxBorder}
-                  />
-                </RoundedRect>
-                <Paragraph
-                  paragraph={stringsText(`${6 - idx} • ${note.name}`, active)}
-                  x={posX}
-                  y={posY + 6}
-                  width={stringBoxW}
-                />
-              </Group>
-            )
-          })}
-        </Group>
+        <Strings
+          positionY={waveformY + waveformH}
+          currentNote={nearestString?.note}
+          height={stringsHeight}
+          instrument={instrument}
+        />
 
         {/* Note text */}
         <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
@@ -281,16 +180,31 @@ export const Tuneo = () => {
             r={10}
             color={Colors.secondary}
           />
-          <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
           <Paragraph
-            paragraph={refFreqText}
+            paragraph={paragraphs.centered(
+              nearestString?.note?.name ?? "-",
+              noteFontSize,
+              600,
+              Colors.primary
+            )}
+            x={width / 2 - boxWidth / 2}
+            y={0}
+            width={boxWidth}
+          />
+          <Paragraph
+            paragraph={paragraphs.centered(
+              stringText ? `${stringText}Hz` : t("no_tone"),
+              14,
+              500,
+              Colors.primary
+            )}
             x={width / 2 - boxWidth / 2}
             y={boxHeight - 18}
             width={boxWidth}
           />
-          {pitchText !== stringText && (
+          {freqDiffTxt && (
             <Paragraph
-              paragraph={freqText}
+              paragraph={paragraphs.centered(freqDiffTxt, 12, 100, gaugeColor)}
               x={
                 (pitchDeviation ?? 0) > 0
                   ? width / 2 + sideTxtWidth / 2
