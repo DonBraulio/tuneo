@@ -16,7 +16,7 @@ import { Strings } from "@/components/Strings"
 import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
 
-const TEST_MODE = true
+const TEST_MODE = false
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
