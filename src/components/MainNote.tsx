@@ -10,13 +10,13 @@ export const MainNote = ({
   positionY,
   currentString,
   pitch,
-  pitchDeviation,
+  gaugeDeviation,
   gaugeColor,
 }: {
   positionY: number
   currentString: InstrumentString | undefined
   pitch: number
-  pitchDeviation: number | undefined
+  gaugeDeviation: number | undefined
   gaugeColor: string
 }) => {
   const paragraphs = useParagraphBuilder()
@@ -37,18 +37,18 @@ export const MainNote = ({
     if (!currentString || stringText === pitchText) return null
 
     let text = ""
-    if (pitchDeviation) {
+    if (gaugeDeviation) {
       let prevText = " "
       let postText = " "
-      if (pitchDeviation > 0) prevText += "<"
-      if (pitchDeviation > 0.2) prevText += "<"
-      if (pitchDeviation < 0) postText += ">"
-      if (pitchDeviation < -0.2) postText += ">"
+      if (gaugeDeviation > 0) prevText += "<"
+      if (gaugeDeviation > 0.2) prevText += "<"
+      if (gaugeDeviation < 0) postText += ">"
+      if (gaugeDeviation < -0.2) postText += ">"
       const diffTxt = Math.abs(pitch - currentString.freq).toFixed(1)
-      text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
+      text = `${prevText} ${gaugeDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
     }
     return text
-  }, [currentString, stringText, pitchText, pitchDeviation, pitch])
+  }, [currentString, stringText, pitchText, gaugeDeviation, pitch])
 
   return (
     <Group transform={[{ translateY: positionY - height }]}>
@@ -86,7 +86,7 @@ export const MainNote = ({
         <Paragraph
           paragraph={paragraphs.centered(freqDiffTxt, 12, 100, gaugeColor)}
           x={
-            (pitchDeviation ?? 0) > 0
+            (gaugeDeviation ?? 0) > 0
               ? width / 2 + sideTxtWidth / 2
               : width / 2 - (3 * sideTxtWidth) / 2
           }

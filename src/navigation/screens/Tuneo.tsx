@@ -114,7 +114,7 @@ export const Tuneo = () => {
       ? Math.atan((20 * (pitch - nearestString.freq)) / nearestString.freq) / (Math.PI / 2)
       : undefined
   const gaugeWidth = 18
-  const gaugeColor = Colors.getColorFromPitchDeviation(gaugeDeviation ?? 0)
+  const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
 
   const waveformY = 60
   const waveformH = height / 8
@@ -145,7 +145,7 @@ export const Tuneo = () => {
           positionY={movingGridY - gaugeWidth - 10}
           currentString={nearestString}
           pitch={pitch}
-          pitchDeviation={gaugeDeviation}
+          gaugeDeviation={gaugeDeviation}
           gaugeColor={gaugeColor}
         />
 

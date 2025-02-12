@@ -106,10 +106,10 @@ const MovingGrid = ({
 
   /*
   Points in pitch history are colored with linear gradients.
-  Since gauge colors are nonlinear with pitchDeviation, use 4 linear gradients to
+  Since gauge colors are nonlinear with gaugeDeviation, use 4 linear gradients to
   interpolate at:
-  pitchDeviation = [-1, -0.2, 0, 0.2, 1]
-  x = [0, 0.4, 0.5, 0.6, 1]  // Correspond to pitchDeviation above
+  gaugeDeviation = [-1, -0.2, 0, 0.2, 1]
+  x = [0, 0.4, 0.5, 0.6, 1]  // Correspond to gaugeDeviation above
   The gauge color is very nonlinear near the center.
   */
   const tr = Math.floor
@@ -178,28 +178,28 @@ const MovingGrid = ({
           <LinearGradient
             start={{ x: pts[0], y: 0 }}
             end={{ x: pts[1], y: 0 }}
-            colors={[Colors.low, Colors.getColorFromPitchDeviation(-pitchPoints)]}
+            colors={[Colors.low, Colors.getColorFromGaugeDeviation(-pitchPoints)]}
           />
         </Rect>
         <Rect x={pts[1]} y={0} width={pts[2]} height={boxHeight}>
           <LinearGradient
             start={{ x: pts[1], y: 0 }}
             end={{ x: pts[2], y: 0 }}
-            colors={[Colors.getColorFromPitchDeviation(-pitchPoints), Colors.center]}
+            colors={[Colors.getColorFromGaugeDeviation(-pitchPoints), Colors.center]}
           />
         </Rect>
         <Rect x={pts[2]} y={0} width={pts[3]} height={boxHeight}>
           <LinearGradient
             start={{ x: pts[2], y: 0 }}
             end={{ x: pts[3], y: 0 }}
-            colors={[Colors.center, Colors.getColorFromPitchDeviation(pitchPoints)]}
+            colors={[Colors.center, Colors.getColorFromGaugeDeviation(pitchPoints)]}
           />
         </Rect>
         <Rect x={pts[3]} y={0} width={pts[4]} height={boxHeight}>
           <LinearGradient
             start={{ x: pts[3], y: 0 }}
             end={{ x: pts[4], y: 0 }}
-            colors={[Colors.getColorFromPitchDeviation(pitchPoints), Colors.high]}
+            colors={[Colors.getColorFromGaugeDeviation(pitchPoints), Colors.high]}
           />
         </Rect>
       </Mask>
