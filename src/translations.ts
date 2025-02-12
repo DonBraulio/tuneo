@@ -12,6 +12,10 @@ export interface Translation {
   dark: string
   close: string
   settings: string
+  reference_a4: string
+  tuning_440: string
+  tuning_432: string
+  tuning_444: string
 }
 
 export const en: Translation = {
@@ -25,6 +29,10 @@ export const en: Translation = {
   dark: "Dark",
   close: "Close",
   settings: "Settings",
+  reference_a4: "Reference (A4)",
+  tuning_440: "440Hz (standard)",
+  tuning_432: "432Hz (Verdi)",
+  tuning_444: "444Hz (high pitch)",
 }
 
 export const es: Translation = {
@@ -38,6 +46,10 @@ export const es: Translation = {
   dark: "Oscuro",
   close: "Cerrar",
   settings: "Configuración",
+  reference_a4: "Referencia (A4)",
+  tuning_440: "440Hz (estándar)",
+  tuning_432: "432Hz (Verdi)",
+  tuning_444: "444Hz (tono alto)",
 }
 
 /**

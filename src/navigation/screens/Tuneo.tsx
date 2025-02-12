@@ -7,12 +7,13 @@ import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/colors"
-import { getFrequencyFromNote, getNearestGuitarString } from "@/fretboard"
-import { getNoteFromFrequency, GUITAR_STRING_NOTES } from "@/fretboard"
+import { getFreqFromNote, getNearestString } from "@/fretboard"
+import { getNoteFromFrequency, STRING_NOTES as STRING_NOTES } from "@/fretboard"
 import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/waveform"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 import { useTranslation } from "@/translations"
+import { useConfigStore } from "@/config"
 
 const TEST_MODE = false
 
@@ -31,6 +32,7 @@ export const Tuneo = () => {
   })
   const window = useWindowDimensions()
   const { width, height } = window
+  const config = useConfigStore()
 
   // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
@@ -105,18 +107,22 @@ export const Tuneo = () => {
   }, [audioBuffer, sampleRate])
 
   // Nearest note name and octave
-  const note = useMemo(() => getNoteFromFrequency(pitch), [pitch])
+  const note = useMemo(() => getNoteFromFrequency(pitch, config.tuning), [pitch, config])
 
-  // Nearest guitar string
-  const stringIdx = useMemo(() => getNearestGuitarString(pitch), [pitch])
-  const nearestString = useMemo(() => GUITAR_STRING_NOTES[stringIdx], [stringIdx])
-
-  // Frequency of the nearest guitar string
-  const refFreq = useMemo(() => getFrequencyFromNote(nearestString), [nearestString])
+  // Nearest guitar string (reference)
+  const stringFreqs = useMemo(
+    () => STRING_NOTES.map((note) => getFreqFromNote(note, config.tuning)),
+    [config]
+  )
+  const refStringIdx = useMemo(() => getNearestString(pitch, stringFreqs), [pitch, stringFreqs])
+  const refStringNote = refStringIdx ? STRING_NOTES[refStringIdx] : undefined
+  const refStringFreq = refStringIdx ? stringFreqs[refStringIdx] : 0
 
   const gaugeRadius = 12
   const pitchDeviation =
-    pitch > 0 ? Math.atan((20 * (pitch - refFreq)) / refFreq) / (Math.PI / 2) : undefined
+    pitch > 0
+      ? Math.atan((20 * (pitch - refStringFreq)) / refStringFreq) / (Math.PI / 2)
+      : undefined
   const gaugeX = (width / 2) * (1 + (pitchDeviation ?? 0))
   const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation ?? 0)
   const barWidth = 2 * gaugeRadius - 2
@@ -149,7 +155,7 @@ export const Tuneo = () => {
   const noteText = useMemo(() => {
     if (!fontMgr) return null
 
-    const text = pitch > 0 && note ? nearestString.name : "-"
+    const text = refStringNote?.name ?? "-"
     const textStyle = {
       fontFamilies: ["Roboto"],
       fontSize: noteFontSize,
@@ -161,15 +167,15 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, pitch, note, nearestString])
+  }, [fontMgr, refStringNote])
 
-  const refText = refFreq.toFixed(1)
+  const refText = refStringFreq.toFixed(1)
   const pitchText = pitch.toFixed(1)
 
   const refFreqText = useMemo(() => {
     if (!fontMgr) return null
 
-    const text = refFreq ? `${refText}Hz` : t("no_tone")
+    const text = refStringFreq ? `${refText}Hz` : t("no_tone")
     const textStyle = {
       fontFamilies: ["Roboto"],
       fontSize: 14,
@@ -181,10 +187,10 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refText, refFreq, t])
+  }, [fontMgr, refText, refStringFreq, t])
 
   const freqText = useMemo(() => {
-    if (!fontMgr || !refFreq || refText === pitchText) return null
+    if (!fontMgr || !refStringFreq || refText === pitchText) return null
 
     // Show << or >> characters next to frequency read
     let text = ""
@@ -195,7 +201,7 @@ export const Tuneo = () => {
       if (pitchDeviation > 0.2) prevText += "<"
       if (pitchDeviation < 0) postText += ">"
       if (pitchDeviation < -0.2) postText += ">"
-      const diffTxt = Math.abs(pitch - refFreq).toFixed(1)
+      const diffTxt = Math.abs(pitch - refStringFreq).toFixed(1)
       text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
     }
 
@@ -210,7 +216,7 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refFreq, refText, pitchText, pitchDeviation, gaugeColor, pitch])
+  }, [fontMgr, refStringFreq, refText, pitchText, pitchDeviation, gaugeColor, pitch])
 
   const stringsText = useCallback(
     (text: string, active: boolean) => {
@@ -248,8 +254,8 @@ export const Tuneo = () => {
 
         {/* Strings list */}
         <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
-          {GUITAR_STRING_NOTES.map((note, idx) => {
-            const active = idx === stringIdx
+          {STRING_NOTES.map((note, idx) => {
+            const active = idx === refStringIdx
             const posX = stringBoxSpacing
             const posY = idx * (stringBoxH + stringBoxSpacing)
             return (
