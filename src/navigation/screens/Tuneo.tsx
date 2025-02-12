@@ -12,7 +12,7 @@ import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 import { useTranslation } from "@/translations"
 import { useConfigStore } from "@/config"
-import { FreeNotes, Guitar, Instrument } from "@/instruments"
+import { Chromatic, Guitar, Instrument } from "@/instruments"
 
 const TEST_MODE = false
 
@@ -110,8 +110,8 @@ export const Tuneo = () => {
     switch (config.instrument) {
       case "guitar":
         return new Guitar(config.tuning)
-      case "any":
-        return new FreeNotes(config.tuning)
+      case "chromatic":
+        return new Chromatic(config.tuning)
     }
   }, [config.instrument, config.tuning])
   const stringNotes = useMemo(() => instrument.getStrings(), [instrument])

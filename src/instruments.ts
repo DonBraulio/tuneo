@@ -59,7 +59,7 @@ export class Guitar extends Instrument {
   }
 }
 
-export class FreeNotes extends Instrument {
+export class Chromatic extends Instrument {
   getStrings(): Note[] {
     return []
   }
