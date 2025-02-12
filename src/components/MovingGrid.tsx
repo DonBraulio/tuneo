@@ -4,7 +4,6 @@ import { withTiming, withRepeat } from "react-native-reanimated"
 import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/colors"
-import { Note } from "@/fretboard"
 
 const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black
@@ -14,15 +13,7 @@ const GRID_SPEED = 60 // Pixels per second
 const MAX_HISTORY = 900
 const MISSING_NOTE = -2
 
-const MovingGrid = ({
-  pitchId,
-  deviation,
-  note,
-}: {
-  pitchId: number
-  deviation?: number
-  note?: Note
-}) => {
+const MovingGrid = ({ pitchId, deviation }: { pitchId: number; deviation?: number }) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
 

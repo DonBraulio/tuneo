@@ -75,16 +75,17 @@ export const STRING_NOTES: Note[] = [
 /**
  * Find the nearest guitar string for the given frequency.
  * @param frequency Frequency in Hz.
- * @returns index of the string in GUITAR_STRING_NOTES or -1
+ * @param stringFreqs Array of frequencies where to look for.
+ * @returns index of the string stringFreqs or undefined.
  */
-export function getNearestString(frequency: number, guitar_string_freqs: number[]) {
+export function getNearestString(frequency: number, stringFreqs: number[]) {
   if (frequency <= 0) {
     return undefined
   }
   let minDistance = Infinity
   let minIdx = 0
-  for (let i = 0; i < guitar_string_freqs.length; i++) {
-    const d = Math.abs(frequency - guitar_string_freqs[i])
+  for (let i = 0; i < stringFreqs.length; i++) {
+    const d = Math.abs(frequency - stringFreqs[i])
     if (d < minDistance) {
       minDistance = d
       minIdx = i

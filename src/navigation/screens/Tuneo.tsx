@@ -8,7 +8,7 @@ import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-str
 import { AudioModule } from "expo-audio"
 import Colors from "@/colors"
 import { getFreqFromNote, getNearestString } from "@/fretboard"
-import { getNoteFromFrequency, STRING_NOTES as STRING_NOTES } from "@/fretboard"
+import { getNoteFromFrequency, STRING_NOTES } from "@/fretboard"
 import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/waveform"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
@@ -106,9 +106,6 @@ export const Tuneo = () => {
     setPitch(DSPModule.pitch(audioBuffer, sr))
   }, [audioBuffer, sampleRate])
 
-  // Nearest note name and octave
-  const note = useMemo(() => getNoteFromFrequency(pitch, config.tuning), [pitch, config])
-
   // Nearest guitar string (reference)
   const stringFreqs = useMemo(
     () => STRING_NOTES.map((note) => getFreqFromNote(note, config.tuning)),
@@ -146,7 +143,7 @@ export const Tuneo = () => {
   const cfgBtnMargin = 50
 
   // Waveform drawing
-  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer), [audioBuffer])
+  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [audioBuffer])
   const waveformPath = useMemo(
     () => getWaveformPath(alignedAudio, width, waveformH),
     [alignedAudio, width, waveformH]
@@ -318,7 +315,7 @@ export const Tuneo = () => {
 
         {/* Grid */}
         <Group transform={[{ translateY: movingGridY }]}>
-          <MovingGrid pitchId={bufferId} deviation={pitchDeviation} note={note} />
+          <MovingGrid pitchId={bufferId} deviation={pitchDeviation} />
         </Group>
 
         {/* Gauge bar */}

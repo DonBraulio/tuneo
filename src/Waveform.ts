@@ -47,7 +47,7 @@ export const getWaveformPath = (samples: number[], width: number, height: number
  * @param audioBuffer the array with audio samples to align.
  * @returns a slice of the audioBuffer such that it has a peak at x=0.
  */
-export function getAlignedAudio(audioBuffer: number[], maxSize: number = 1024) {
+export function getAlignedAudio(audioBuffer: number[], maxSize: number) {
   if (!audioBuffer.length) return []
 
   // Find highest peak within 1/4 of the signal.
