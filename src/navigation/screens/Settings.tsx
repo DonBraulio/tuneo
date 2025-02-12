@@ -1,26 +1,35 @@
 import Colors from "@/colors"
 import { FormPicker } from "@/components/FormPicker"
-import { getLanguages, getThemes, LanguageType, ThemeType, useConfigStore } from "@/config"
-import { useMemo } from "react"
+import { LanguageType, ThemeType, useConfigStore, useSettingsOptions } from "@/config"
+import { useTranslation } from "@/translations"
+import { useNavigation } from "@react-navigation/native"
+import { useEffect, useMemo } from "react"
 import { StyleSheet, View } from "react-native"
 
 export function Settings() {
   const config = useConfigStore()
-  const languages = useMemo(getLanguages, [])
-  const themes = useMemo(getThemes, [])
+  const options = useSettingsOptions()
+  const languages = useMemo(() => options.getLanguages(), [options])
+  const themes = useMemo(() => options.getThemes(), [options])
+  const navigation = useNavigation()
+  const t = useTranslation()
+
+  useEffect(() => {
+    navigation.setOptions({ title: t("settings") })
+  }, [navigation, t])
 
   return (
     <View style={styles.container}>
       <FormPicker
-        label="Language"
+        label={t("language")}
         actions={languages}
-        defaultId={languages[0].id ?? ""}
+        value={config.language}
         onSelect={(lang) => config.setLanguage(lang as LanguageType)}
       />
       <FormPicker
-        label="Theme"
+        label={t("theme")}
         actions={themes}
-        defaultId={themes[0].id ?? ""}
+        value={config.theme}
         onSelect={(theme) => config.setTheme(theme as ThemeType)}
       />
     </View>

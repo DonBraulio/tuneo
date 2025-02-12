@@ -4,14 +4,16 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-na
 import Colors from "@/colors"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
-import { MenuView } from "@react-native-menu/menu"
+import { MenuAction, MenuView } from "@react-native-menu/menu"
 import { Platform, View } from "react-native"
 import { useConfigStore } from "@/config"
+import { useTranslation } from "@/translations"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)
   const navigation = useNavigation()
   const config = useConfigStore()
+  const t = useTranslation()
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -24,27 +26,27 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
     rotation.value = withTiming(rotation.value + 90, { duration: 400 })
   }
 
-  const configActions = [
+  const configActions: MenuAction[] = [
     {
       id: "instrument",
-      title: "Instrument",
+      title: t("instrument"),
       displayInline: true,
       subactions: [
         {
           id: "instr-any",
-          title: "Any instrument",
+          title: t("any_note"),
           state: config.instrument === "any" ? "on" : "off",
           displayInline: true,
         },
         {
           id: "instr-gtr",
-          title: "Guitar",
+          title: t("guitar"),
           state: config.instrument === "guitar" ? "on" : "off",
           displayInline: true,
         },
       ],
     },
-    { id: "settings", title: "More settings..." },
+    { id: "settings", title: t("more_settings") },
   ]
   if (Platform.OS === "ios") {
     configActions.reverse()

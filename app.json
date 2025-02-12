@@ -43,7 +43,8 @@
         {
           "microphonePermission": "We need access to the microphone!"
         }
-      ]
+      ],
+      "expo-localization"
     ]
   }
 }

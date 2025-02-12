@@ -1,9 +1,10 @@
-import { HeaderButton, Text } from "@react-navigation/elements"
-import { createStaticNavigation, StaticParamList } from "@react-navigation/native"
+import { createStaticNavigation } from "@react-navigation/native"
+import type { StaticParamList } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { Settings } from "./screens/Settings"
 import { Tuneo } from "./screens/Tuneo"
 import Colors from "@/colors"
+import { CloseButton } from "@/components/CloseButton"
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -15,13 +16,9 @@ const RootStack = createNativeStackNavigator({
     },
     Settings: {
       screen: Settings,
-      options: ({ navigation }) => ({
+      options: () => ({
         presentation: "modal",
-        headerRight: () => (
-          <HeaderButton onPress={navigation.goBack}>
-            <Text style={{ color: Colors.primary }}>Close</Text>
-          </HeaderButton>
-        ),
+        headerRight: () => <CloseButton />,
         headerTitleStyle: { color: Colors.primary },
         headerStyle: { backgroundColor: Colors.bgTitle },
         headerShadowVisible: false,
@@ -36,6 +33,7 @@ type RootStackParamList = StaticParamList<typeof RootStack>
 
 declare global {
   namespace ReactNavigation {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface RootParamList extends RootStackParamList {}
   }
 }

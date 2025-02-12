@@ -12,6 +12,7 @@ import { getNoteFromFrequency, GUITAR_STRING_NOTES } from "@/fretboard"
 import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/waveform"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
+import { useTranslation } from "@/translations"
 
 const TEST_MODE = false
 
@@ -35,6 +36,9 @@ export const Tuneo = () => {
   const [sampleRate, setSampleRate] = useState(0)
   const [audioBuffer, setAudioBuffer] = useState<number[]>([])
   const [bufferId, setBufferId] = useState(0)
+
+  // Get locale texts
+  const t = useTranslation()
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
@@ -165,7 +169,7 @@ export const Tuneo = () => {
   const refFreqText = useMemo(() => {
     if (!fontMgr) return null
 
-    const text = refFreq ? `${refText}Hz` : `No tone`
+    const text = refFreq ? `${refText}Hz` : t("no_tone")
     const textStyle = {
       fontFamilies: ["Roboto"],
       fontSize: 14,
@@ -177,7 +181,7 @@ export const Tuneo = () => {
       .addText(text)
       .pop()
       .build()
-  }, [fontMgr, refText, refFreq])
+  }, [fontMgr, refText, refFreq, t])
 
   const freqText = useMemo(() => {
     if (!fontMgr || !refFreq || refText === pitchText) return null

@@ -1,40 +1,36 @@
 import Colors from "@/colors"
 import { MenuAction, MenuView } from "@react-native-menu/menu"
-import { useState } from "react"
 import { StyleSheet, Text, View } from "react-native"
 
 export const FormPicker = ({
   label,
   actions,
   onSelect,
-  defaultId,
+  value,
 }: {
   label: string
   actions: MenuAction[]
   onSelect: (id: string) => void
-  defaultId: string
+  value: string
 }) => {
-  const [action, setAction] = useState(defaultId)
-
   return (
     <View style={styles.pickerRow}>
       <Text style={styles.pickerLabel}>{label}</Text>
       <MenuView
         onPressAction={async ({ nativeEvent }) => {
           const id = nativeEvent.event
-          setAction(id)
           onSelect(id)
         }}
         actions={actions.map(
           (a) =>
             ({
               ...a,
-              state: action === a.id ? "on" : "off",
+              state: value === a.id ? "on" : "off",
             } as MenuAction)
         )}
       >
         <Text style={styles.pickerText}>
-          {actions.find((l) => l.id === action)?.title ?? "Select..."}
+          {actions.find((l) => l.id === value)?.title ?? "Select..."}
         </Text>
       </MenuView>
     </View>

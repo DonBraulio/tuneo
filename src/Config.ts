@@ -2,6 +2,7 @@ import { MenuAction } from "@react-native-menu/menu"
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { zustandStorage } from "./localStorage"
+import { getLocaleForDevice, useTranslation } from "./translations"
 
 export const INSTRUMENT_IDS = ["guitar", "any"] as const
 export const THEME_IDS = ["dark"] as const
@@ -29,7 +30,7 @@ export const useConfigStore = create<ConfigState>()(
     (set) => ({
       instrument: "guitar",
       theme: "dark",
-      language: "en",
+      language: getLocaleForDevice(),
       setLanguage: (language: LanguageType) => set({ language }),
       setInstrument: (instrument: InstrumentType) => set({ instrument }),
       setTheme: (theme: ThemeType) => set({ theme }),
@@ -38,34 +39,43 @@ export const useConfigStore = create<ConfigState>()(
   )
 )
 
-export function getInstrumentName(instrument: InstrumentType): string {
-  switch (instrument) {
-    case "guitar":
-      return "Guitar"
-    case "any":
-      return "Any Note"
+export const useSettingsOptions = () => {
+  const t = useTranslation()
+  return {
+    getInstrumentName: (instrument: InstrumentType): string => {
+      switch (instrument) {
+        case "guitar":
+          return t("guitar")
+        case "any":
+          return t("any_note")
+      }
+    },
+
+    getLanguageName: (language: LanguageType): string => {
+      switch (language) {
+        case "en":
+          return "English"
+        case "es":
+          return "Español"
+      }
+    },
+
+    getThemeName: (theme: ThemeType): string => {
+      switch (theme) {
+        case "dark":
+          return t("dark")
+      }
+    },
+
+    getInstruments: function () {
+      return INSTRUMENT_IDS.map((id) => ({ id, title: this.getInstrumentName(id) } as MenuAction))
+    },
+
+    getLanguages: function () {
+      return LANGUAGE_IDS.map((id) => ({ id, title: this.getLanguageName(id) } as MenuAction))
+    },
+    getThemes: function () {
+      return THEME_IDS.map((id) => ({ id, title: this.getThemeName(id) } as MenuAction))
+    },
   }
 }
-
-export function getLanguageName(language: LanguageType): string {
-  switch (language) {
-    case "en":
-      return "English"
-    case "es":
-      return "Español"
-  }
-}
-
-export function getThemeName(theme: ThemeType): string {
-  switch (theme) {
-    case "dark":
-      return "Dark"
-  }
-}
-
-export const getInstruments = () =>
-  INSTRUMENT_IDS.map((id) => ({ id, title: getInstrumentName(id) } as MenuAction))
-export const getLanguages = () =>
-  LANGUAGE_IDS.map((id) => ({ id, title: getLanguageName(id) } as MenuAction))
-export const getThemes = () =>
-  THEME_IDS.map((id) => ({ id, title: getThemeName(id) } as MenuAction))
