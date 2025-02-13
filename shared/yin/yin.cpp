@@ -1,15 +1,17 @@
 #include "yin.h"
 
 #include <cmath>
-#include <numeric>
 
-Yin::Yin(float sampleRate, int bufferSize) {}
+Yin::Yin(float sampleRate, int bufferSize)
+    : sampleRate(sampleRate),
+      bufferSize(bufferSize),
+      buffer(bufferSize, 0.0f) {}
 
-float Yin::getPitch(const std::vector<float>& audioBuffer, float sampleRate) {
-  int bufferSize = audioBuffer.size();
-  std::vector<float> difference(bufferSize, 0.0);
-  std::vector<float> cumulativeMeanDifference(bufferSize, 0.0);
+int Yin::getBufferSize() { return bufferSize; }
 
+float Yin::getSampleRate() { return sampleRate; }
+
+float Yin::getPitch(const std::vector<float>& audioBuffer) {
   int tau;
   for (tau = 1; tau < bufferSize; tau++) {
     float sum = 0.0;
@@ -17,22 +19,21 @@ float Yin::getPitch(const std::vector<float>& audioBuffer, float sampleRate) {
       float diff = audioBuffer[j] - audioBuffer[j + tau];
       sum += diff * diff;
     }
-    difference[tau] = sum;
+    buffer[tau] = sum;
   }
 
   // Compute the cumulative mean normalized difference function
-  cumulativeMeanDifference[1] = 1.0;
+  buffer[1] = 1.0;
+  float acc = 0;  // running sum
   for (tau = 2; tau < bufferSize; tau++) {
-    cumulativeMeanDifference[tau] =
-        difference[tau] /
-        ((1.0 / tau) *
-         std::accumulate(difference.begin(), difference.begin() + tau, 0.0));
+    acc += buffer[tau];
+    buffer[tau] = buffer[tau] * tau / acc;
   }
 
   // Find the minimum value in the cumulative mean difference function
   int minTau = -1;
   for (tau = 2; tau < bufferSize; tau++) {
-    if (cumulativeMeanDifference[tau] < 0.1) {
+    if (buffer[tau] < 0.1) {
       minTau = tau;
       break;
     }
