@@ -13,7 +13,7 @@ class Yin {
   int getBufferSize();
 
  private:
-  std::vector<float> buffer;
   float sampleRate;
   int bufferSize;
+  std::vector<float> buffer;
 };
