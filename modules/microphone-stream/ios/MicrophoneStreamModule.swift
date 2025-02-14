@@ -43,17 +43,10 @@ public class MicrophoneStreamModule: Module {
 
                   let inputNode = self.audioEngine.inputNode
                   let hwFormat = inputNode.inputFormat(forBus: 0)
-                  // Create a new format with Int16 instead of Float32
-                  let int16Format = AVAudioFormat(
-                      commonFormat: .pcmFormatInt16,
-                      sampleRate: hwFormat.sampleRate,
-                      channels: hwFormat.channelCount,
-                      interleaved: false
-                  )
                   let bufferSize = AVAudioFrameCount(self.audioSession.sampleRate / Double(BUF_PER_SEC))
 
-                  inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: int16Format) { buffer, _ in
-                      guard let channelData = buffer.int16ChannelData else { return }
+                  inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: hwFormat) { buffer, _ in
+                      guard let channelData = buffer.floatChannelData else { return }
                       let frameLength = Int(buffer.frameLength)
                       let samples = Array(UnsafeBufferPointer(start: channelData[0], count: frameLength))
                       self.sendEvent("onAudioBuffer", [

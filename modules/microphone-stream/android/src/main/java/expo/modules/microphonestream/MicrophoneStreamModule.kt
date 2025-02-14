@@ -65,7 +65,8 @@ class MicrophoneStreamModule : Module() {
             while (isRecording) {
                 val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
                 if (read > 0) {
-                    sendEvent("onAudioBuffer", mapOf("samples" to buffer.map { it.toInt() } ))
+                    val floatBuffer = buffer.map { it / 32768.0f }
+                    sendEvent("onAudioBuffer", mapOf("samples" to floatBuffer))
                 }
             }
         }
