@@ -19,6 +19,7 @@ class Yin {
   int getBufferSize();
 
  private:
+  float parabolaInterp(int n, float yl, float yc, float yr);
   float sampleRate;
   int bufferSize;
   std::vector<float> buffer;

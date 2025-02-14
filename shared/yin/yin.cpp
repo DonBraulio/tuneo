@@ -10,11 +10,29 @@ Yin::Yin(float sampleRate, int bufferSize)
     : sampleRate(sampleRate),
       bufferSize(bufferSize),
       buffer(bufferSize, 0.0f),
-      threshold(0.15) {}
+      threshold(0.2) {}
 
 int Yin::getBufferSize() { return bufferSize; }
 
 float Yin::getSampleRate() { return sampleRate; }
+
+float Yin::parabolaInterp(int n, float yl, float yc, float yr) {
+  /* Assume 3 points: n-1, n, n+1 with values yl, yc, yr respectively.
+   * Find the minimum of a parabola that fits the 3 points.
+   */
+  float nom = -4 * n * yc + (2 * n - 1) * yr + (2 * n + 1) * yl;
+  float denom = 2 * (yl - 2 * yc + yr);
+  // Aligned points
+  if (denom == 0) {
+    return n;
+  }
+  float nBetter = nom / denom;
+  // Safeguard
+  if (nBetter < n - 1 || nBetter > n + 1) {
+    return n;
+  }
+  return nBetter;
+}
 
 float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
   int tau;
@@ -27,7 +45,7 @@ float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
     buffer[tau] = sum;
   }
 
-  // Compute the cumulative mean normalized difference function
+  // Cumulative mean normalized difference function
   buffer[0] = 1.0;
   float acc = 0;  // running sum
   for (tau = 1; tau < bufferSize; tau++) {
@@ -35,11 +53,13 @@ float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
     buffer[tau] = buffer[tau] * tau / acc;
   }
 
-  // Find the minimum value in the cumulative mean difference function
-  int minTau = -1;
-  for (tau = 1; tau < bufferSize; tau++) {
-    if (buffer[tau] < threshold) {
-      minTau = tau;
+  // Find first valley below threshold
+  float minTau = -1.0f;
+  for (tau = 1; tau < bufferSize - 1; tau++) {
+    // Condition for valley: curve is going up again
+    if (buffer[tau] < threshold && buffer[tau] < buffer[tau + 1]) {
+      minTau = Yin::parabolaInterp(tau, buffer[tau - 1], buffer[tau],
+                                   buffer[tau + 1]);
       break;
     }
   }
@@ -50,7 +70,7 @@ float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
   log(rt, message);
 #endif
 
-  if (minTau == -1) return -1.0;  // No pitch detected
+  if (minTau < 0) return -1.0;  // No pitch detected
 
   return sampleRate / minTau;
 }

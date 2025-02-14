@@ -20,6 +20,20 @@ ipd.Audio(audio, rate=fs)
 
 
 # %%
+# Step 3 modification:
+# Find min of parabola, assuming we've 3 points and buffer[x_min] is smallest
+@jit
+def parabola_interp(x_min: int, y_left: float, y_center: float, y_right: float):
+    nom: float = -4*x_min*y_center + (2 * x_min - 1) * y_right + (2 * x_min + 1) * y_left
+    denom: float = 2 * (y_left - 2 * y_center + y_right)
+    if denom == 0:
+        return x_min
+    estimator: float = nom / denom
+    if estimator < x_min - 1 or estimator > x_min + 1:
+        return x_min
+    return nom / denom
+
+
 @jit
 def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float):
     buffer_size = len(audio_buffer)
@@ -42,11 +56,12 @@ def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float):
 
     # Step 3: Find the minimum value in the CMND function
     min_tau = -1
-    for tau in range(1, buffer_size):
+    for tau in range(1, buffer_size-1):
         # Modified (see last part of the notebook)
         # if buffer[tau] < 0.2:
-        if buffer[tau] < 0.2 and buffer[tau] > buffer[tau - 1]:
-            min_tau = tau
+        if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
+            # min_tau = tau
+            min_tau = parabola_interp(tau, buffer[tau - 1], buffer[tau], buffer[tau+1])
             break
 
     if min_tau == -1:
@@ -90,7 +105,7 @@ axes[1].plot(sig_2)
 test_audio = audio
 
 # %%
-window_size = 2048
+window_size = 4096
 hop_size = 512
 
 # Compute pitch over sliding windows
@@ -184,8 +199,19 @@ print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
 min_tau = -1
 prev_value = 0
 for tau in range(1, buffer_size):
-    if buffer[tau] < 0.2 and buffer[tau] > buffer[tau - 1]:
+    if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
         min_tau = tau
+        break
+
+print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
+
+
+# %%
+min_tau = -1
+prev_value = 0
+for tau in range(1, buffer_size):
+    if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
+        min_tau = parabola_interp(tau, buffer[tau-1], buffer[tau], buffer[tau+1])
         break
 
 print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
