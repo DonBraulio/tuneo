@@ -11,7 +11,7 @@ from rich import progress
 from numba import jit
 
 # %%
-fs, audio = wavfile.read("notebooks/1st_E.wav")
+fs, audio = wavfile.read("notebooks/6th_E_steel.wav")
 
 # NOTE: the diff * diff op in YIN can overflow without this normalization
 audio = audio / 32768
@@ -35,12 +35,14 @@ def parabola_interp(x_min: int, y_left: float, y_center: float, y_right: float):
 
 
 @jit
-def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float):
+def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float, min_freq: float, max_freq: float):
+    tau_min = int(sample_rate / max_freq)
+    tau_max = int(sample_rate / min_freq)
     buffer_size = len(audio_buffer)
     buffer = np.zeros(buffer_size)
 
     # Step 1: Compute the difference function
-    for tau in range(1, buffer_size):
+    for tau in range(tau_min, tau_max):
         sum_diff = 0.0
         for j in range(buffer_size - tau):
             diff = audio_buffer[j] - audio_buffer[j + tau]
@@ -48,18 +50,17 @@ def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float):
         buffer[tau] = sum_diff
 
     # Step 2: Compute the cumulative mean normalized difference function (CMND)
-    buffer[0] = 1.0
     acc = 0.0
-    for tau in range(1, buffer_size):
+    for tau in range(tau_min, tau_max):
         acc += buffer[tau]
-        buffer[tau] = buffer[tau] * tau / acc
+        buffer[tau] = buffer[tau] * (tau + 1 - tau_min) / acc
 
     # Step 3: Find the minimum value in the CMND function
     min_tau = -1
-    for tau in range(1, buffer_size-1):
+    for tau in range(tau_min + 1, tau_max - 1):
         # Modified (see last part of the notebook)
         # if buffer[tau] < 0.2:
-        if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
+        if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
             # min_tau = tau
             min_tau = parabola_interp(tau, buffer[tau - 1], buffer[tau], buffer[tau+1])
             break
@@ -69,34 +70,6 @@ def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float):
 
     return sample_rate / min_tau
 
-
-# %% [markdown]
-# # Low-pass IIR filter implementation
-def lowpass(audio: np.ndarray, sampleRate: float, cutoffFreq: float):
-    rc = 1.0 / (2.0 * np.pi * cutoffFreq)
-    alpha = 1.0 / (1.0 + (sampleRate * rc))
-    filtered = audio.copy()
-    # Apply first-order IIR filter four times in succession (4-pole)
-    for _ in range(4):
-        for i in range(1, len(filtered)):
-            filtered[i] = alpha * filtered[i] + (1.0 - alpha) * filtered[i-1]
-    return filtered
-
-
-audio_filt = lowpass(audio, fs, 330)
-
-# %%
-t = 4.0
-win_begin = int(t * fs)
-win_duration = 2000
-
-# Compare audio and audio filtered
-sig_1 = audio[win_begin: win_begin + win_duration]
-sig_2 = audio_filt[win_begin: win_begin + win_duration]
-
-fig, axes = plt.subplots(nrows=2, sharex=True)
-axes[0].plot(sig_1)
-axes[1].plot(sig_2)
 
 # %%
 # Choose one
@@ -108,12 +81,15 @@ test_audio = audio
 window_size = 4096
 hop_size = 512
 
+freq_min = 60
+freq_max = 400
+
 # Compute pitch over sliding windows
 pitch_times = []
 pitch_values = []
 for i in progress.track(range(0, len(test_audio) - window_size, hop_size)):
     window = test_audio[i: i + window_size]
-    pitch = yin_pitch_detection(window, fs)
+    pitch = yin_pitch_detection(window, fs, freq_min, freq_max)
     if pitch > 0:
         pitch_times.append(i / fs)
         pitch_values.append(pitch)
@@ -155,11 +131,13 @@ plt.plot(audio_chunk)
 # %%
 audio_buffer = audio_chunk
 
+tau_min = int(fs / freq_max)
+tau_max = int(fs / freq_min)
 buffer_size = len(audio_buffer)
 buffer = np.zeros(buffer_size)
 
 # Step 1: Compute the difference function
-for tau in range(1, buffer_size):
+for tau in range(tau_min, tau_max):
     sum_diff = 0.0
     for j in range(buffer_size - tau):
         diff = audio_buffer[j] - audio_buffer[j + tau]
@@ -170,11 +148,10 @@ plt.plot(buffer)
 
 # %%
 # Step 2: Compute the cumulative mean normalized difference function (CMND)
-buffer[0] = 1.0
 acc = 0.0
-for tau in range(1, buffer_size):
+for tau in range(tau_min, tau_max):
     acc += buffer[tau]
-    buffer[tau] = buffer[tau] * tau / acc
+    buffer[tau] = buffer[tau] * (tau + 1 - tau_min) / acc
 
 plt.figure()
 plt.plot(buffer)
@@ -182,7 +159,7 @@ plt.plot(buffer)
 # %%
 # Step 3: Find the minimum value in the CMND function
 min_tau = -1
-for tau in range(1, buffer_size):
+for tau in range(tau_min, tau_max):
     if buffer[tau] < 0.2:
         min_tau = tau
         break
@@ -199,7 +176,7 @@ print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
 min_tau = -1
 prev_value = 0
 for tau in range(1, buffer_size):
-    if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
+    if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
         min_tau = tau
         break
 
@@ -210,7 +187,7 @@ print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
 min_tau = -1
 prev_value = 0
 for tau in range(1, buffer_size):
-    if buffer[tau] < 0.2 and buffer[tau] < buffer[tau + 1]:
+    if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
         min_tau = parabola_interp(tau, buffer[tau-1], buffer[tau], buffer[tau+1])
         break
 

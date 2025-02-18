@@ -6,7 +6,7 @@ NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
     : NativeDSPModuleCxxSpec(std::move(jsInvoker)), yinInstance(nullptr) {}
 
 float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
-                             float sampleRate) {
+                             float sampleRate, float minFreq, float maxFreq) {
   // (re)initialize yinInstance
   if (!yinInstance || yinInstance->getBufferSize() != input.size() ||
       sampleRate != yinInstance->getSampleRate()) {
@@ -19,7 +19,7 @@ float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
     log(rt, message);
   }
 
-  auto pitch = yinInstance->getPitch(input, rt);
+  auto pitch = yinInstance->getPitch(input, rt, minFreq, maxFreq);
 
   // Log pitch probability
   // auto prob_msg = string_format("Prob: %.2f", yinInstance->getProbability());

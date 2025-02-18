@@ -10,7 +10,7 @@ Yin::Yin(float sampleRate, int bufferSize)
     : sampleRate(sampleRate),
       bufferSize(bufferSize),
       buffer(bufferSize, 0.0f),
-      threshold(0.2) {}
+      threshold(0.15) {}
 
 int Yin::getBufferSize() { return bufferSize; }
 
@@ -18,7 +18,7 @@ float Yin::getSampleRate() { return sampleRate; }
 
 float Yin::parabolaInterp(int n, float yl, float yc, float yr) {
   /* Assume 3 points: n-1, n, n+1 with values yl, yc, yr respectively.
-   * Find the minimum of a parabola that fits the 3 points.
+   * Find the minimum of the parabola that fits these 3 points.
    */
   float nom = -4 * n * yc + (2 * n - 1) * yr + (2 * n + 1) * yl;
   float denom = 2 * (yl - 2 * yc + yr);
@@ -34,9 +34,14 @@ float Yin::parabolaInterp(int n, float yl, float yc, float yr) {
   return nBetter;
 }
 
-float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
+float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt,
+                    float minFreq, float maxFreq) {
   int tau;
-  for (tau = 1; tau < bufferSize; tau++) {
+  int tauMin = static_cast<int>(sampleRate / maxFreq);
+  int tauMax = static_cast<int>(sampleRate / minFreq);
+  if (tauMax >= bufferSize) return -1.0;  // Ensure tauMax is within valid range
+
+  for (tau = tauMin; tau < tauMax; tau++) {
     float sum = 0.0;
     for (int j = 0; j < bufferSize - tau; j++) {
       float diff = audioBuffer[j] - audioBuffer[j + tau];
@@ -46,16 +51,15 @@ float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt) {
   }
 
   // Cumulative mean normalized difference function
-  buffer[0] = 1.0;
   float acc = 0;  // running sum
-  for (tau = 1; tau < bufferSize; tau++) {
+  for (tau = tauMin; tau < tauMax; tau++) {
     acc += buffer[tau];
-    buffer[tau] = buffer[tau] * tau / acc;
+    buffer[tau] = buffer[tau] * (tau + 1 - tauMin) / acc;
   }
 
   // Find first valley below threshold
   float minTau = -1.0f;
-  for (tau = 1; tau < bufferSize - 1; tau++) {
+  for (tau = tauMin + 1; tau < tauMax - 1; tau++) {
     // Condition for valley: curve is going up again
     if (buffer[tau] < threshold && buffer[tau] < buffer[tau + 1]) {
       minTau = Yin::parabolaInterp(tau, buffer[tau - 1], buffer[tau],

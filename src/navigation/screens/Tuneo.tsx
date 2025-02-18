@@ -17,6 +17,8 @@ import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
 
 const TEST_MODE = false
+const MIN_FREQ = 30
+const MAX_FREQ = 500
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -90,9 +92,9 @@ export const Tuneo = () => {
 
       setSampleRate(sr)
     }
-
     // Set pitch value
-    setPitch(DSPModule.pitch(audioBuffer, sr))
+    const pitch = DSPModule.pitch(audioBuffer, sr, MIN_FREQ, MAX_FREQ)
+    setPitch(pitch)
   }, [audioBuffer, sampleRate])
 
   // Selected instrument
