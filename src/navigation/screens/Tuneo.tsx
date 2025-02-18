@@ -116,12 +116,12 @@ export const Tuneo = () => {
   const gaugeWidth = 18
   const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
 
+  // Component sizes and positions
   const waveformY = 60
   const waveformH = height / 8
   const movingGridY = height * 0.55
-
-  // 6 buttons equally spaced vertically (waveform to gauge)
-  const stringsHeight = movingGridY - gaugeWidth - waveformH - waveformY
+  const movingGridH = height - movingGridY
+  const stringsH = height - waveformY - waveformH - movingGridH - gaugeWidth / 2
 
   // Config button
   const cfgBtnSize = 1.5
@@ -136,7 +136,7 @@ export const Tuneo = () => {
         <Strings
           positionY={waveformY + waveformH}
           currentNote={nearestString?.note}
-          height={stringsHeight}
+          height={stringsH}
           instrument={instrument}
         />
 
@@ -154,7 +154,7 @@ export const Tuneo = () => {
 
         {/* Gauge bar */}
         <TuningGauge
-          positionY={movingGridY - gaugeWidth}
+          positionY={movingGridY}
           gaugeColor={gaugeColor}
           gaugeDeviation={gaugeDeviation}
           gaugeWidth={gaugeWidth}
