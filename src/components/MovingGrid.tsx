@@ -8,18 +8,20 @@ import Colors from "@/colors"
 const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black
 const BACKGROUND_GRADIENT_END = "#3a3a3a" // Dark grey
-const GRID_SPACING = 30
-const GRID_SPEED = 60 // Pixels per second
+const GRID_SPACING = 20
+const GRID_SPEED = 20 // Pixels per second
 const MAX_HISTORY = 900
 const MISSING_NOTE = -2
 
 const MovingGrid = ({
   positionY,
   pitchId,
+  pointsPerSec,
   deviation,
 }: {
   positionY: number
   pitchId: number
+  pointsPerSec: number
   deviation?: number
 }) => {
   const { width, height } = useWindowDimensions()
@@ -32,6 +34,7 @@ const MovingGrid = ({
   const currentIdx = useMemo(() => pitchId % MAX_HISTORY, [pitchId])
   // Number of valid entries in circular queues
   const [historyLength, setHistoryLength] = useState(0)
+  const pointSpacing = GRID_SPEED / pointsPerSec
 
   // Add a new deviation to history
   useEffect(() => {
@@ -71,20 +74,36 @@ const MovingGrid = ({
   }, [history, currentIdx, timestamps, historyLength, width])
 
   // Vertical offset for animating grid lines
-  const translateY = useSharedValue(0)
+  const translateYGrid = useSharedValue(0)
+  const translateYPoints = useSharedValue(0)
 
-  // Animate the verticalOffset value
+  // Animate the verticalOffset value for horizontal grid lines
   useEffect(() => {
-    cancelAnimation(translateY)
+    cancelAnimation(translateYGrid)
 
-    translateY.value = withRepeat(
+    translateYGrid.value = withRepeat(
       withTiming(GRID_SPACING, {
         duration: (1000 * GRID_SPACING) / GRID_SPEED,
         easing: Easing.linear,
       }),
       -1
     )
-    return () => cancelAnimation(translateY)
+    return () => cancelAnimation(translateYGrid)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Animate grid points as well
+  useEffect(() => {
+    cancelAnimation(translateYPoints)
+
+    translateYPoints.value = withRepeat(
+      withTiming(pointSpacing, {
+        duration: (1000 * pointSpacing) / GRID_SPEED,
+        easing: Easing.linear,
+      }),
+      -1
+    )
+    return () => cancelAnimation(translateYPoints)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -101,8 +120,12 @@ const MovingGrid = ({
   }, [boxHeight, width])
 
   const transform = useDerivedValue(() => {
-    return [{ translateY: translateY.value }]
-  }, [translateY])
+    return [{ translateY: translateYGrid.value }]
+  }, [translateYGrid])
+
+  const transformPoints = useDerivedValue(() => {
+    return [{ translateY: translateYPoints.value }]
+  }, [translateYPoints])
 
   /*
   Points in pitch history are colored with linear gradients.
@@ -171,6 +194,7 @@ const MovingGrid = ({
             color={Colors.primary}
             strokeWidth={3}
             strokeCap={"round"}
+            transform={transformPoints}
           />
         }
       >
