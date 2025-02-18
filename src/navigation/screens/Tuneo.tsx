@@ -150,12 +150,7 @@ export const Tuneo = () => {
         />
 
         {/* Grid */}
-        <MovingGrid
-          positionY={movingGridY}
-          pitchId={bufferId}
-          deviation={gaugeDeviation}
-          pointsPerSec={BUF_PER_SEC}
-        />
+        <MovingGrid positionY={movingGridY} pitchId={bufferId} deviation={gaugeDeviation} />
 
         {/* Gauge bar */}
         <TuningGauge
