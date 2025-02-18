@@ -2,11 +2,11 @@ const combineColorTuples = (c1: number[], c2: number[], ratio: number) => {
   return c1.map((_, i) => (1 - ratio) * c1[i] + ratio * c2[i])
 }
 
-const getColorFromPitchDeviation = (pitchDeviation: number) => {
+const getColorFromGaugeDeviation = (gaugeDeviation: number) => {
   const [colorR, colorG, colorB] = combineColorTuples(
     Colors.centerTuple,
-    pitchDeviation > 0 ? Colors.highTuple : Colors.lowTuple,
-    Math.abs(pitchDeviation) ** 0.3
+    gaugeDeviation > 0 ? Colors.highTuple : Colors.lowTuple,
+    Math.abs(gaugeDeviation) ** 0.3
   )
   return `rgb(${colorR}, ${colorG}, ${colorB})`
 }
@@ -27,7 +27,7 @@ const Colors = {
   centerTuple: [120, 255, 0],
 
   combineColorTuples,
-  getColorFromPitchDeviation,
+  getColorFromGaugeDeviation,
 }
 
 export default Colors

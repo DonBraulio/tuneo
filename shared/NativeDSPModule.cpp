@@ -19,7 +19,7 @@ float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
     log(rt, message);
   }
 
-  auto pitch = yinInstance->getPitch(input.data());
+  auto pitch = yinInstance->getPitch(input, rt);
 
   // Log pitch probability
   // auto prob_msg = string_format("Prob: %.2f", yinInstance->getProbability());

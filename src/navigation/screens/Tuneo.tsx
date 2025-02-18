@@ -1,18 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { View, useWindowDimensions, Alert } from "react-native"
-import { Canvas, Path, Group, Circle, Line, Paint } from "@shopify/react-native-skia"
-import { RoundedRect, TextAlign, useFonts, Skia, Paragraph } from "@shopify/react-native-skia"
+import { Canvas } from "@shopify/react-native-skia"
 
 import DSPModule from "@/../specs/NativeDSPModule"
 import MicrophoneStreamModule, { AudioBuffer } from "@/../modules/microphone-stream"
 import { AudioModule } from "expo-audio"
 import Colors from "@/colors"
-import { getAlignedAudio, getTestSignal, getWaveformPath } from "@/waveform"
+import { getTestSignal } from "@/test"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
-import { useTranslation } from "@/translations"
 import { useConfigStore } from "@/config"
-import { FreeNotes, Guitar, Instrument } from "@/instruments"
+import { Chromatic, Guitar, Instrument } from "@/instruments"
+import { Waveform } from "@/components/Waveform"
+import { Strings } from "@/components/Strings"
+import { MainNote } from "@/components/MainNote"
+import { TuningGauge } from "@/components/TuningGauge"
 
 const TEST_MODE = false
 
@@ -21,25 +23,13 @@ const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
 console.log(`Preferred buffers per second: ${BUF_PER_SEC}`)
 
 export const Tuneo = () => {
-  const fontMgr = useFonts({
-    Roboto: [
-      require("@/../assets/Roboto-Regular.ttf"),
-      require("@/../assets/Roboto-Medium.ttf"),
-      require("@/../assets/Roboto-Bold.ttf"),
-      require("@/../assets/Roboto-Italic.ttf"),
-    ],
-  })
-  const window = useWindowDimensions()
-  const { width, height } = window
+  const { width, height } = useWindowDimensions()
   const config = useConfigStore()
 
   // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
   const [audioBuffer, setAudioBuffer] = useState<number[]>([])
   const [bufferId, setBufferId] = useState(0)
-
-  // Get locale texts
-  const t = useTranslation()
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
@@ -110,253 +100,65 @@ export const Tuneo = () => {
     switch (config.instrument) {
       case "guitar":
         return new Guitar(config.tuning)
-      case "any":
-        return new FreeNotes(config.tuning)
+      case "chromatic":
+        return new Chromatic(config.tuning)
     }
   }, [config.instrument, config.tuning])
-  const stringNotes = useMemo(() => instrument.getStrings(), [instrument])
 
-  // Nearest string (reference)
+  // Nearest string (reference note)
   const nearestString = useMemo(() => instrument.getNearestString(pitch), [pitch, instrument])
 
-  const gaugeRadius = 12
-  const pitchDeviation =
+  // Tuning gauge indicator
+  const gaugeDeviation =
     pitch > 0 && nearestString
       ? Math.atan((20 * (pitch - nearestString.freq)) / nearestString.freq) / (Math.PI / 2)
       : undefined
-  const gaugeX = (width / 2) * (1 + (pitchDeviation ?? 0))
-  const gaugeColor = Colors.getColorFromPitchDeviation(pitchDeviation ?? 0)
-  const barWidth = 2 * gaugeRadius - 2
-  // Box size for string note text at the center
-  const boxWidth = 80
-  const boxHeight = 90
-  const sideTxtWidth = 85
-  const noteFontSize = 54
+  const gaugeWidth = 18
+  const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
+
   const waveformY = 60
   const waveformH = height / 8
   const movingGridY = height * 0.55
 
   // 6 buttons equally spaced vertically (waveform to gauge)
-  const stringBoxH = 32
-  const stringBoxW = 50
-  const stringBoxBorder = 1
-  const stringBoxSpacing = (movingGridY - barWidth - waveformH - waveformY - 6 * stringBoxH) / 7
+  const stringsHeight = movingGridY - gaugeWidth - waveformH - waveformY
 
   // Config button
   const cfgBtnSize = 1.5
   const cfgBtnMargin = 50
 
-  // Waveform drawing
-  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [audioBuffer])
-  const waveformPath = useMemo(
-    () => getWaveformPath(alignedAudio, width, waveformH),
-    [alignedAudio, width, waveformH]
-  )
-
-  const noteText = useMemo(() => {
-    if (!fontMgr) return null
-
-    const text = nearestString?.note?.name ?? "-"
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: noteFontSize,
-      fontStyle: { weight: 600 },
-      color: Skia.Color(Colors.primary),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, nearestString])
-
-  const stringText = nearestString?.freq.toFixed(1)
-  const pitchText = pitch.toFixed(1)
-
-  const refFreqText = useMemo(() => {
-    if (!fontMgr) return null
-
-    const text = stringText ? `${stringText}Hz` : t("no_tone")
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: 14,
-      fontStyle: { weight: 500 },
-      color: Skia.Color(Colors.primary),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, stringText, t])
-
-  const freqText = useMemo(() => {
-    if (!fontMgr || !nearestString || stringText === pitchText) return null
-
-    // Show << or >> characters next to frequency read
-    let text = ""
-    if (pitchDeviation) {
-      let prevText = " "
-      let postText = " "
-      if (pitchDeviation > 0) prevText += "<"
-      if (pitchDeviation > 0.2) prevText += "<"
-      if (pitchDeviation < 0) postText += ">"
-      if (pitchDeviation < -0.2) postText += ">"
-      const diffTxt = Math.abs(pitch - nearestString.freq).toFixed(1)
-      text = `${prevText} ${pitchDeviation > 0 ? "+" : "-"}${diffTxt}Hz ${postText}`
-    }
-
-    const textStyle = {
-      fontFamilies: ["Roboto"],
-      fontSize: 14,
-      fontStyle: { weight: 500 },
-      color: Skia.Color(gaugeColor),
-    }
-    return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-      .pushStyle(textStyle)
-      .addText(text)
-      .pop()
-      .build()
-  }, [fontMgr, nearestString, stringText, pitchText, pitchDeviation, gaugeColor, pitch])
-
-  const stringsText = useCallback(
-    (text: string, active: boolean) => {
-      if (!fontMgr) return null
-
-      const textStyle = {
-        fontFamilies: ["Roboto"],
-        fontSize: 16,
-        fontStyle: { weight: active ? 600 : 300 },
-        color: Skia.Color(Colors.primary),
-      }
-      return Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center }, fontMgr)
-        .pushStyle(textStyle)
-        .addText(text)
-        .pop()
-        .build()
-    },
-    [fontMgr]
-  )
-
   return (
     <View>
       <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
-        {/* Waveform */}
-        <Group transform={[{ translateY: waveformY }]}>
-          <Path
-            style="stroke"
-            path={waveformPath}
-            strokeWidth={2}
-            strokeJoin="round"
-            strokeCap="round"
-            color={Colors.secondary}
-          />
-        </Group>
+        <Waveform audioBuffer={audioBuffer} positionY={waveformY} height={waveformH} />
 
-        {/* Strings list */}
-        <Group transform={[{ translateY: waveformY + waveformH + stringBoxSpacing }]}>
-          {stringNotes.map((note, idx) => {
-            const nearestNote = nearestString?.note
-            const active = note.name === nearestNote?.name && note.octave === nearestNote?.octave
-            const posX = stringBoxSpacing
-            const posY = idx * (stringBoxH + stringBoxSpacing)
-            return (
-              <Group key={idx}>
-                <RoundedRect
-                  x={posX}
-                  y={posY}
-                  height={stringBoxH - 2 * stringBoxBorder}
-                  width={stringBoxW}
-                  r={10}
-                >
-                  <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
-                  <Paint
-                    style="stroke"
-                    color={active ? Colors.primary : Colors.secondary}
-                    strokeWidth={stringBoxBorder}
-                  />
-                </RoundedRect>
-                <Paragraph
-                  paragraph={stringsText(`${6 - idx} • ${note.name}`, active)}
-                  x={posX}
-                  y={posY + 6}
-                  width={stringBoxW}
-                />
-              </Group>
-            )
-          })}
-        </Group>
+        {/* List of guitar strings */}
+        <Strings
+          positionY={waveformY + waveformH}
+          currentNote={nearestString?.note}
+          height={stringsHeight}
+          instrument={instrument}
+        />
 
         {/* Note text */}
-        <Group transform={[{ translateY: movingGridY - boxHeight - barWidth - 10 }]}>
-          <RoundedRect
-            x={width / 2 - boxWidth / 2}
-            y={0}
-            height={boxHeight}
-            width={boxWidth}
-            r={10}
-            color={Colors.secondary}
-          />
-          <Paragraph paragraph={noteText} x={width / 2 - boxWidth / 2} y={0} width={boxWidth} />
-          <Paragraph
-            paragraph={refFreqText}
-            x={width / 2 - boxWidth / 2}
-            y={boxHeight - 18}
-            width={boxWidth}
-          />
-          {pitchText !== stringText && (
-            <Paragraph
-              paragraph={freqText}
-              x={
-                (pitchDeviation ?? 0) > 0
-                  ? width / 2 + sideTxtWidth / 2
-                  : width / 2 - (3 * sideTxtWidth) / 2
-              }
-              y={boxHeight - 18}
-              width={sideTxtWidth}
-            />
-          )}
-        </Group>
+        <MainNote
+          positionY={movingGridY - gaugeWidth - 10}
+          currentString={nearestString}
+          pitch={pitch}
+          gaugeDeviation={gaugeDeviation}
+          gaugeColor={gaugeColor}
+        />
 
         {/* Grid */}
-        <Group transform={[{ translateY: movingGridY }]}>
-          <MovingGrid pitchId={bufferId} deviation={pitchDeviation} />
-        </Group>
+        <MovingGrid positionY={movingGridY} pitchId={bufferId} deviation={gaugeDeviation} />
 
         {/* Gauge bar */}
-        <Group transform={[{ translateY: movingGridY - gaugeRadius / 2 }]}>
-          {/* Grey background line */}
-          <Line
-            p1={{ x: barWidth / 2, y: 0 }}
-            p2={{ x: width - barWidth / 2, y: 0 }}
-            style="stroke"
-            strokeWidth={barWidth}
-            color={Colors.secondary}
-            strokeCap={"round"}
-          />
-          {/* Moving colored bar */}
-          <Line
-            p1={{ x: width / 2, y: 0 }}
-            p2={{ x: gaugeX, y: 0 }}
-            style="stroke"
-            strokeWidth={barWidth}
-            color={gaugeColor}
-            strokeCap={"butt"}
-          />
-          {/* Moving circle */}
-          <Circle cx={gaugeX} cy={0} r={gaugeRadius}>
-            <Paint style="fill" color={gaugeColor} />
-            <Paint style="stroke" color={Colors.primary} strokeWidth={3} />
-          </Circle>
-          {/* Center reference line */}
-          <Line
-            p1={{ x: width / 2, y: -gaugeRadius }}
-            p2={{ x: width / 2, y: gaugeRadius }}
-            style="stroke"
-            strokeWidth={1}
-            color={Colors.primary}
-          />
-        </Group>
+        <TuningGauge
+          positionY={movingGridY - gaugeWidth}
+          gaugeColor={gaugeColor}
+          gaugeDeviation={gaugeDeviation}
+          gaugeWidth={gaugeWidth}
+        />
       </Canvas>
       <ConfigButton
         x={width - cfgBtnMargin * cfgBtnSize}

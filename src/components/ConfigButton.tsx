@@ -33,9 +33,9 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
       displayInline: true,
       subactions: [
         {
-          id: "instr-any",
-          title: t("any_note"),
-          state: config.instrument === "any" ? "on" : "off",
+          id: "instr-chromatic",
+          title: t("chromatic"),
+          state: config.instrument === "chromatic" ? "on" : "off",
           displayInline: true,
         },
         {
@@ -63,8 +63,8 @@ const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }
             const action = nativeEvent.event
             if (action === "settings") {
               navigation.navigate("Settings")
-            } else if (action === "instr-any") {
-              config.setInstrument("any")
+            } else if (action === "instr-chromatic") {
+              config.setInstrument("chromatic")
             } else {
               config.setInstrument("guitar")
             }

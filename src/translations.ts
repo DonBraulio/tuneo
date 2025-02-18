@@ -3,7 +3,7 @@ import { LANGUAGE_IDS, LanguageType, useConfigStore } from "./config"
 
 export interface Translation {
   guitar: string
-  any_note: string
+  chromatic: string
   instrument: string
   more_settings: string
   no_tone: string
@@ -20,7 +20,7 @@ export interface Translation {
 
 export const en: Translation = {
   guitar: "Guitar",
-  any_note: "Free notes",
+  chromatic: "Chromatic",
   instrument: "Instrument",
   more_settings: "Settings...",
   no_tone: "No tone",
@@ -37,7 +37,7 @@ export const en: Translation = {
 
 export const es: Translation = {
   guitar: "Guitarra",
-  any_note: "Notas libres",
+  chromatic: "Cromática",
   instrument: "Instrumento",
   more_settings: "Configuración...",
   no_tone: "Sin tono",

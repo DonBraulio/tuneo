@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware"
 import { zustandStorage } from "./localStorage"
 import { getLocaleForDevice, useTranslation } from "./translations"
 
-export const INSTRUMENT_IDS = ["guitar", "any"] as const
+export const INSTRUMENT_IDS = ["guitar", "chromatic"] as const
 export const THEME_IDS = ["dark"] as const
 export const LANGUAGE_IDS = ["en", "es"] as const
 export const TUNING_IDS = ["ref_440", "ref_432", "ref_444"] as const
@@ -41,7 +41,29 @@ export const useConfigStore = create<ConfigState>()(
       setTheme: (theme: ThemeType) => set({ theme }),
       setTuning: (tuning: TuningType) => set({ tuning }),
     }),
-    { name: "config-store", storage: createJSONStorage(() => zustandStorage) }
+    {
+      name: "config-store",
+      storage: createJSONStorage(() => zustandStorage),
+      merge: (persistedState, currentState) => {
+        const loadedState = { ...currentState }
+        const savedState = persistedState as ConfigState
+
+        // Load only valid configuration keys from savedState
+        if (INSTRUMENT_IDS.includes(savedState.instrument as any)) {
+          loadedState.instrument = savedState.instrument
+        }
+        if (THEME_IDS.includes(savedState.theme as any)) {
+          loadedState.theme = savedState.theme
+        }
+        if (TUNING_IDS.includes(savedState.tuning as any)) {
+          loadedState.tuning = savedState.tuning
+        }
+        if (LANGUAGE_IDS.includes(savedState.language as any)) {
+          loadedState.language = savedState.language
+        }
+        return loadedState
+      },
+    }
   )
 )
 
@@ -52,8 +74,8 @@ export const useSettingsOptions = () => {
       switch (instrument) {
         case "guitar":
           return t("guitar")
-        case "any":
-          return t("any_note")
+        case "chromatic":
+          return t("chromatic")
       }
     },
 

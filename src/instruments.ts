@@ -53,13 +53,13 @@ export class Guitar extends Instrument {
 
   getNearestString(freq: number): InstrumentString | undefined {
     const idx = this.getNearestIdx(freq, this.stringFreqs)
-    if (!idx) return undefined
+    if (idx === undefined) return undefined
     const note = this.stringNotes[idx]
     return { note, freq: this.stringFreqs[idx] }
   }
 }
 
-export class FreeNotes extends Instrument {
+export class Chromatic extends Instrument {
   getStrings(): Note[] {
     return []
   }
