@@ -1,5 +1,7 @@
 #include "NativeDSPModule.h"
 
+#include <cmath>
+
 namespace facebook::react {
 
 NativeDSPModule::NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker)
@@ -26,6 +28,14 @@ float NativeDSPModule::pitch(jsi::Runtime& rt, const std::vector<float>& input,
   // log(rt, prob_msg);
 
   return pitch;
+}
+
+float NativeDSPModule::rms(jsi::Runtime& rt, const std::vector<float>& input) {
+  double sumSquares = 0.0;
+  for (float value : input) {
+    sumSquares += value * value;
+  }
+  return static_cast<float>(std::sqrt(sumSquares / input.size()));
 }
 
 }  // namespace facebook::react

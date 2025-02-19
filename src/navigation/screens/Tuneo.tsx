@@ -19,6 +19,7 @@ import { TuningGauge } from "@/components/TuningGauge"
 const TEST_MODE = false
 const MIN_FREQ = 30
 const MAX_FREQ = 500
+const PITCH_NARROW_RANGE = 0.1
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -35,6 +36,8 @@ export const Tuneo = () => {
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
+  const [, setRMS] = useState(0)
+  const [rmsDecreasing, setRMSDecreasing] = useState(false)
 
   // Request recording permission
   useEffect(() => {
@@ -57,8 +60,16 @@ export const Tuneo = () => {
     const subscriber = MicrophoneStreamModule.addListener(
       "onAudioBuffer",
       (buffer: AudioBuffer) => {
+        // Set audio buffer
         setAudioBuffer(buffer.samples)
         setBufferId((prevId) => prevId + 1)
+
+        // Set signal power and whether or not it's decreasing
+        setRMS((oldRMS) => {
+          const newRMS = DSPModule.rms(buffer.samples)
+          setRMSDecreasing(newRMS < oldRMS)
+          return newRMS
+        })
       }
     )
     return () => subscriber.remove()
@@ -70,7 +81,13 @@ export const Tuneo = () => {
 
     const sampleRate = 44100
     const bufSize = sampleRate / BUF_PER_SEC
-    setAudioBuffer(getTestSignal(bufferId, sampleRate, bufSize))
+    const buffer = getTestSignal(bufferId, sampleRate, bufSize)
+    setAudioBuffer(buffer)
+    setRMS((oldRMS) => {
+      const newRMS = DSPModule.rms(buffer)
+      setRMSDecreasing(newRMS < oldRMS)
+      return newRMS
+    })
     setSampleRate(sampleRate)
 
     // Trigger for next buffer
@@ -92,10 +109,20 @@ export const Tuneo = () => {
 
       setSampleRate(sr)
     }
-    // Set pitch value
-    const pitch = DSPModule.pitch(audioBuffer, sr, MIN_FREQ, MAX_FREQ)
-    setPitch(pitch)
-  }, [audioBuffer, sampleRate])
+
+    // Find pitch within previous value +/-10%, unless RMS increases
+    setPitch((prevPitch) => {
+      let minFreq = MIN_FREQ
+      let maxFreq = MAX_FREQ
+      if (prevPitch > 0 && rmsDecreasing) {
+        minFreq = prevPitch * (1 - PITCH_NARROW_RANGE)
+        maxFreq = prevPitch * (1 + PITCH_NARROW_RANGE)
+      }
+
+      const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
+      return pitch
+    })
+  }, [audioBuffer, sampleRate, rmsDecreasing])
 
   // Selected instrument
   const instrument: Instrument = useMemo(() => {
