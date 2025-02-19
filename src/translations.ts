@@ -1,6 +1,3 @@
-import { getLocales } from "expo-localization"
-import { LANGUAGE_IDS, LanguageType, useConfigStore } from "./config"
-
 export interface Translation {
   guitar: string
   chromatic: string
@@ -59,34 +56,4 @@ export const es: Translation = {
   graphics: "Gráficos",
   graphics_high: "Mejor calidad",
   graphics_low: "Mejor rendimiento",
-}
-
-/**
- * React hook that provides the proper translation function
- * according to the device's preferences or app settings.
- * @returns a function to use as t('key'), where 'key' keyof Translation.
- */
-export const useTranslation = () => {
-  const config = useConfigStore()
-  return (key: keyof Translation) => {
-    switch (config.language) {
-      case "en":
-        return en[key]
-      case "es":
-        return es[key]
-    }
-  }
-}
-
-/**
- * Get best available locale according to user's settings on device.
- * @returns a LanguageType that is available on the device
- */
-export const getLocaleForDevice = (): LanguageType => {
-  for (const locale in getLocales()) {
-    if (LANGUAGE_IDS.includes(locale as any)) {
-      return locale as LanguageType
-    }
-  }
-  return "en" // fallback
 }

@@ -2,8 +2,9 @@ import { MenuAction } from "@react-native-menu/menu"
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { zustandStorage } from "./localStorage"
-import { getLocaleForDevice, useTranslation } from "./translations"
+import { en, es, Translation } from "./translations"
 import { Platform } from "react-native"
+import { getLocales } from "expo-localization"
 
 export const INSTRUMENT_IDS = ["guitar", "chromatic"] as const
 export const THEME_IDS = ["dark"] as const
@@ -16,6 +17,37 @@ export type ThemeType = (typeof THEME_IDS)[number]
 export type LanguageType = (typeof LANGUAGE_IDS)[number]
 export type TuningType = (typeof TUNING_IDS)[number]
 export type GraphicsMode = (typeof GRAPHIC_MODES)[number]
+
+/**
+ * React hook that provides the proper translation function
+ * according to the device's preferences or app settings.
+ * @returns a function to use as t('key'), where 'key' keyof Translation.
+ */
+
+export const useTranslation = () => {
+  const config = useConfigStore()
+  return (key: keyof Translation) => {
+    switch (config.language) {
+      case "en":
+        return en[key]
+      case "es":
+        return es[key]
+    }
+  }
+}
+/**
+ * Get best available locale according to user's settings on device.
+ * @returns a LanguageType that is available on the device
+ */
+
+export const getLocaleForDevice = (): LanguageType => {
+  for (const locale in getLocales()) {
+    if (LANGUAGE_IDS.includes(locale as any)) {
+      return locale as LanguageType
+    }
+  }
+  return "en" // fallback
+}
 
 interface ConfigState {
   instrument: InstrumentType

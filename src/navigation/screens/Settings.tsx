@@ -8,7 +8,7 @@ import {
   useConfigStore,
   useSettingsOptions,
 } from "@/config"
-import { useTranslation } from "@/translations"
+import { useTranslation } from "@/config"
 import { useNavigation } from "@react-navigation/native"
 import { useEffect, useMemo } from "react"
 import { StyleSheet, View } from "react-native"
