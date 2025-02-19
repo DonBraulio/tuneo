@@ -55,22 +55,17 @@ const getWaveformPath = (samples: number[], width: number, height: number) => {
 
   // Create waveform path
   const path = Skia.Path.Make()
-  let prevX = 0
-  let prevY = 0
+  const subsample = 12
   samples.forEach((sample, idx) => {
+    if (idx % subsample !== 0) return
     const x = idx * dx
     const y = zeroY - sample * amplitude
 
     if (idx === 0) {
       path.moveTo(x, y)
     } else {
-      // use midpoint as control point
-      const cpX = (prevX + x) / 2
-      const cpY = (prevY + y) / 2
-      path.quadTo(cpX, cpY, x, y)
+      path.lineTo(x, y)
     }
-    prevX = x
-    prevY = y
   })
 
   return path
@@ -95,5 +90,7 @@ function getAlignedAudio(audioBuffer: number[], maxSize: number) {
     }
   }
   // Return new signal starting at the peak
-  return audioBuffer.slice(maxIdx, maxIdx + Math.min(maxSize, audioBuffer.length - searchLength))
+  const beginIdx = maxIdx
+  const endIdx = maxIdx + Math.min(maxSize, audioBuffer.length - searchLength)
+  return audioBuffer.slice(beginIdx, endIdx)
 }
