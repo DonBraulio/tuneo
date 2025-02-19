@@ -18,11 +18,12 @@ export const Strings = ({
 }) => {
   const paragraphs = useParagraphBuilder()
   const stringNotes = useMemo(() => instrument.getStrings(), [instrument])
+  const nStrings = stringNotes.length
 
   const stringBoxH = 32
   const stringBoxW = 50
   const stringBoxBorder = 1
-  const stringBoxSpacing = (height - 6 * stringBoxH) / 7
+  const stringBoxSpacing = (height - nStrings * stringBoxH) / (nStrings + 1)
 
   return (
     <Group transform={[{ translateY: positionY + stringBoxSpacing }]}>
@@ -48,7 +49,7 @@ export const Strings = ({
             </RoundedRect>
             <Paragraph
               paragraph={paragraphs.centered(
-                `${6 - idx} • ${note.name}`,
+                `${nStrings - idx} • ${note.name}`,
                 16,
                 active ? 600 : 300,
                 Colors.primary

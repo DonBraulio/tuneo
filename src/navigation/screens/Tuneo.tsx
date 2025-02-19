@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { Profiler, useEffect, useMemo, useState } from "react"
 import { View, useWindowDimensions, Alert } from "react-native"
 import { Canvas } from "@shopify/react-native-skia"
 
@@ -17,6 +17,9 @@ import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
 
 const TEST_MODE = false
+const MIN_FREQ = 30
+const MAX_FREQ = 500
+const PITCH_NARROW_RANGE = 0.1
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -33,6 +36,8 @@ export const Tuneo = () => {
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
+  const [, setRMS] = useState(0)
+  const [rmsDecreasing, setRMSDecreasing] = useState(false)
 
   // Request recording permission
   useEffect(() => {
@@ -43,6 +48,10 @@ export const Tuneo = () => {
       }
     })()
   }, [])
+
+  const onRenderCallback = (id: string, phase: string, actualDuration: number) => {
+    // console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
+  }
 
   // Start microphone recording
   useEffect(() => {
@@ -55,8 +64,16 @@ export const Tuneo = () => {
     const subscriber = MicrophoneStreamModule.addListener(
       "onAudioBuffer",
       (buffer: AudioBuffer) => {
+        // Set audio buffer
         setAudioBuffer(buffer.samples)
         setBufferId((prevId) => prevId + 1)
+
+        // Set signal power and whether or not it's decreasing
+        setRMS((oldRMS) => {
+          const newRMS = DSPModule.rms(buffer.samples)
+          setRMSDecreasing(newRMS < oldRMS)
+          return newRMS
+        })
       }
     )
     return () => subscriber.remove()
@@ -68,7 +85,13 @@ export const Tuneo = () => {
 
     const sampleRate = 44100
     const bufSize = sampleRate / BUF_PER_SEC
-    setAudioBuffer(getTestSignal(bufferId, sampleRate, bufSize))
+    const buffer = getTestSignal(bufferId, sampleRate, bufSize)
+    setAudioBuffer(buffer)
+    setRMS((oldRMS) => {
+      const newRMS = DSPModule.rms(buffer)
+      setRMSDecreasing(newRMS < oldRMS)
+      return newRMS
+    })
     setSampleRate(sampleRate)
 
     // Trigger for next buffer
@@ -91,9 +114,18 @@ export const Tuneo = () => {
       setSampleRate(sr)
     }
 
-    // Set pitch value
-    setPitch(DSPModule.pitch(audioBuffer, sr))
-  }, [audioBuffer, sampleRate])
+    // Find pitch within previous value +/-10%, unless RMS increases
+    setPitch((prevPitch) => {
+      let minFreq = MIN_FREQ
+      let maxFreq = MAX_FREQ
+      if (prevPitch > 0 && rmsDecreasing) {
+        minFreq = prevPitch * (1 - PITCH_NARROW_RANGE)
+        maxFreq = prevPitch * (1 + PITCH_NARROW_RANGE)
+      }
+      const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
+      return pitch
+    })
+  }, [audioBuffer, sampleRate, rmsDecreasing])
 
   // Selected instrument
   const instrument: Instrument = useMemo(() => {
@@ -116,12 +148,12 @@ export const Tuneo = () => {
   const gaugeWidth = 18
   const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
 
+  // Component sizes and positions
   const waveformY = 60
   const waveformH = height / 8
   const movingGridY = height * 0.55
-
-  // 6 buttons equally spaced vertically (waveform to gauge)
-  const stringsHeight = movingGridY - gaugeWidth - waveformH - waveformY
+  const movingGridH = height - movingGridY
+  const stringsH = height - waveformY - waveformH - movingGridH - gaugeWidth / 2
 
   // Config button
   const cfgBtnSize = 1.5
@@ -130,13 +162,21 @@ export const Tuneo = () => {
   return (
     <View>
       <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
-        <Waveform audioBuffer={audioBuffer} positionY={waveformY} height={waveformH} />
+        <Profiler id="Waveform" onRender={onRenderCallback}>
+          <Waveform
+            audioBuffer={audioBuffer}
+            positionY={waveformY}
+            height={waveformH}
+            bufferId={bufferId}
+            bufPerSec={BUF_PER_SEC}
+          />
+        </Profiler>
 
         {/* List of guitar strings */}
         <Strings
           positionY={waveformY + waveformH}
           currentNote={nearestString?.note}
-          height={stringsHeight}
+          height={stringsH}
           instrument={instrument}
         />
 
@@ -150,14 +190,20 @@ export const Tuneo = () => {
         />
 
         {/* Grid */}
-        <MovingGrid positionY={movingGridY} pitchId={bufferId} deviation={gaugeDeviation} />
+        <MovingGrid
+          positionY={movingGridY}
+          pitchId={bufferId}
+          deviation={gaugeDeviation}
+          pointsPerSec={BUF_PER_SEC}
+        />
 
         {/* Gauge bar */}
         <TuningGauge
-          positionY={movingGridY - gaugeWidth}
+          positionY={movingGridY}
           gaugeColor={gaugeColor}
           gaugeDeviation={gaugeDeviation}
           gaugeWidth={gaugeWidth}
+          framesPerSec={BUF_PER_SEC}
         />
       </Canvas>
       <ConfigButton

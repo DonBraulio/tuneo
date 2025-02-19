@@ -8,7 +8,7 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.Promise
 import kotlin.concurrent.thread
 
-val BUF_PER_SEC = 10
+val BUF_PER_SEC = 15
 
 class MicrophoneStreamModule : Module() {
 

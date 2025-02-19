@@ -1,7 +1,7 @@
 import Colors from "@/colors"
 import { InstrumentString } from "@/instruments"
 import { useParagraphBuilder } from "@/paragraphs"
-import { useTranslation } from "@/translations"
+import { useTranslation } from "@/config"
 import { Group, Paragraph, RoundedRect } from "@shopify/react-native-skia"
 import { useMemo } from "react"
 import { useWindowDimensions } from "react-native"
@@ -40,6 +40,7 @@ export const MainNote = ({
     if (gaugeDeviation) {
       let prevText = " "
       let postText = " "
+      if (Math.abs(gaugeDeviation) > 0.75) return ""
       if (gaugeDeviation > 0) prevText += "<"
       if (gaugeDeviation > 0.2) prevText += "<"
       if (gaugeDeviation < 0) postText += ">"
@@ -68,7 +69,7 @@ export const MainNote = ({
           Colors.primary
         )}
         x={screen.width / 2 - width / 2}
-        y={0}
+        y={10}
         width={width}
       />
       <Paragraph
@@ -79,7 +80,7 @@ export const MainNote = ({
           Colors.primary
         )}
         x={screen.width / 2 - width / 2}
-        y={height - 18}
+        y={height - 20}
         width={width}
       />
       {freqDiffTxt && (
@@ -87,10 +88,10 @@ export const MainNote = ({
           paragraph={paragraphs.centered(freqDiffTxt, 12, 100, gaugeColor)}
           x={
             (gaugeDeviation ?? 0) > 0
-              ? width / 2 + sideTxtWidth / 2
-              : width / 2 - (3 * sideTxtWidth) / 2
+              ? screen.width / 2 + sideTxtWidth / 2
+              : screen.width / 2 - (3 * sideTxtWidth) / 2
           }
-          y={width - 18}
+          y={height - 20}
           width={sideTxtWidth}
         />
       )}

@@ -1,5 +1,5 @@
 import Colors from "@/colors"
-import { useTranslation } from "@/translations"
+import { useTranslation } from "@/config"
 import { HeaderButton } from "@react-navigation/elements"
 import { useNavigation } from "@react-navigation/native"
 import { Text } from "react-native"

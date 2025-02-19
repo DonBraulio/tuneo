@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native"
 import { MenuAction, MenuView } from "@react-native-menu/menu"
 import { Platform, View } from "react-native"
 import { useConfigStore } from "@/config"
-import { useTranslation } from "@/translations"
+import { useTranslation } from "@/config"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {
   const rotation = useSharedValue(0)
