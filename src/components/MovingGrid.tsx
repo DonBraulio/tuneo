@@ -9,27 +9,30 @@ const GRID_COLOR = "#505050" // Light grey
 const BACKGROUND_GRADIENT_START = "#000000" // Black
 const BACKGROUND_GRADIENT_END = "#3a3a3a" // Dark grey
 const GRID_SPACING = 30
-const GRID_SPEED = 60 // Pixels per second
-const MAX_HISTORY = 900
+const GRID_SPEED = 30 // Pixels per second
 const MISSING_NOTE = -2
 
 const MovingGrid = ({
   positionY,
   pitchId,
   deviation,
+  pointsPerSec,
 }: {
   positionY: number
   pitchId: number
   deviation?: number
+  pointsPerSec: number
 }) => {
   const { width, height } = useWindowDimensions()
   const boxHeight = useMemo(() => height / 2, [height])
+  const pointSpacing = useMemo(() => GRID_SPEED / pointsPerSec, [pointsPerSec])
+  const maxHistory = useMemo(() => Math.floor(boxHeight / pointSpacing), [boxHeight, pointSpacing])
 
   // Circular queues to store pitch history
-  const [history, setHistory] = useState(() => new Array<number>(MAX_HISTORY).fill(0))
-  const [timestamps, setTimestamps] = useState(() => new Array<number>(MAX_HISTORY).fill(0))
+  const [history, setHistory] = useState(() => new Array<number>(maxHistory).fill(0))
+  const [timestamps, setTimestamps] = useState(() => new Array<number>(maxHistory).fill(0))
   // Current position in the circular queues
-  const currentIdx = useMemo(() => pitchId % MAX_HISTORY, [pitchId])
+  const currentIdx = useMemo(() => pitchId % maxHistory, [pitchId, maxHistory])
   // Number of valid entries in circular queues
   const [historyLength, setHistoryLength] = useState(0)
 
@@ -48,27 +51,27 @@ const MovingGrid = ({
       newT[currentIdx] = Date.now()
       return newT
     })
-    setHistoryLength((prevLength) => Math.min(prevLength + 1, MAX_HISTORY))
-  }, [deviation, currentIdx])
+    setHistoryLength((prevLength) => Math.min(prevLength + 1, maxHistory))
+  }, [deviation, currentIdx, maxHistory])
 
   const historyPoints = useMemo(() => {
     const points = new Array(historyLength)
     let y = 0
     for (let i = 0; i < historyLength; i++) {
       // start drawing from last point (top)
-      const idx = (currentIdx - 1 - i + MAX_HISTORY) % MAX_HISTORY
+      const idx = (currentIdx - 1 - i + maxHistory) % maxHistory
       // Horizontal displacement
       const x = ((1 + history[idx]) * width) / 2
 
       // Vertical displacement
-      const next_idx = (currentIdx - i + MAX_HISTORY) % MAX_HISTORY
+      const next_idx = (currentIdx - i + maxHistory) % maxHistory
       const dt = i === 0 ? 0 : (timestamps[next_idx] - timestamps[idx]) / 1000
       y = y + GRID_SPEED * dt
       points[i] = vec(x, y)
       // console.log(`Point x=${x}  y=${y} dt=${dt}`)
     }
     return points
-  }, [history, currentIdx, timestamps, historyLength, width])
+  }, [history, currentIdx, timestamps, historyLength, width, maxHistory])
 
   // Vertical offset for animating grid lines
   const translateY = useSharedValue(0)
