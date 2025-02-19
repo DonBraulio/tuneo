@@ -12,7 +12,6 @@ const PLACEHOLDER_PATH1 = Skia.Path.MakeFromSVGString("M 0 0 L 0 0 Z")!
 const PLACEHOLDER_PATH2 = Skia.Path.MakeFromSVGString("M 0 0 L 0 0 Z")!
 
 const REFRESH_FRAMES = 1
-const MIN_REFRESHES = 4
 
 export const Waveform = ({
   audioBuffer,
@@ -58,7 +57,7 @@ export const Waveform = ({
   const waveform = usePathInterpolation(
     progress,
     [0, 1],
-    !waveform1 || !waveform2 || refresh < MIN_REFRESHES
+    !waveform1 || !waveform2 || waveform1.isEmpty() || waveform2.isEmpty()
       ? [PLACEHOLDER_PATH1, PLACEHOLDER_PATH2]
       : toggle
       ? [waveform1, waveform2]
