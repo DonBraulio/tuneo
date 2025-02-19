@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { useSharedValue, useDerivedValue, Easing, cancelAnimation } from "react-native-reanimated"
 import { withTiming, withRepeat } from "react-native-reanimated"
-import { Rect, Line, LinearGradient, Group, vec, Points, SkPoint } from "@shopify/react-native-skia"
+import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/colors"
 
@@ -55,7 +55,7 @@ const MovingGrid = ({
   }, [deviation, currentIdx, maxHistory])
 
   const historyPoints = useMemo(() => {
-    const points = new Array<{ coordinates: SkPoint; color: string }>(historyLength)
+    const points = new Array(historyLength)
     let y = 0
     for (let i = 0; i < historyLength; i++) {
       // start drawing from last point (top)
@@ -67,7 +67,7 @@ const MovingGrid = ({
       const next_idx = (currentIdx - i + maxHistory) % maxHistory
       const dt = i === 0 ? 0 : (timestamps[next_idx] - timestamps[idx]) / 1000
       y = y + GRID_SPEED * dt
-      points[i] = { coordinates: vec(x, y), color: Colors.getColorFromGaugeDeviation(history[idx]) }
+      points[i] = vec(x, y)
       // console.log(`Point x=${x}  y=${y} dt=${dt}`)
     }
     return points
@@ -116,6 +116,7 @@ const MovingGrid = ({
   The gauge color is very nonlinear near the center.
   */
   const tr = Math.floor
+  const pitchPoints = 0.2 // Pitches corresponding to x=0.4 and x=0.6
   const pts = [0, tr(width * 0.4), tr(width * 0.5), tr(width * 0.6), width]
 
   return (
@@ -165,16 +166,46 @@ const MovingGrid = ({
       />
 
       {/* <Path path={pitchHistoryPath} style="stroke" color={Colors.secondary} /> */}
-      {historyPoints.map((point, idx) => (
-        <Points
-          key={maxHistory * pitchId + idx}
-          points={[point.coordinates]}
-          mode="points"
-          color={point.color}
-          strokeWidth={3}
-          strokeCap={"round"}
-        />
-      ))}
+      <Mask
+        mask={
+          <Points
+            points={historyPoints}
+            mode="points"
+            color={Colors.primary}
+            strokeWidth={3}
+            strokeCap={"round"}
+          />
+        }
+      >
+        <Rect x={pts[0]} y={0} width={pts[1]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[0], y: 0 }}
+            end={{ x: pts[1], y: 0 }}
+            colors={[Colors.low, Colors.getColorFromGaugeDeviation(-pitchPoints)]}
+          />
+        </Rect>
+        <Rect x={pts[1]} y={0} width={pts[2]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[1], y: 0 }}
+            end={{ x: pts[2], y: 0 }}
+            colors={[Colors.getColorFromGaugeDeviation(-pitchPoints), Colors.center]}
+          />
+        </Rect>
+        <Rect x={pts[2]} y={0} width={pts[3]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[2], y: 0 }}
+            end={{ x: pts[3], y: 0 }}
+            colors={[Colors.center, Colors.getColorFromGaugeDeviation(pitchPoints)]}
+          />
+        </Rect>
+        <Rect x={pts[3]} y={0} width={pts[4]} height={boxHeight}>
+          <LinearGradient
+            start={{ x: pts[3], y: 0 }}
+            end={{ x: pts[4], y: 0 }}
+            colors={[Colors.getColorFromGaugeDeviation(pitchPoints), Colors.high]}
+          />
+        </Rect>
+      </Mask>
     </Group>
   )
 }
