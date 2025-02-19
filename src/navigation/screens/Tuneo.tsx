@@ -50,7 +50,7 @@ export const Tuneo = () => {
   }, [])
 
   const onRenderCallback = (id: string, phase: string, actualDuration: number) => {
-    console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
+    // console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
   }
 
   // Start microphone recording
@@ -163,7 +163,13 @@ export const Tuneo = () => {
     <View>
       <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
         <Profiler id="Waveform" onRender={onRenderCallback}>
-          <Waveform audioBuffer={audioBuffer} positionY={waveformY} height={waveformH} />
+          <Waveform
+            audioBuffer={audioBuffer}
+            positionY={waveformY}
+            height={waveformH}
+            bufferId={bufferId}
+            bufPerSec={BUF_PER_SEC}
+          />
         </Profiler>
 
         {/* List of guitar strings */}

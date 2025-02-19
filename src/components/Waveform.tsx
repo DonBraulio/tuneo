@@ -1,38 +1,83 @@
 import Colors from "@/colors"
-import { Group, Path } from "@shopify/react-native-skia"
-import { useMemo } from "react"
+import { Group, Path, SkPath, usePathInterpolation } from "@shopify/react-native-skia"
+import { useEffect, useMemo, useState } from "react"
 import { useWindowDimensions } from "react-native"
 import { Skia } from "@shopify/react-native-skia"
+import { cancelAnimation, useSharedValue, withTiming } from "react-native-reanimated"
 
 const MAX_WAVEFORM_GAIN = 20
+const WAVEFORM_SUBSAMPLE = 12
+const MIN_SUBSAMPLE_SIZE = 10
+const PLACEHOLDER_PATH1 = Skia.Path.MakeFromSVGString("M 0 0 L 0 0 Z")!
+const PLACEHOLDER_PATH2 = Skia.Path.MakeFromSVGString("M 0 0 L 0 0 Z")!
+
+const REFRESH_FRAMES = 1
+const MIN_REFRESHES = 4
 
 export const Waveform = ({
   audioBuffer,
   positionY,
   height,
+  bufferId,
+  bufPerSec,
 }: {
   audioBuffer: number[]
   positionY: number
   height: number
+  bufferId: number
+  bufPerSec: number
 }) => {
   const { width } = useWindowDimensions()
-  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [audioBuffer])
-  const waveformPath = useMemo(
-    () => getWaveformPath(alignedAudio, width, height),
-    [alignedAudio, width, height]
+
+  // Only refresh alignedAudio once every REFRESH_FRAMES
+  const refresh = useMemo(() => Math.floor(bufferId / REFRESH_FRAMES), [bufferId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const alignedAudio = useMemo(() => getAlignedAudio(audioBuffer, 2048), [refresh])
+
+  const [waveform1, setWaveform1] = useState<SkPath>()
+  const [waveform2, setWaveform2] = useState<SkPath>()
+  const [toggle, setToggle] = useState(false)
+
+  useEffect(() => {
+    setToggle((toggle) => {
+      if (toggle) setWaveform1(getWaveformPath(alignedAudio, width, height))
+      else setWaveform2(getWaveformPath(alignedAudio, width, height))
+      return !toggle
+    })
+  }, [alignedAudio, width, height])
+
+  const progress = useSharedValue(0)
+  useEffect(() => {
+    progress.value = 0
+    progress.value = withTiming(1, { duration: (1000 * REFRESH_FRAMES) / bufPerSec })
+
+    return () => cancelAnimation(progress)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bufPerSec, toggle])
+
+  const waveform = usePathInterpolation(
+    progress,
+    [0, 1],
+    !waveform1 || !waveform2 || refresh < MIN_REFRESHES
+      ? [PLACEHOLDER_PATH1, PLACEHOLDER_PATH2]
+      : toggle
+      ? [waveform1, waveform2]
+      : [waveform2, waveform1]
   )
 
   return (
-    <Group transform={[{ translateY: positionY }]}>
-      <Path
-        style="stroke"
-        path={waveformPath}
-        strokeWidth={2}
-        strokeJoin="round"
-        strokeCap="round"
-        color={Colors.secondary}
-      />
-    </Group>
+    waveform && (
+      <Group transform={[{ translateY: positionY }]}>
+        <Path
+          style="stroke"
+          path={waveform}
+          strokeWidth={2}
+          strokeJoin="round"
+          strokeCap="round"
+          color={Colors.secondary}
+        />
+      </Group>
+    )
   )
 }
 
@@ -55,7 +100,8 @@ const getWaveformPath = (samples: number[], width: number, height: number) => {
 
   // Create waveform path
   const path = Skia.Path.Make()
-  const subsample = 12
+  const subsample = samples.length > MIN_SUBSAMPLE_SIZE ? WAVEFORM_SUBSAMPLE : 1
+
   samples.forEach((sample, idx) => {
     if (idx % subsample !== 0) return
     const x = idx * dx
