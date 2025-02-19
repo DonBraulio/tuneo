@@ -4,6 +4,7 @@ import { withTiming, withRepeat } from "react-native-reanimated"
 import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/colors"
+import { useConfigStore } from "@/config"
 
 const GRID_COLOR = Colors.bgInactive
 const BACKGROUND_GRADIENT_START = Colors.bgActive
@@ -24,6 +25,7 @@ const MovingGrid = ({
   pointsPerSec: number
 }) => {
   const { width, height } = useWindowDimensions()
+  const graphics = useConfigStore((state) => state.graphics)
   const boxHeight = useMemo(() => height / 4, [height])
   const pointSpacing = useMemo(() => GRID_SPEED / pointsPerSec, [pointsPerSec])
   const maxHistory = useMemo(() => Math.floor(boxHeight / pointSpacing), [boxHeight, pointSpacing])
@@ -177,34 +179,47 @@ const MovingGrid = ({
           />
         }
       >
-        <Rect x={pts[0]} y={0} width={pts[1]} height={boxHeight}>
-          <LinearGradient
-            start={{ x: pts[0], y: 0 }}
-            end={{ x: pts[1], y: 0 }}
-            colors={[Colors.low, Colors.getColorFromGaugeDeviation(-pitchPoints)]}
+        {graphics === "low" ? (
+          <Rect
+            x={pts[0]}
+            y={0}
+            width={width}
+            height={boxHeight}
+            style="fill"
+            color={Colors.primary}
           />
-        </Rect>
-        <Rect x={pts[1]} y={0} width={pts[2]} height={boxHeight}>
-          <LinearGradient
-            start={{ x: pts[1], y: 0 }}
-            end={{ x: pts[2], y: 0 }}
-            colors={[Colors.getColorFromGaugeDeviation(-pitchPoints), Colors.center]}
-          />
-        </Rect>
-        <Rect x={pts[2]} y={0} width={pts[3]} height={boxHeight}>
-          <LinearGradient
-            start={{ x: pts[2], y: 0 }}
-            end={{ x: pts[3], y: 0 }}
-            colors={[Colors.center, Colors.getColorFromGaugeDeviation(pitchPoints)]}
-          />
-        </Rect>
-        <Rect x={pts[3]} y={0} width={pts[4]} height={boxHeight}>
-          <LinearGradient
-            start={{ x: pts[3], y: 0 }}
-            end={{ x: pts[4], y: 0 }}
-            colors={[Colors.getColorFromGaugeDeviation(pitchPoints), Colors.high]}
-          />
-        </Rect>
+        ) : (
+          <>
+            <Rect x={pts[0]} y={0} width={pts[1]} height={boxHeight}>
+              <LinearGradient
+                start={{ x: pts[0], y: 0 }}
+                end={{ x: pts[1], y: 0 }}
+                colors={[Colors.low, Colors.getColorFromGaugeDeviation(-pitchPoints)]}
+              />
+            </Rect>
+            <Rect x={pts[1]} y={0} width={pts[2] - pts[1]} height={boxHeight}>
+              <LinearGradient
+                start={{ x: pts[1], y: 0 }}
+                end={{ x: pts[2], y: 0 }}
+                colors={[Colors.getColorFromGaugeDeviation(-pitchPoints), Colors.center]}
+              />
+            </Rect>
+            <Rect x={pts[2]} y={0} width={pts[3] - pts[2]} height={boxHeight}>
+              <LinearGradient
+                start={{ x: pts[2], y: 0 }}
+                end={{ x: pts[3], y: 0 }}
+                colors={[Colors.center, Colors.getColorFromGaugeDeviation(pitchPoints)]}
+              />
+            </Rect>
+            <Rect x={pts[3]} y={0} width={pts[4] - pts[3]} height={boxHeight}>
+              <LinearGradient
+                start={{ x: pts[3], y: 0 }}
+                end={{ x: pts[4], y: 0 }}
+                colors={[Colors.getColorFromGaugeDeviation(pitchPoints), Colors.high]}
+              />
+            </Rect>
+          </>
+        )}
       </Mask>
     </Group>
   )

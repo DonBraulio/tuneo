@@ -3,26 +3,31 @@ import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { zustandStorage } from "./localStorage"
 import { getLocaleForDevice, useTranslation } from "./translations"
+import { Platform } from "react-native"
 
 export const INSTRUMENT_IDS = ["guitar", "chromatic"] as const
 export const THEME_IDS = ["dark"] as const
 export const LANGUAGE_IDS = ["en", "es"] as const
 export const TUNING_IDS = ["ref_440", "ref_432", "ref_444"] as const
+export const GRAPHIC_MODES = ["low", "high"] as const
 
 export type InstrumentType = (typeof INSTRUMENT_IDS)[number]
 export type ThemeType = (typeof THEME_IDS)[number]
 export type LanguageType = (typeof LANGUAGE_IDS)[number]
 export type TuningType = (typeof TUNING_IDS)[number]
+export type GraphicsMode = (typeof GRAPHIC_MODES)[number]
 
 interface ConfigState {
   instrument: InstrumentType
   theme: ThemeType
   language: LanguageType
   tuning: TuningType
+  graphics: GraphicsMode
   setLanguage: (language: LanguageType) => void
   setInstrument: (instrument: InstrumentType) => void
   setTheme: (theme: ThemeType) => void
   setTuning: (tuning: TuningType) => void
+  setGraphics: (grahpics: GraphicsMode) => void
 }
 
 /**
@@ -36,10 +41,13 @@ export const useConfigStore = create<ConfigState>()(
       theme: "dark",
       language: getLocaleForDevice(),
       tuning: "ref_440",
+      graphics: Platform.OS === "ios" ? "high" : "low",
+
       setLanguage: (language: LanguageType) => set({ language }),
       setInstrument: (instrument: InstrumentType) => set({ instrument }),
       setTheme: (theme: ThemeType) => set({ theme }),
       setTuning: (tuning: TuningType) => set({ tuning }),
+      setGraphics: (graphics: GraphicsMode) => set({ graphics }),
     }),
     {
       name: "config-store",
@@ -60,6 +68,9 @@ export const useConfigStore = create<ConfigState>()(
         }
         if (LANGUAGE_IDS.includes(savedState.language as any)) {
           loadedState.language = savedState.language
+        }
+        if (GRAPHIC_MODES.includes(savedState.graphics as any)) {
+          loadedState.graphics = savedState.graphics
         }
         return loadedState
       },
@@ -106,6 +117,15 @@ export const useSettingsOptions = () => {
       }
     },
 
+    getGraphicModeName: (graphics: GraphicsMode): string => {
+      switch (graphics) {
+        case "high":
+          return t("graphics_high")
+        case "low":
+          return t("graphics_low")
+      }
+    },
+
     getInstruments: function () {
       return INSTRUMENT_IDS.map((id) => ({ id, title: this.getInstrumentName(id) } as MenuAction))
     },
@@ -117,6 +137,9 @@ export const useSettingsOptions = () => {
     },
     getTunings: function () {
       return TUNING_IDS.map((id) => ({ id, title: this.getTuningName(id) } as MenuAction))
+    },
+    getGraphics: function () {
+      return GRAPHIC_MODES.map((id) => ({ id, title: this.getGraphicModeName(id) } as MenuAction))
     },
   }
 }

@@ -50,7 +50,7 @@ export const Tuneo = () => {
   }, [])
 
   const onRenderCallback = (id: string, phase: string, actualDuration: number) => {
-    console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
+    // console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
   }
 
   // Start microphone recording
@@ -122,9 +122,7 @@ export const Tuneo = () => {
         minFreq = prevPitch * (1 - PITCH_NARROW_RANGE)
         maxFreq = prevPitch * (1 + PITCH_NARROW_RANGE)
       }
-      const start = +new Date()
       const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
-      console.log(`Pitch time: ${+new Date() - start}ms`)
       return pitch
     })
   }, [audioBuffer, sampleRate, rmsDecreasing])

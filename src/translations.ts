@@ -16,6 +16,9 @@ export interface Translation {
   tuning_440: string
   tuning_432: string
   tuning_444: string
+  graphics: string
+  graphics_high: string
+  graphics_low: string
 }
 
 export const en: Translation = {
@@ -33,6 +36,9 @@ export const en: Translation = {
   tuning_440: "440Hz (standard)",
   tuning_432: "432Hz (Verdi)",
   tuning_444: "444Hz (high pitch)",
+  graphics: "Graphics",
+  graphics_high: "Better quality",
+  graphics_low: "Better performance",
 }
 
 export const es: Translation = {
@@ -50,6 +56,9 @@ export const es: Translation = {
   tuning_440: "440Hz (estándar)",
   tuning_432: "432Hz (Verdi)",
   tuning_444: "444Hz (tono alto)",
+  graphics: "Gráficos",
+  graphics_high: "Mejor calidad",
+  graphics_low: "Mejor rendimiento",
 }
 
 /**
