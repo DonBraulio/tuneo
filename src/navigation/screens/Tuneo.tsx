@@ -203,6 +203,7 @@ export const Tuneo = () => {
           gaugeColor={gaugeColor}
           gaugeDeviation={gaugeDeviation}
           gaugeWidth={gaugeWidth}
+          framesPerSec={BUF_PER_SEC}
         />
       </Canvas>
       <ConfigButton
