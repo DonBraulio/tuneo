@@ -5,11 +5,11 @@ import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/r
 import { useWindowDimensions } from "react-native"
 import Colors from "@/colors"
 
-const GRID_COLOR = "#505050" // Light grey
-const BACKGROUND_GRADIENT_START = "#000000" // Black
-const BACKGROUND_GRADIENT_END = "#3a3a3a" // Dark grey
+const GRID_COLOR = Colors.bgInactive
+const BACKGROUND_GRADIENT_START = Colors.bgActive
+const BACKGROUND_GRADIENT_END = Colors.bgInactive
 const GRID_SPACING = 30
-const GRID_SPEED = 30 // Pixels per second
+const GRID_SPEED = 60 // Pixels per second
 const MISSING_NOTE = -2
 
 const MovingGrid = ({
@@ -24,7 +24,7 @@ const MovingGrid = ({
   pointsPerSec: number
 }) => {
   const { width, height } = useWindowDimensions()
-  const boxHeight = useMemo(() => height / 2, [height])
+  const boxHeight = useMemo(() => height / 4, [height])
   const pointSpacing = useMemo(() => GRID_SPEED / pointsPerSec, [pointsPerSec])
   const maxHistory = useMemo(() => Math.floor(boxHeight / pointSpacing), [boxHeight, pointSpacing])
 

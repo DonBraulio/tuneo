@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { Profiler, useEffect, useMemo, useState } from "react"
 import { View, useWindowDimensions, Alert } from "react-native"
 import { Canvas } from "@shopify/react-native-skia"
 
@@ -48,6 +48,10 @@ export const Tuneo = () => {
       }
     })()
   }, [])
+
+  const onRenderCallback = (id: string, phase: string, actualDuration: number) => {
+    console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
+  }
 
   // Start microphone recording
   useEffect(() => {
@@ -118,8 +122,9 @@ export const Tuneo = () => {
         minFreq = prevPitch * (1 - PITCH_NARROW_RANGE)
         maxFreq = prevPitch * (1 + PITCH_NARROW_RANGE)
       }
-
+      const start = +new Date()
       const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
+      console.log(`Pitch time: ${+new Date() - start}ms`)
       return pitch
     })
   }, [audioBuffer, sampleRate, rmsDecreasing])
@@ -179,12 +184,14 @@ export const Tuneo = () => {
         />
 
         {/* Grid */}
-        <MovingGrid
-          positionY={movingGridY}
-          pitchId={bufferId}
-          deviation={gaugeDeviation}
-          pointsPerSec={BUF_PER_SEC}
-        />
+        <Profiler id="MovingGrid" onRender={onRenderCallback}>
+          <MovingGrid
+            positionY={movingGridY}
+            pitchId={bufferId}
+            deviation={gaugeDeviation}
+            pointsPerSec={BUF_PER_SEC}
+          />
+        </Profiler>
 
         {/* Gauge bar */}
         <TuningGauge
