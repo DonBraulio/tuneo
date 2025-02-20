@@ -5,6 +5,7 @@ import { zustandStorage } from "./localStorage"
 import { en, es, Translation } from "./translations"
 import { Platform } from "react-native"
 import { getLocales } from "expo-localization"
+import { useCallback } from "react"
 
 export const INSTRUMENT_IDS = ["guitar", "chromatic"] as const
 export const THEME_IDS = ["dark"] as const
@@ -23,24 +24,28 @@ export type GraphicsMode = (typeof GRAPHIC_MODES)[number]
  * according to the device's preferences or app settings.
  * @returns a function to use as t('key'), where 'key' keyof Translation.
  */
-
 export const useTranslation = () => {
-  const config = useConfigStore()
-  return (key: keyof Translation) => {
-    switch (config.language) {
-      case "en":
-        return en[key]
-      case "es":
-        return es[key]
-    }
-  }
+  const language = useConfigStore((state) => state.language)
+  const t = useCallback(
+    (key: keyof Translation) => {
+      switch (language) {
+        case "en":
+          return en[key]
+        case "es":
+          return es[key]
+      }
+    },
+    [language]
+  )
+  return t
 }
+
 /**
  * Get best available locale according to user's settings on device.
  * @returns a LanguageType that is available on the device
  */
-
 export const getLocaleForDevice = (): LanguageType => {
+  console.log("Get locale")
   for (const locale in getLocales()) {
     if (LANGUAGE_IDS.includes(locale as any)) {
       return locale as LanguageType

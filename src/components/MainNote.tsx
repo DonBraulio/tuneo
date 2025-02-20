@@ -1,7 +1,7 @@
 import Colors from "@/colors"
 import { InstrumentString } from "@/instruments"
 import { useParagraphBuilder } from "@/paragraphs"
-import { useTranslation } from "@/config"
+import { useTranslation } from "@/configHooks"
 import { Group, Paragraph, RoundedRect } from "@shopify/react-native-skia"
 import { useMemo } from "react"
 import { useWindowDimensions } from "react-native"

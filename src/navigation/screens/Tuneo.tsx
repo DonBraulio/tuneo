@@ -9,12 +9,13 @@ import Colors from "@/colors"
 import { getTestSignal } from "@/test"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
-import { useConfigStore } from "@/config"
+import { useConfigStore, useTranslation } from "@/configHooks"
 import { Chromatic, Guitar, Instrument } from "@/instruments"
 import { Waveform } from "@/components/Waveform"
 import { Strings } from "@/components/Strings"
 import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
+import RequireMicAccess from "@/components/RequireMicAccess"
 
 const TEST_MODE = false
 const MIN_FREQ = 30
@@ -25,14 +26,20 @@ const PITCH_NARROW_RANGE = 0.1
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
 console.log(`Preferred buffers per second: ${BUF_PER_SEC}`)
 
+type MicrophoneAccess = "pending" | "granted" | "denied"
+
 export const Tuneo = () => {
   const { width, height } = useWindowDimensions()
   const config = useConfigStore()
+  const t = useTranslation()
 
   // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
   const [audioBuffer, setAudioBuffer] = useState<number[]>([])
   const [bufferId, setBufferId] = useState(0)
+
+  // Flag for microphone access granted
+  const [micAccess, setMicAccess] = useState<MicrophoneAccess>("pending")
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
@@ -43,11 +50,15 @@ export const Tuneo = () => {
   useEffect(() => {
     ;(async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync()
-      if (!status.granted) {
-        Alert.alert("Permission to access microphone was denied")
+      if (status.granted) {
+        console.log("Granted microphone permission")
+        setMicAccess("granted")
+      } else {
+        setMicAccess("denied")
+        Alert.alert(t("error_mic_access"))
       }
     })()
-  }, [])
+  }, [t])
 
   const onRenderCallback = (id: string, phase: string, actualDuration: number) => {
     // console.log(`Component ${id} took ${actualDuration} ms to render (${phase} phase)`)
@@ -55,10 +66,11 @@ export const Tuneo = () => {
 
   // Start microphone recording
   useEffect(() => {
-    if (TEST_MODE) return
+    if (TEST_MODE || micAccess !== "granted") return
 
     // Start microphone
     MicrophoneStreamModule.startRecording()
+    console.log("Start recording")
 
     // Suscribe to microphone buffer
     const subscriber = MicrophoneStreamModule.addListener(
@@ -76,8 +88,11 @@ export const Tuneo = () => {
         })
       }
     )
-    return () => subscriber.remove()
-  }, [])
+    return () => {
+      subscriber.remove()
+      MicrophoneStreamModule.stopRecording()
+    }
+  }, [micAccess])
 
   // Test audio buffers
   useEffect(() => {
@@ -86,13 +101,13 @@ export const Tuneo = () => {
     const sampleRate = 44100
     const bufSize = sampleRate / BUF_PER_SEC
     const buffer = getTestSignal(bufferId, sampleRate, bufSize)
+    setSampleRate(sampleRate)
     setAudioBuffer(buffer)
     setRMS((oldRMS) => {
       const newRMS = DSPModule.rms(buffer)
       setRMSDecreasing(newRMS < oldRMS)
       return newRMS
     })
-    setSampleRate(sampleRate)
 
     // Trigger for next buffer
     const timeout = setTimeout(() => {
@@ -103,7 +118,7 @@ export const Tuneo = () => {
 
   // Get pitch of the audio
   useEffect(() => {
-    if (!audioBuffer.length) return
+    if (!audioBuffer.length || micAccess !== "granted") return
 
     let sr = sampleRate
     if (!sr) {
@@ -125,7 +140,7 @@ export const Tuneo = () => {
       const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
       return pitch
     })
-  }, [audioBuffer, sampleRate, rmsDecreasing])
+  }, [audioBuffer, sampleRate, rmsDecreasing, micAccess])
 
   // Selected instrument
   const instrument: Instrument = useMemo(() => {
@@ -159,9 +174,9 @@ export const Tuneo = () => {
   const cfgBtnSize = 1.5
   const cfgBtnMargin = 50
 
-  return (
-    <View>
-      <Canvas style={{ width, height, backgroundColor: Colors.bgInactive }}>
+  return micAccess === "granted" ? (
+    <View style={{ flex: 1, backgroundColor: Colors.bgInactive }}>
+      <Canvas style={{ flex: 1 }}>
         <Profiler id="Waveform" onRender={onRenderCallback}>
           <Waveform
             audioBuffer={audioBuffer}
@@ -172,15 +187,12 @@ export const Tuneo = () => {
           />
         </Profiler>
 
-        {/* List of guitar strings */}
         <Strings
           positionY={waveformY + waveformH}
           currentNote={nearestString?.note}
           height={stringsH}
           instrument={instrument}
         />
-
-        {/* Note text */}
         <MainNote
           positionY={movingGridY - gaugeWidth - 10}
           currentString={nearestString}
@@ -189,7 +201,6 @@ export const Tuneo = () => {
           gaugeColor={gaugeColor}
         />
 
-        {/* Grid */}
         <MovingGrid
           positionY={movingGridY}
           pitchId={bufferId}
@@ -197,7 +208,6 @@ export const Tuneo = () => {
           pointsPerSec={BUF_PER_SEC}
         />
 
-        {/* Gauge bar */}
         <TuningGauge
           positionY={movingGridY}
           gaugeColor={gaugeColor}
@@ -212,5 +222,7 @@ export const Tuneo = () => {
         size={cfgBtnSize}
       />
     </View>
-  )
+  ) : micAccess === "denied" ? (
+    <RequireMicAccess />
+  ) : undefined // micAccess "pending"
 }

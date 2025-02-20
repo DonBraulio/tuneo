@@ -1,4 +1,4 @@
-import { TuningType } from "./config"
+import { TuningType } from "./configHooks"
 import { getFreqFromNote, getNoteFromFreq, Note } from "./notes"
 
 export type InstrumentString = { note: Note; freq: number }

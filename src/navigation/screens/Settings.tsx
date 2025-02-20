@@ -7,8 +7,8 @@ import {
   TuningType,
   useConfigStore,
   useSettingsOptions,
-} from "@/config"
-import { useTranslation } from "@/config"
+  useTranslation,
+} from "@/configHooks"
 import { useNavigation } from "@react-navigation/native"
 import { useEffect, useMemo } from "react"
 import { StyleSheet, View } from "react-native"

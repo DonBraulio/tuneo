@@ -1,4 +1,4 @@
-import { TuningType } from "./config"
+import { TuningType } from "./configHooks"
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"] as const
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

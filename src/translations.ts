@@ -16,6 +16,8 @@ export interface Translation {
   graphics: string
   graphics_high: string
   graphics_low: string
+  error_mic_access: string
+  configure_permissions: string
 }
 
 export const en: Translation = {
@@ -36,6 +38,8 @@ export const en: Translation = {
   graphics: "Graphics",
   graphics_high: "Better quality",
   graphics_low: "Better performance",
+  error_mic_access: "Tuneo requires microphone permissions to hear your guitar.",
+  configure_permissions: "Configure permissions",
 }
 
 export const es: Translation = {
@@ -56,4 +60,6 @@ export const es: Translation = {
   graphics: "Gráficos",
   graphics_high: "Mejor calidad",
   graphics_low: "Mejor rendimiento",
+  error_mic_access: "Tuneo necesita permiso de micrófono para escuchar la guitarra.",
+  configure_permissions: "Configurar permisos",
 }
