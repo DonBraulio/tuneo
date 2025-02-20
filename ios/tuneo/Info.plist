@@ -52,7 +52,7 @@
       <true/>
     </dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>We need access to the microphone for audio processing.</string>
+    <string>We need to hear the guitar :)</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
