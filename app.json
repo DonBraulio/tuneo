@@ -15,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
@@ -33,7 +33,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#000000",
           "image": "./assets/splash-icon.png"
         }
       ],
@@ -41,7 +41,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "We need access to the microphone!"
+          "microphonePermission": "We need to hear the guitar :)"
         }
       ],
       "expo-localization"
