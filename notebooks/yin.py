@@ -11,7 +11,7 @@ from rich import progress
 from numba import jit
 
 # %%
-fs, audio = wavfile.read("notebooks/6th_E_steel.wav")
+fs, audio = wavfile.read("notebooks/1st_E_steel.wav")
 
 # NOTE: the diff * diff op in YIN can overflow without this normalization
 audio = audio / 32768
@@ -22,6 +22,8 @@ ipd.Audio(audio, rate=fs)
 # %%
 # Step 3 modification:
 # Find min of parabola, assuming we've 3 points and buffer[x_min] is smallest
+THRESHOLD: float = 0.15
+
 @jit
 def parabola_interp(x_min: int, y_left: float, y_center: float, y_right: float):
     nom: float = -4*x_min*y_center + (2 * x_min - 1) * y_right + (2 * x_min + 1) * y_left
@@ -60,7 +62,7 @@ def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float, min_freq: 
     for tau in range(tau_min + 1, tau_max - 1):
         # Modified (see last part of the notebook)
         # if buffer[tau] < 0.2:
-        if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
+        if buffer[tau] < THRESHOLD and buffer[tau] < buffer[tau + 1]:
             # min_tau = tau
             min_tau = parabola_interp(tau, buffer[tau - 1], buffer[tau], buffer[tau+1])
             break
@@ -72,8 +74,6 @@ def yin_pitch_detection(audio_buffer: np.ndarray, sample_rate: float, min_freq: 
 
 
 # %%
-# Choose one
-# NOTE: According to my results, filtered audio is not better in 6th string, worse on 1st
 # test_audio = audio_filt
 test_audio = audio
 
@@ -119,7 +119,7 @@ plt.show()
 
 # %% [markdown]
 # # Step by step YIN detection
-t = .5
+t = 1.0
 win_begin = int(t * fs)
 window_size = 4096
 audio_chunk = audio[win_begin:win_begin + window_size]
@@ -155,12 +155,13 @@ for tau in range(tau_min, tau_max):
 
 plt.figure()
 plt.plot(buffer)
+plt.axhline(y=THRESHOLD, color="r", marker=',')
 
 # %%
 # Step 3: Find the minimum value in the CMND function
 min_tau = -1
 for tau in range(tau_min, tau_max):
-    if buffer[tau] < 0.2:
+    if buffer[tau] < THRESHOLD:
         min_tau = tau
         break
 
@@ -176,7 +177,7 @@ print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
 min_tau = -1
 prev_value = 0
 for tau in range(1, buffer_size):
-    if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
+    if buffer[tau] < THRESHOLD and buffer[tau] < buffer[tau + 1]:
         min_tau = tau
         break
 
@@ -187,7 +188,7 @@ print(f"Pitch: {fs / min_tau:.2f} | Min tau: {min_tau}")
 min_tau = -1
 prev_value = 0
 for tau in range(1, buffer_size):
-    if buffer[tau] < 0.1 and buffer[tau] < buffer[tau + 1]:
+    if buffer[tau] < THRESHOLD and buffer[tau] < buffer[tau + 1]:
         min_tau = parabola_interp(tau, buffer[tau-1], buffer[tau], buffer[tau+1])
         break
 
