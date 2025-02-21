@@ -5,6 +5,7 @@ import { Settings } from "./screens/Settings"
 import { Tuneo } from "./screens/Tuneo"
 import Colors from "@/colors"
 import { CloseButton } from "@/components/CloseButton"
+import { Platform } from "react-native"
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -17,11 +18,13 @@ const RootStack = createNativeStackNavigator({
     Settings: {
       screen: Settings,
       options: () => ({
-        presentation: "modal",
-        headerRight: () => <CloseButton />,
         headerTitleStyle: { color: Colors.primary },
         headerStyle: { backgroundColor: Colors.bgTitle },
+        headerTintColor: Colors.primary,
         headerShadowVisible: false,
+        ...(Platform.OS === "ios"
+          ? { presentation: "modal", headerRight: () => <CloseButton /> }
+          : {}),
       }),
     },
   },

@@ -1,6 +1,6 @@
 import Colors from "@/colors"
 import { MenuAction, MenuView } from "@react-native-menu/menu"
-import { StyleSheet, Text, View } from "react-native"
+import { Appearance, Platform, StyleSheet, Text, View } from "react-native"
 
 export const FormPicker = ({
   label,
@@ -13,6 +13,10 @@ export const FormPicker = ({
   onSelect: (id: string) => void
   value: string
 }) => {
+  // Dark menu depends on phone settings in android
+  const theme =
+    Platform.OS === "android" && Appearance.getColorScheme() === "light" ? "light" : "dark"
+  const titleColor = theme === "light" ? Colors.fgLight : Colors.primary
   return (
     <View style={styles.pickerRow}>
       <Text style={styles.pickerLabel}>{label}</Text>
@@ -26,8 +30,10 @@ export const FormPicker = ({
             ({
               ...a,
               state: value === a.id ? "on" : "off",
+              titleColor,
             } as MenuAction)
         )}
+        themeVariant={theme}
       >
         <Text style={styles.pickerText}>
           {actions.find((l) => l.id === value)?.title ?? "Select..."}

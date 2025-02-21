@@ -17,6 +17,8 @@ const Colors = {
   bgTitle: "#222222",
   secondary: "#7a7a7a",
   primary: "#ffffff",
+  bgLight: "#ffffff",
+  fgLight: "#000000",
 
   // tuner indicators
   low: "rgb(255, 60, 0)",
