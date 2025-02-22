@@ -1,65 +1,59 @@
-# Starter Template with React Navigation
 
-This is a minimal starter template for React Native apps using Expo and React Navigation.
+![tuneo_banner](https://github.com/user-attachments/assets/bb7908ea-7eea-4346-ab61-9fc53c80ab46)
 
-It includes the following:
+## 🎸 An Open Source React Native Guitar Tuner
 
-- Example [Native Stack](https://reactnavigation.org/docs/native-stack-navigator) with a nested [Bottom Tab](https://reactnavigation.org/docs/bottom-tab-navigator)
-- Web support with [React Native for Web](https://necolas.github.io/react-native-web/)
-- TypeScript support and configured for React Navigation
-- Automatic deep link and URL handling configuration
-- Expo [Development Build](https://docs.expo.dev/develop/development-builds/introduction/) with [Continuous Native Generation](https://docs.expo.dev/workflow/continuous-native-generation/)
-- Edge-to-edge configured on Android with [`react-native-edge-to-edge`](https://www.npmjs.com/package/react-native-edge-to-edge)
+An open-source guitar tuner app built with React Native, leveraging the new bridgeless architecture to achieve real-time pitch detection and smooth UI updates.
 
-## Getting Started
+## 🔥 Features
+ - Real-time Pitch Detection: Uses a C++ TurboModule for efficient pitch estimation using the YIN algorithm.
+ - Smooth & Interactive UI: Built with [Skia](https://shopify.github.io/react-native-skia/) and [Reanimated 3](https://docs.swmansion.com/react-native-reanimated/).
+ - Cross-Platform: Runs on both iOS and Android with a shared codebase.
+ - Native Audio Modules: Uses custom built Swift (iOS) and Kotlin (Android) modules for microphone access.
+ - **Open Source:** No ads, no paywalls—just a functional and efficient tuner. You're welcome to donate though :)
 
-1. Create a new project using this template:
+### Why the New Architecture?
 
-   ```sh
-   npx create-expo-app --template https://github.com/react-navigation/template
-   ```
+This project demonstrates a use case that would be impractical with the old React Native bridge. The new TurboModules allow direct and efficient communication between JavaScript, native modules and C++, avoiding performance bottlenecks caused by JSON serialization.
 
-2. Edit the `app.json` file to configure the `name`, `slug`, `scheme` and bundle identifiers (`ios.bundleIdentifier` and `android.bundleIdentifier`) for your app.
+Additionally, Skia and Reanimated 3 enable a game-like, smooth UI that updates in real-time without lag—something difficult to achieve with standard React Native views.
 
-3. Edit the `src/App.tsx` file to start working on your app.
+### Why React Native in the first place?
+This project was developed with a fraction of the effort that would be necessary using alternatives, because it combines a high-level language like Typescript/JSX that allows very fast development cycles, with low-level and native modules for compute-intensive tasks like signal processing, drawing, and animations.
 
-## Running the app
+Also, the codebase for iOS and Android is shared, except for the microphone access native modules, which are very small and were generated using AI tools for the most part, because I didn't have time to dive deeper in Swift and Kotlin 😁. Even the C++ signal processing module works on both platforms out of the box.
 
-- Install the dependencies:
+## ⚙️ How It Works
+If you are a developer and want to dive in, here's the basics you need to know:
+ 1. The app starts as a React Native (TypeScript) navigation app using Expo.
+ 2. The main screen (`src/navigation/screens/Tuneo.tsx`) is a Skia canvas that displays the tuning interface.
+ 3. When the app starts, it initializes the native microphone module (ios/android in `modules/microphone-stream`), which streams raw audio buffers to JavaScript.
+ 4. For each audio buffer received:
+    -	The waveform is drawn on the UI using Skia and Reanimated.
+    - The buffer is sent to the C++ pitch detection module (`shared/NativeDSPModule.cpp`), which estimates the pitch in real time.
+ 5. The detected pitch is displayed on the UI, along with a real-time pitch evolution graph to help with tuning.
 
-  ```sh
-  npm install
-  ```
+### Notes:
+ - There's a `notebooks/` folder to experiment with the YIN algorithm using python/jupyter.
+ - The C++ turbo module for pitch detection was integrated following the [React Native docs](https://reactnative.dev/docs/0.77/the-new-architecture/pure-cxx-modules).
+ - The Swift/Kotlin native modules for microphone access were implemented with [Expo](https://docs.expo.dev/modules/native-module-tutorial/).
+ - The whole project was started using the React Navigation [Starter Template](https://reactnavigation.org/docs/getting-started#starter-template).
 
-- Start the development server:
+## 🎯 Future Improvements
+This is just a list of ideas, which might change according to user feedback.
+ - Support for more instruments.
+ - Improved UI/UX design.
+ - Add metronome and some basic ear training challenges.
+ - Experimentation with alternative pitch detection algorithms (e.g., CREPE).
+ - Better developer documentation.
+ - Localization for multiple languages.
 
-  ```sh
-  npm start
-  ```
+## 🤝 Contributing & Sponsorship
 
-- Build and run iOS and Android development builds:
+This is an open-source project, but it has the potential to evolve into a serious tool if it gains traction. Contributions and sponsorships are welcome to support ongoing development.
 
-  ```sh
-  npm run ios
-  # or
-  npm run android
-  ```
+If you find this project useful, consider sponsoring via GitHub to help improve and maintain it!
 
-- In the terminal running the development server, press `i` to open the iOS simulator, `a` to open the Android device or emulator, or `w` to open the web browser.
+## 📜 License
 
-## Notes
-
-This project uses a [development build](https://docs.expo.dev/develop/development-builds/introduction/) and cannot be run with [Expo Go](https://expo.dev/go). To run the app with Expo Go, edit the `package.json` file, remove the `expo-dev-client` package and `--dev-client` flag from the `start` script. However, Edge-to-edge won't work on Expo Go.
-
-We highly recommend using the development builds for normal development and testing.
-
-The `ios` and `android` folder are gitignored in the project by default as they are automatically generated during the build process ([Continuous Native Generation](https://docs.expo.dev/workflow/continuous-native-generation/)). This means that you should not edit these folders directly and use [config plugins](https://docs.expo.dev/config-plugins/) instead. However, if you need to edit these folders, you can remove them from the `.gitignore` file so that they are tracked by git.
-
-## Resources
-
-- [React Navigation documentation](https://reactnavigation.org/)
-- [Expo documentation](https://docs.expo.dev/)
-
----
-
-Demo assets are from [lucide.dev](https://lucide.dev/)
+The project is open-source, but redistribution as a competing app in the app stores is not allowed (see `LICENSE` file). Feel free to use the code for personal or non-competing projects. If you have any questions about usage, please don't hesitate to reach out!
