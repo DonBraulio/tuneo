@@ -1,7 +1,7 @@
 
 ![tuneo_banner](https://github.com/user-attachments/assets/bb7908ea-7eea-4346-ab61-9fc53c80ab46)
 
-## 🎸 An Open Source React Native Guitar Tuner
+## 🎸 A React Native Guitar Tuner
 
 An open-source guitar tuner app built with React Native, leveraging the new bridgeless architecture to achieve real-time pitch detection and smooth UI updates.
 
@@ -10,18 +10,20 @@ An open-source guitar tuner app built with React Native, leveraging the new brid
  - Smooth & Interactive UI: Built with [Skia](https://shopify.github.io/react-native-skia/) and [Reanimated 3](https://docs.swmansion.com/react-native-reanimated/).
  - Cross-Platform: Runs on both iOS and Android with a shared codebase.
  - Native Audio Modules: Uses custom built Swift (iOS) and Kotlin (Android) modules for microphone access.
- - **Open Source:** No ads, no paywalls—just a functional and efficient tuner. You're welcome to donate though :)
+ - **Open Source:** No ads, no paywalls—just a functional and efficient tuner. Sponsors/donations are welcome to support development!
 
-### Why the New Architecture?
+## 🤓 Technical Rationale
+
+### Why Use React Native's New Architecture?
 
 This project demonstrates a use case that would be impractical with the old React Native bridge. The new TurboModules allow direct and efficient communication between JavaScript, native modules and C++, avoiding performance bottlenecks caused by JSON serialization.
 
 Additionally, Skia and Reanimated 3 enable a game-like, smooth UI that updates in real-time without lag—something difficult to achieve with standard React Native views.
 
 ### Why React Native in the first place?
-This project was developed with a fraction of the effort that would be necessary using alternatives, because it combines a high-level language like Typescript/JSX that allows very fast development cycles, with low-level and native modules for compute-intensive tasks like signal processing, drawing, and animations.
+This project was developed with a fraction of the effort that would be necessary using alternatives, because it combines a high-level language (Typescript/JSX) that allows very fast development cycles, with low-level modules (C++/Swift/Kotlin) for performance in tasks like signal processing, drawing, and animations.
 
-Also, the codebase for iOS and Android is shared, except for the microphone access native modules, which are very small and were generated using AI tools for the most part, because I didn't have time to dive deeper in Swift and Kotlin 😁. Even the C++ signal processing module works on both platforms out of the box.
+Also, the codebase for iOS and Android is shared, except for the microphone access native modules, which are very small and were generated using AI tools for the most part, because I didn't have time to dive deeper in Swift and Kotlin 😁. The C++ signal processing module is cross-platform by design, requiring no modifications for iOS and Android.
 
 ## ⚙️ How It Works
 If you are a developer and want to dive in, here's the basics you need to know:
@@ -34,7 +36,7 @@ If you are a developer and want to dive in, here's the basics you need to know:
  5. The detected pitch is displayed on the UI, along with a real-time pitch evolution graph to help with tuning.
 
 ### Notes:
- - There's a `notebooks/` folder to experiment with the YIN algorithm using python/jupyter.
+ - The `notebooks/` folder contains a python/jupyter notebook to experiment with the YIN algorithm offline.
  - The C++ turbo module for pitch detection was integrated following the [React Native docs](https://reactnative.dev/docs/0.77/the-new-architecture/pure-cxx-modules).
  - The Swift/Kotlin native modules for microphone access were implemented with [Expo](https://docs.expo.dev/modules/native-module-tutorial/).
  - The whole project was started using the React Navigation [Starter Template](https://reactnavigation.org/docs/getting-started#starter-template).
@@ -56,4 +58,6 @@ If you find this project useful, consider sponsoring via GitHub to help improve 
 
 ## 📜 License
 
-The project is open-source, but redistribution as a competing app in the app stores is not allowed (see `LICENSE` file). Feel free to use the code for personal or non-competing projects. If you have any questions about usage, please don't hesitate to reach out!
+This project is open-source, but redistribution as a competing commercial app is prohibited. See the LICENSE file for details (based on MIT with an added restriction on app store competition).
+
+Feel free to use the code for personal or non-competing commercial projects. If you have any questions about usage, please don't hesitate to reach out!
