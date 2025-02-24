@@ -9,6 +9,15 @@ export type OctaveNumber = (typeof OCTAVE_NUMBERS)[number]
 export type Note = { name: NoteName; octave: OctaveNumber }
 
 /**
+ * Compare notes. If both are undefined, returns false.
+ * @param note1 first note to compare
+ * @param note2 another note to compare
+ * @returns true only if both notes have the same name and octave
+ */
+export const sameNote = (note1?: Note, note2?: Note) =>
+  note1 && note1.name === note2?.name && note1.octave === note2.octave
+
+/**
  * Get nearest note name and octave from a given frequency.
  * @param frequency Frequency in Hz.
  * @returns name and octave of the note.

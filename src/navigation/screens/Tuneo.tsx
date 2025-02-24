@@ -10,17 +10,19 @@ import { getTestSignal } from "@/test"
 import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 import { useConfigStore, useTranslation } from "@/configHooks"
-import { Chromatic, Guitar, Instrument } from "@/instruments"
+import { Chromatic, Guitar, Instrument, InstrumentString } from "@/instruments"
 import { Waveform } from "@/components/Waveform"
 import { Strings } from "@/components/Strings"
 import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
 import RequireMicAccess from "@/components/RequireMicAccess"
+import { useUiStore } from "@/uiStore"
+import { sameNote } from "@/notes"
 
 const TEST_MODE = false
 const MIN_FREQ = 30
 const MAX_FREQ = 500
-const PITCH_NARROW_RANGE = 0.1
+const MAX_PITCH_DEV = 0.1
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -45,6 +47,11 @@ export const Tuneo = () => {
   const [pitch, setPitch] = useState(-1)
   const [, setRMS] = useState(0)
   const [rmsDecreasing, setRMSDecreasing] = useState(false)
+
+  // Current string detection filtering
+  const stringQueue = useUiStore((state) => state.stringQueue)
+  const addString = useUiStore((state) => state.addString)
+  const [currentString, setCurrentString] = useState<InstrumentString>()
 
   // Request recording permission
   useEffect(() => {
@@ -134,8 +141,8 @@ export const Tuneo = () => {
       let minFreq = MIN_FREQ
       let maxFreq = MAX_FREQ
       if (prevPitch > 0 && rmsDecreasing) {
-        minFreq = prevPitch * (1 - PITCH_NARROW_RANGE)
-        maxFreq = prevPitch * (1 + PITCH_NARROW_RANGE)
+        minFreq = prevPitch * (1 - MAX_PITCH_DEV)
+        maxFreq = prevPitch * (1 + MAX_PITCH_DEV)
       }
       const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
       return pitch
@@ -152,14 +159,34 @@ export const Tuneo = () => {
     }
   }, [config.instrument, config.tuning])
 
-  // Nearest string (reference note)
-  const nearestString = useMemo(() => instrument.getNearestString(pitch), [pitch, instrument])
+  // Add latest string to history
+  useEffect(() => {
+    addString(instrument.getNearestString(pitch))
+  }, [pitch, instrument, addString])
+
+  // Change currentString (requires 3 votes)
+  useEffect(() => {
+    const len = stringQueue.length
+    const string1 = len > 0 ? stringQueue[len - 1] : undefined
+    const string2 = len > 1 ? stringQueue[len - 2] : undefined
+    const string3 = len > 2 ? stringQueue[len - 3] : undefined
+    console.log(
+      `string1: ${string1?.note.name} string2: ${string2?.note.name} string3: ${string3?.note.name}`
+    )
+    // Never sets currentString to undefined
+    if (sameNote(string1?.note, string2?.note) && sameNote(string1?.note, string3?.note)) {
+      setCurrentString(string1)
+    }
+  }, [stringQueue])
 
   // Tuning gauge indicator
-  const gaugeDeviation =
-    pitch > 0 && nearestString
-      ? Math.atan((20 * (pitch - nearestString.freq)) / nearestString.freq) / (Math.PI / 2)
-      : undefined
+  const gaugeDeviation = useMemo(
+    () =>
+      pitch > 0 && currentString
+        ? Math.atan((20 * (pitch - currentString.freq)) / currentString.freq) / (Math.PI / 2)
+        : undefined,
+    [pitch, currentString]
+  )
   const gaugeWidth = 18
   const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
 
@@ -189,13 +216,13 @@ export const Tuneo = () => {
 
         <Strings
           positionY={waveformY + waveformH}
-          currentNote={nearestString?.note}
+          currentNote={currentString?.note}
           height={stringsH}
           instrument={instrument}
         />
         <MainNote
           positionY={movingGridY - gaugeWidth - 10}
-          currentString={nearestString}
+          currentString={currentString}
           pitch={pitch}
           gaugeDeviation={gaugeDeviation}
           gaugeColor={gaugeColor}
