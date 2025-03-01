@@ -5,7 +5,7 @@ import { useWindowDimensions } from "react-native"
 import { Skia } from "@shopify/react-native-skia"
 import { cancelAnimation, useSharedValue, withTiming } from "react-native-reanimated"
 
-const MAX_WAVEFORM_GAIN = 20
+const MAX_WAVEFORM_GAIN = 10
 const WAVEFORM_SUBSAMPLE = 12
 const MIN_SUBSAMPLE_SIZE = 10
 const PLACEHOLDER_PATH1 = Skia.Path.MakeFromSVGString("M 0 0 L 0 0 Z")!

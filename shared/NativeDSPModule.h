@@ -20,7 +20,7 @@ class NativeDSPModule : public NativeDSPModuleCxxSpec<NativeDSPModule> {
   NativeDSPModule(std::shared_ptr<CallInvoker> jsInvoker);
 
   float pitch(jsi::Runtime& rt, const std::vector<float>& input,
-              float sampleRate, float minFreq, float maxFreq);
+              float sampleRate, float minFreq, float maxFreq, float threshold);
 
   float rms(jsi::Runtime& rt, const std::vector<float>& input);
 };

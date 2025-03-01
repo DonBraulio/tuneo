@@ -57,6 +57,16 @@ export function getFreqFromNote(note: Note | undefined, tuning: TuningType): num
   return a4_frequency * Math.pow(2, semitonesFromA4 / 12)
 }
 
+/**
+ * Calculate relative difference between frequencies
+ * @param freq1 Frequency in Hz
+ * @param freq2 Frequency in Hz
+ * @returns difference normalized wrt freq1
+ */
+export function getRelativeDiff(freq1: number, freq2: number): number {
+  return Math.abs(freq1 - freq2) / (Math.abs(freq1) + 0.001)
+}
+
 function getReferenceFrequency(tuning: TuningType): number {
   switch (tuning) {
     case "ref_440":

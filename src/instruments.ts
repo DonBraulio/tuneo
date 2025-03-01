@@ -15,6 +15,7 @@ export abstract class Instrument {
   abstract getNearestString(freq: number): InstrumentString | undefined
 
   getNearestIdx(frequency: number, freqs: number[]): number | undefined {
+    // TODO: Evaluate if measure in semitones instead of linear frequency ?
     let minDistance = Infinity
     let minIdx = 0
     for (let i = 0; i < freqs.length; i++) {

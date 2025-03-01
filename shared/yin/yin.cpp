@@ -9,8 +9,7 @@ using namespace facebook;
 Yin::Yin(float sampleRate, int bufferSize)
     : sampleRate(sampleRate),
       bufferSize(bufferSize),
-      buffer(bufferSize, 0.0f),
-      threshold(0.15) {}
+      buffer(bufferSize, 0.0f) {}
 
 int Yin::getBufferSize() { return bufferSize; }
 
@@ -35,7 +34,7 @@ float Yin::parabolaInterp(int n, float yl, float yc, float yr) {
 }
 
 float Yin::getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt,
-                    float minFreq, float maxFreq) {
+                    float minFreq, float maxFreq, float threshold) {
   int tau;
   int tauMin = static_cast<int>(sampleRate / maxFreq);
   int tauMax = static_cast<int>(sampleRate / minFreq);

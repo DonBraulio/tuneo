@@ -15,7 +15,7 @@ class Yin {
  public:
   Yin(float sampleRate, int bufferSize);
   float getPitch(const std::vector<float>& audioBuffer, jsi::Runtime& rt,
-                 float minFreq, float maxFreq);
+                 float minFreq, float maxFreq, float threshold);
   float getSampleRate();
   int getBufferSize();
 
@@ -24,5 +24,4 @@ class Yin {
   float sampleRate;
   int bufferSize;
   std::vector<float> buffer;
-  float threshold;
 };

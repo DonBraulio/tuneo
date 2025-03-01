@@ -17,12 +17,18 @@ import { MainNote } from "@/components/MainNote"
 import { TuningGauge } from "@/components/TuningGauge"
 import RequireMicAccess from "@/components/RequireMicAccess"
 import { useUiStore } from "@/uiStore"
-import { sameNote } from "@/notes"
+import { getRelativeDiff, sameNote } from "@/notes"
 
 const TEST_MODE = false
+
+// See python notebook to tweak these params
 const MIN_FREQ = 30
 const MAX_FREQ = 500
-const MAX_PITCH_DEV = 0.1
+const MAX_PITCH_DEV = 0.2
+const THRESHOLD_DEFAULT = 0.1
+const THRESHOLD_NOISY = 0.6
+const RMS_GAP = 1.1
+const ENABLE_FILTER = true
 
 // This is just a preference, may be set differently
 const BUF_PER_SEC = MicrophoneStreamModule.BUF_PER_SEC
@@ -45,11 +51,17 @@ export const Tuneo = () => {
 
   // Detected pitch
   const [pitch, setPitch] = useState(-1)
-  const [, setRMS] = useState(0)
-  const [rmsDecreasing, setRMSDecreasing] = useState(false)
+
+  // Pitch and RMS history
+  const pitchQ = useUiStore((state) => state.pitchHistory)
+  const rmsQ = useUiStore((state) => state.rmsHistory)
+  const idQ = useUiStore((state) => state.idHistory)
+  const addPitch = useUiStore((state) => state.addPitch)
+  const addRMS = useUiStore((state) => state.addRMS)
+  const addId = useUiStore((state) => state.addId)
 
   // Current string detection filtering
-  const stringQueue = useUiStore((state) => state.stringQueue)
+  const stringHistory = useUiStore((state) => state.stringHistory)
   const addString = useUiStore((state) => state.addString)
   const [currentString, setCurrentString] = useState<InstrumentString>()
 
@@ -85,21 +97,17 @@ export const Tuneo = () => {
       (buffer: AudioBuffer) => {
         // Set audio buffer
         setAudioBuffer(buffer.samples)
-        setBufferId((prevId) => prevId + 1)
 
-        // Set signal power and whether or not it's decreasing
-        setRMS((oldRMS) => {
-          const newRMS = DSPModule.rms(buffer.samples)
-          setRMSDecreasing(newRMS < oldRMS)
-          return newRMS
-        })
+        // Calculate signal RMS
+        addRMS(DSPModule.rms(buffer.samples))
+        setBufferId((prevId) => prevId + 1)
       }
     )
     return () => {
       subscriber.remove()
       MicrophoneStreamModule.stopRecording()
     }
-  }, [micAccess])
+  }, [micAccess, addRMS])
 
   // Test audio buffers
   useEffect(() => {
@@ -110,44 +118,59 @@ export const Tuneo = () => {
     const buffer = getTestSignal(bufferId, sampleRate, bufSize)
     setSampleRate(sampleRate)
     setAudioBuffer(buffer)
-    setRMS((oldRMS) => {
-      const newRMS = DSPModule.rms(buffer)
-      setRMSDecreasing(newRMS < oldRMS)
-      return newRMS
-    })
 
     // Trigger for next buffer
     const timeout = setTimeout(() => {
       setBufferId((id) => id + 1)
     }, 1000 / BUF_PER_SEC)
     return () => clearTimeout(timeout)
-  }, [bufferId])
+  }, [bufferId, addRMS])
 
   // Get pitch of the audio
   useEffect(() => {
     if (!audioBuffer.length || micAccess !== "granted") return
 
+    // Process each bufferId only once
+    if (bufferId === idQ[idQ.length - 1]) return
+    addId(bufferId)
+
+    // Set sampleRate after first audio buffer
     let sr = sampleRate
     if (!sr) {
       // Assume microphone already configured ()
       sr = MicrophoneStreamModule.getSampleRate()
       console.log(`Setting sample rate to ${sr}Hz`)
-
       setSampleRate(sr)
     }
 
-    // Find pitch within previous value +/-10%, unless RMS increases
-    setPitch((prevPitch) => {
-      let minFreq = MIN_FREQ
-      let maxFreq = MAX_FREQ
-      if (prevPitch > 0 && rmsDecreasing) {
-        minFreq = prevPitch * (1 - MAX_PITCH_DEV)
-        maxFreq = prevPitch * (1 + MAX_PITCH_DEV)
-      }
-      const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq)
-      return pitch
-    })
-  }, [audioBuffer, sampleRate, rmsDecreasing, micAccess])
+    // Set parameters for pitch estimation
+    let minFreq = MIN_FREQ
+    let maxFreq = MAX_FREQ
+    let threshold = THRESHOLD_DEFAULT
+
+    // Previous RMS and pitch values
+    const rms_1 = rmsQ[rmsQ.length - 1]
+    const rms_2 = rmsQ[rmsQ.length - 2]
+    const pitch_1 = pitchQ[pitchQ.length - 1]
+    const pitch_2 = pitchQ[pitchQ.length - 2]
+
+    // Check conditions to restrict pitch search range
+    let restrictRange = ENABLE_FILTER
+    restrictRange &&= rms_1 < rms_2 * RMS_GAP // Decreasing RMS
+    restrictRange &&= getRelativeDiff(pitch_1, pitch_2) <= MAX_PITCH_DEV // stable pitch
+    if (restrictRange) {
+      minFreq = pitch_1 * (1 - MAX_PITCH_DEV)
+      maxFreq = pitch_1 * (1 + MAX_PITCH_DEV)
+      threshold = THRESHOLD_NOISY
+    }
+
+    // Estimate pitch
+    const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq, threshold)
+    setPitch(pitch)
+
+    // Add values to history
+    addPitch(pitch)
+  }, [audioBuffer, sampleRate, micAccess, addId, addPitch, rmsQ, pitchQ, idQ, bufferId])
 
   // Selected instrument
   const instrument: Instrument = useMemo(() => {
@@ -166,24 +189,21 @@ export const Tuneo = () => {
 
   // Change currentString (requires 3 votes)
   useEffect(() => {
-    const len = stringQueue.length
-    const string1 = len > 0 ? stringQueue[len - 1] : undefined
-    const string2 = len > 1 ? stringQueue[len - 2] : undefined
-    const string3 = len > 2 ? stringQueue[len - 3] : undefined
-    console.log(
-      `string1: ${string1?.note.name} string2: ${string2?.note.name} string3: ${string3?.note.name}`
-    )
+    const len = stringHistory.length
+    const string1 = len > 0 ? stringHistory[len - 1] : undefined
+    const string2 = len > 1 ? stringHistory[len - 2] : undefined
+    const string3 = len > 2 ? stringHistory[len - 3] : undefined
     // Never sets currentString to undefined
     if (sameNote(string1?.note, string2?.note) && sameNote(string1?.note, string3?.note)) {
       setCurrentString(string1)
     }
-  }, [stringQueue])
+  }, [stringHistory])
 
   // Tuning gauge indicator
   const gaugeDeviation = useMemo(
     () =>
       pitch > 0 && currentString
-        ? Math.atan((20 * (pitch - currentString.freq)) / currentString.freq) / (Math.PI / 2)
+        ? Math.atan((10 * (pitch - currentString.freq)) / currentString.freq) / (Math.PI / 2)
         : undefined,
     [pitch, currentString]
   )
