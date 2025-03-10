@@ -11,7 +11,7 @@ from rich import progress
 from numba import jit
 
 # %%
-fs, audio = wavfile.read("notebooks/6th_E_steel_noisy.wav")
+fs, audio = wavfile.read("notebooks/nylon_all.wav")
 
 # NOTE: the diff * diff op in YIN can overflow without this normalization
 audio = audio / 32768
@@ -100,7 +100,7 @@ FREQ_MAX_DEFAULT = 500
 freq_min = FREQ_MIN_DEFAULT
 freq_max = FREQ_MAX_DEFAULT
 
-THRESHOLD_DEFAULT = 0.1
+THRESHOLD_DEFAULT = 0.15
 THRESHOLD_NOISY = 0.6
 threshold = THRESHOLD_DEFAULT
 
@@ -128,8 +128,8 @@ for i in progress.track(range(0, len(test_audio) - window_size, hop_size)):
         and len(rms_values) > 1
         and rms < rms_values[-1] * RMS_GAP
         and pitch_values[-1] > 0
-        and (diff_relative := rel_diff(pitch_values[-1], pitch_values[-2]))
-        < MAX_FREQ_DEV
+        and rel_diff(pitch_values[-1], pitch_values[-2]) < MAX_FREQ_DEV
+        # and rel_diff(pitch_values[-2], pitch_values[-3]) < MAX_FREQ_DEV
     ):
         freq_min = pitch_values[-1] * (1 - MAX_FREQ_DEV)
         freq_max = pitch_values[-1] * (1 + MAX_FREQ_DEV)
@@ -141,7 +141,7 @@ for i in progress.track(range(0, len(test_audio) - window_size, hop_size)):
         threshold = THRESHOLD_DEFAULT
         freq_span.append(-1)
     pitch, min_tau = yin_pitch_detection(window, fs, freq_min, freq_max, threshold)
-    # print(f"{pitch:.2f}Hz  [{freq_min:.2f}Hz-{freq_max:.2f}Hz] RMS: {rms:.4f}")
+    print(f"{i=} {pitch:.2f}Hz  [{freq_min:.2f}Hz-{freq_max:.2f}Hz] RMS: {rms:.4f}")
     pitch_times.append(i / fs)
     pitch_values.append(pitch)
     rms_values.append(rms)
@@ -202,8 +202,16 @@ plt.axhline(y=THRESHOLD_NOISY, color="g", marker=",")
 
 # %% [markdown]
 # # Step by step YIN detection
-t = 2.5
-win_begin = int(t * fs)
+
+# %%
+# t = 2.5
+# nylon_all.wav examples
+#  i=5880,i=8820 -> Detects 109Hz instead of 328Hz
+#  i=11760 -> Detects 328Hz
+#  i=49980 -> Detects 49Hz instead of 245Hz
+#  i=52920 -> Detects 245Hz (only correct window)
+#  i=55860 -> Detects 61Hz instead of 245Hz again
+win_begin = 55860  # int(t * fs)
 audio_chunk = audio[win_begin : win_begin + window_size]
 
 plt.figure()

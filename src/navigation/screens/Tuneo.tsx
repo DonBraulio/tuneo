@@ -25,7 +25,7 @@ const TEST_MODE = false
 const MIN_FREQ = 30
 const MAX_FREQ = 500
 const MAX_PITCH_DEV = 0.2
-const THRESHOLD_DEFAULT = 0.1
+const THRESHOLD_DEFAULT = 0.15
 const THRESHOLD_NOISY = 0.6
 const RMS_GAP = 1.1
 const ENABLE_FILTER = true
@@ -156,8 +156,9 @@ export const Tuneo = () => {
 
     // Check conditions to restrict pitch search range
     let restrictRange = ENABLE_FILTER
+    restrictRange &&= pitch_1 > 0 // Previous pitch detected
     restrictRange &&= rms_1 < rms_2 * RMS_GAP // Decreasing RMS
-    restrictRange &&= getRelativeDiff(pitch_1, pitch_2) <= MAX_PITCH_DEV // stable pitch
+    restrictRange &&= getRelativeDiff(pitch_1, pitch_2) <= MAX_PITCH_DEV // Stable pitch
     if (restrictRange) {
       minFreq = pitch_1 * (1 - MAX_PITCH_DEV)
       maxFreq = pitch_1 * (1 + MAX_PITCH_DEV)
@@ -166,6 +167,7 @@ export const Tuneo = () => {
 
     // Estimate pitch
     const pitch = DSPModule.pitch(audioBuffer, sr, minFreq, maxFreq, threshold)
+    // console.log(`Pitch: ${pitch.toFixed(1)}Hz  [${minFreq.toFixed(1)}Hz-${maxFreq.toFixed(1)}Hz]`)
     setPitch(pitch)
 
     // Add values to history
@@ -184,7 +186,8 @@ export const Tuneo = () => {
 
   // Add latest string to history
   useEffect(() => {
-    addString(instrument.getNearestString(pitch))
+    const string = instrument.getNearestString(pitch)
+    addString(string)
   }, [pitch, instrument, addString])
 
   // Change currentString (requires 3 votes)
