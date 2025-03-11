@@ -19,8 +19,6 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.donbraulio.tuneo"
@@ -45,6 +43,11 @@
         }
       ],
       "expo-localization"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2b3616ed-b94a-4443-95f9-3d96d514c5c2"
+      }
+    }
   }
 }
