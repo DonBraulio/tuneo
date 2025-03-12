@@ -5,10 +5,10 @@ import {
   LanguageType,
   ThemeType,
   TuningType,
-  useConfigStore,
   useSettingsOptions,
   useTranslation,
 } from "@/configHooks"
+import { useConfigStore } from "@/stores/configStore"
 import { useNavigation } from "@react-navigation/native"
 import { useEffect, useMemo } from "react"
 import { StyleSheet, View } from "react-native"

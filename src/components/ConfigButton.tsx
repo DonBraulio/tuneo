@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { MenuAction, MenuView } from "@react-native-menu/menu"
 import { Appearance, Platform, View } from "react-native"
-import { useConfigStore } from "@/configHooks"
+import { useConfigStore } from "@/stores/configStore"
 import { useTranslation } from "@/configHooks"
 
 const ConfigButton = ({ x, y, size = 1 }: { x: number; y: number; size: number }) => {

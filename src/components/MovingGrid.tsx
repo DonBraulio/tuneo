@@ -4,7 +4,7 @@ import { withTiming, withRepeat } from "react-native-reanimated"
 import { Rect, Line, LinearGradient, Group, vec, Points, Mask } from "@shopify/react-native-skia"
 import { useWindowDimensions } from "react-native"
 import Colors from "@/colors"
-import { useConfigStore } from "@/configHooks"
+import { useConfigStore } from "@/stores/configStore"
 
 const GRID_COLOR = Colors.bgInactive
 const BACKGROUND_GRADIENT_START = Colors.bgActive

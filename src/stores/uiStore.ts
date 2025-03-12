@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { InstrumentString } from "./instruments"
+import { InstrumentString } from "../instruments"
 
 interface uiState {
   pitchHistory: number[]
