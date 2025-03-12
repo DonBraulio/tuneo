@@ -20,7 +20,9 @@ export const Strings = ({
   const stringNotes = useMemo(() => instrument.getStrings(), [instrument])
   const nStrings = stringNotes.length
 
-  const stringBoxH = 32
+  const stringBoxH = height / (1.5 * nStrings)
+  const fontHeight = stringBoxH / 2.5
+  const fontSize = fontHeight / 1.3
   const stringBoxW = 50
   const stringBoxBorder = 1
   const stringBoxSpacing = (height - nStrings * stringBoxH) / (nStrings + 1)
@@ -50,12 +52,12 @@ export const Strings = ({
             <Paragraph
               paragraph={paragraphs.centered(
                 `${nStrings - idx} • ${note.name}`,
-                16,
+                fontSize,
                 active ? 600 : 300,
                 Colors.primary
               )}
               x={posX}
-              y={posY + 6}
+              y={posY + (stringBoxH - fontHeight) / 2}
               width={stringBoxW}
             />
           </Group>

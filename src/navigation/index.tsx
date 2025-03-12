@@ -23,7 +23,7 @@ const RootStack = createNativeStackNavigator({
         headerTintColor: Colors.primary,
         headerShadowVisible: false,
         ...(Platform.OS === "ios"
-          ? { presentation: "modal", headerRight: () => <CloseButton /> }
+          ? { presentation: "fullScreenModal", headerRight: () => <CloseButton /> }
           : {}),
       }),
     },

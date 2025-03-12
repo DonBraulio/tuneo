@@ -44,13 +44,6 @@ export const FormPicker = ({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.bgInactive,
-    flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    gap: 10,
-  },
   pickerText: {
     color: Colors.primary,
     fontSize: 16,
