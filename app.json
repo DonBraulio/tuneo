@@ -39,7 +39,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "We need to hear the guitar :)"
+          "microphonePermission": "Microphone access is needed to hear the instrument."
         }
       ],
       "expo-localization",
