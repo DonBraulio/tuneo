@@ -238,12 +238,6 @@ export const Tuneo = () => {
           />
         </Profiler>
 
-        <Strings
-          positionY={waveformY + waveformH}
-          currentNote={currentString?.note}
-          height={stringsH}
-          instrument={instrument}
-        />
         <MainNote
           positionY={movingGridY - gaugeWidth - 10}
           currentString={currentString}
@@ -267,6 +261,12 @@ export const Tuneo = () => {
           framesPerSec={BUF_PER_SEC}
         />
       </Canvas>
+      <Strings
+        positionY={waveformY + waveformH}
+        currentNote={currentString?.note}
+        height={stringsH}
+        instrument={instrument}
+      />
       <ConfigButton
         x={width - cfgBtnMargin * cfgBtnSize}
         y={height - cfgBtnMargin * cfgBtnSize}

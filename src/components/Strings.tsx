@@ -1,9 +1,8 @@
 import Colors from "@/colors"
 import { Instrument } from "@/instruments"
 import { Note } from "@/notes"
-import { useParagraphBuilder } from "@/paragraphs"
-import { Group, Paint, Paragraph, RoundedRect } from "@shopify/react-native-skia"
 import { useMemo } from "react"
+import { Pressable, Text, View } from "react-native"
 
 export const Strings = ({
   positionY,
@@ -16,53 +15,55 @@ export const Strings = ({
   height: number
   instrument: Instrument
 }) => {
-  const paragraphs = useParagraphBuilder()
   const stringNotes = useMemo(() => instrument.getStrings(), [instrument])
   const nStrings = stringNotes.length
 
   const stringBoxH = height / (1.5 * nStrings)
-  const fontHeight = stringBoxH / 2.5
+  const fontHeight = stringBoxH / 2.2
   const fontSize = fontHeight / 1.3
   const stringBoxW = 50
   const stringBoxBorder = 1
   const stringBoxSpacing = (height - nStrings * stringBoxH) / (nStrings + 1)
 
   return (
-    <Group transform={[{ translateY: positionY + stringBoxSpacing }]}>
+    <View
+      style={{
+        position: "absolute",
+        top: positionY + stringBoxSpacing,
+        left: 0,
+        gap: stringBoxSpacing,
+      }}
+    >
       {stringNotes.map((note, idx) => {
         const active = note.name === currentNote?.name && note.octave === currentNote?.octave
-        const posX = stringBoxSpacing
-        const posY = idx * (stringBoxH + stringBoxSpacing)
+        const text = `${nStrings - idx} • ${note.name}`
         return (
-          <Group key={idx}>
-            <RoundedRect
-              x={posX}
-              y={posY}
-              height={stringBoxH - 2 * stringBoxBorder}
-              width={stringBoxW}
-              r={10}
+          <Pressable
+            style={{
+              marginLeft: stringBoxSpacing,
+              height: stringBoxH - 2 * stringBoxBorder,
+              width: stringBoxW,
+              borderRadius: 10,
+              backgroundColor: active ? Colors.secondary : Colors.bgActive,
+              borderColor: active ? Colors.primary : Colors.secondary,
+              borderWidth: stringBoxBorder,
+              justifyContent: "center",
+            }}
+            key={idx}
+          >
+            <Text
+              style={{
+                color: Colors.primary,
+                fontWeight: active ? "600" : "300",
+                fontSize: fontSize,
+                textAlign: "center",
+              }}
             >
-              <Paint style="fill" color={active ? Colors.secondary : Colors.bgActive} />
-              <Paint
-                style="stroke"
-                color={active ? Colors.primary : Colors.secondary}
-                strokeWidth={stringBoxBorder}
-              />
-            </RoundedRect>
-            <Paragraph
-              paragraph={paragraphs.centered(
-                `${nStrings - idx} • ${note.name}`,
-                fontSize,
-                active ? 600 : 300,
-                Colors.primary
-              )}
-              x={posX}
-              y={posY + (stringBoxH - fontHeight) / 2}
-              width={stringBoxW}
-            />
-          </Group>
+              {text}
+            </Text>
+          </Pressable>
         )
       })}
-    </Group>
+    </View>
   )
 }
