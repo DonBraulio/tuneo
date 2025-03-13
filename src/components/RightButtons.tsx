@@ -2,7 +2,7 @@ import Colors from "@/colors"
 import { Instrument } from "@/instruments"
 import { getTuningFreq, InstrumentType, TuningType, useConfigStore } from "@/stores/configStore"
 import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons"
-import { Linking, Pressable, Text, useWindowDimensions, View } from "react-native"
+import { Linking, Platform, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Picker } from "./Picker"
 import { MenuAction } from "@react-native-menu/menu"
 import { useMemo } from "react"
@@ -28,56 +28,62 @@ export const RightButtons = ({
   const btnBorder = 1
   const btnSpacing = 10
 
-  const instruments: MenuAction[] = useMemo(
-    () => [
+  const instruments: MenuAction[] = useMemo(() => {
+    const subactions = [
       {
-        id: "instrument",
-        title: t("mode"),
+        id: "chromatic", // Must be InstrumentType
+        title: t("chromatic"),
         displayInline: true,
-        subactions: [
-          {
-            id: "chromatic", // Must be InstrumentType
-            title: t("chromatic"),
-            displayInline: true,
-          },
-          {
-            id: "guitar", // Must be InstrumentType,
-            title: t("guitar"),
-            displayInline: true,
-          },
-        ],
       },
-    ],
-    [t]
-  )
+      {
+        id: "guitar", // Must be InstrumentType,
+        title: t("guitar"),
+        displayInline: true,
+      },
+    ]
+    // Avoid nested menus in android (collapsed by default)
+    return Platform.OS === "android"
+      ? subactions
+      : [
+          {
+            id: "instrument",
+            title: t("mode"),
+            displayInline: true,
+            subactions,
+          },
+        ]
+  }, [t])
 
-  const tunings: MenuAction[] = useMemo(
-    () => [
+  const tunings: MenuAction[] = useMemo(() => {
+    const subactions = [
       {
-        id: "tuning-type",
-        title: t("reference_a4"),
+        id: "ref_440" as TuningType, // NOTE: not typechecked
+        title: t("tuning_440"),
         displayInline: true,
-        subactions: [
-          {
-            id: "ref_440" as TuningType, // NOTE: not typechecked
-            title: t("tuning_440"),
-            displayInline: true,
-          },
-          {
-            id: "ref_432" as TuningType, // NOTE: not typechecked
-            title: t("tuning_432"),
-            displayInline: true,
-          },
-          {
-            id: "ref_444" as TuningType, // NOTE: not typechecked
-            title: t("tuning_444"),
-            displayInline: true,
-          },
-        ],
       },
-    ],
-    [t]
-  )
+      {
+        id: "ref_432" as TuningType, // NOTE: not typechecked
+        title: t("tuning_432"),
+        displayInline: true,
+      },
+      {
+        id: "ref_444" as TuningType, // NOTE: not typechecked
+        title: t("tuning_444"),
+        displayInline: true,
+      },
+    ]
+    // Avoid nested menus in android (collapsed by default)
+    return Platform.OS === "android"
+      ? subactions
+      : [
+          {
+            id: "tuning-type",
+            title: t("reference_a4"),
+            displayInline: true,
+            subactions,
+          },
+        ]
+  }, [t])
 
   return (
     <View
