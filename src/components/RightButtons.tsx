@@ -1,6 +1,6 @@
 import Colors from "@/colors"
 import { Instrument } from "@/instruments"
-import { InstrumentType, useConfigStore } from "@/stores/configStore"
+import { getTuningFreq, InstrumentType, TuningType, useConfigStore } from "@/stores/configStore"
 import { FontAwesome5, Ionicons } from "@expo/vector-icons"
 import { Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Picker } from "./Picker"
@@ -19,6 +19,8 @@ export const RightButtons = ({
   const manual = useConfigStore((state) => state.manual)
   const setManual = useConfigStore((state) => state.setManual)
   const setInstrument = useConfigStore((state) => state.setInstrument)
+  const setTuning = useConfigStore((state) => state.setTuning)
+  const tuning = useConfigStore((state) => state.tuning)
   const t = useTranslation()
   const btnW = width / 7
   const fontHeight = height / 70
@@ -30,7 +32,7 @@ export const RightButtons = ({
     () => [
       {
         id: "instrument",
-        title: t("instrument"),
+        title: t("mode"),
         displayInline: true,
         subactions: [
           {
@@ -41,6 +43,34 @@ export const RightButtons = ({
           {
             id: "guitar", // Must be InstrumentType,
             title: t("guitar"),
+            displayInline: true,
+          },
+        ],
+      },
+    ],
+    [t]
+  )
+
+  const tunings: MenuAction[] = useMemo(
+    () => [
+      {
+        id: "tuning-type",
+        title: t("reference_a4"),
+        displayInline: true,
+        subactions: [
+          {
+            id: "ref_440" as TuningType, // NOTE: not typechecked
+            title: t("tuning_440"),
+            displayInline: true,
+          },
+          {
+            id: "ref_432" as TuningType, // NOTE: not typechecked
+            title: t("tuning_432"),
+            displayInline: true,
+          },
+          {
+            id: "ref_444" as TuningType, // NOTE: not typechecked
+            title: t("tuning_444"),
             displayInline: true,
           },
         ],
@@ -106,7 +136,7 @@ export const RightButtons = ({
               textAlign: "center",
             }}
           >
-            STRING
+            {t("gtr_string")}
           </Text>
           <Text
             style={{
@@ -120,6 +150,41 @@ export const RightButtons = ({
           </Text>
         </Pressable>
       )}
+      <Picker actions={tunings} onSelect={(value) => setTuning(value as TuningType)} value={tuning}>
+        <View
+          style={{
+            marginLeft: btnSpacing,
+            width: btnW,
+            borderRadius: 10,
+            backgroundColor: Colors.bgActive,
+            borderColor: Colors.secondary,
+            borderWidth: btnBorder,
+            justifyContent: "center",
+            paddingVertical: 10,
+            gap: 3,
+          }}
+        >
+          <Text
+            style={{
+              color: Colors.primary,
+              fontSize: fontSize * 0.8,
+              textAlign: "center",
+            }}
+          >
+            {t("reference")}
+          </Text>
+          <Text
+            style={{
+              color: tuning === "ref_440" ? Colors.ok : Colors.warn,
+              fontSize: fontSize,
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
+            {getTuningFreq(tuning)}Hz
+          </Text>
+        </View>
+      </Picker>
     </View>
   )
 }

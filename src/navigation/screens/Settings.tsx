@@ -1,14 +1,7 @@
 import Colors from "@/colors"
 import { FormPicker } from "@/components/FormPicker"
-import {
-  GraphicsMode,
-  LanguageType,
-  ThemeType,
-  TuningType,
-  useSettingsOptions,
-  useTranslation,
-} from "@/configHooks"
-import { useConfigStore } from "@/stores/configStore"
+import { useSettingsOptions, useTranslation } from "@/configHooks"
+import { GraphicsMode, LanguageType, ThemeType, useConfigStore } from "@/stores/configStore"
 import { useNavigation } from "@react-navigation/native"
 import { useEffect, useMemo } from "react"
 import { StyleSheet, View } from "react-native"
@@ -18,7 +11,6 @@ export function Settings() {
   const options = useSettingsOptions()
   const languages = useMemo(() => options.getLanguages(), [options])
   const themes = useMemo(() => options.getThemes(), [options])
-  const tunings = useMemo(() => options.getTunings(), [options])
   const graphics = useMemo(() => options.getGraphics(), [options])
   const navigation = useNavigation()
   const t = useTranslation()
@@ -34,12 +26,6 @@ export function Settings() {
         actions={languages}
         value={config.language}
         onSelect={(lang) => config.setLanguage(lang as LanguageType)}
-      />
-      <FormPicker
-        label={t("reference_a4")}
-        actions={tunings}
-        value={config.tuning}
-        onSelect={(tuning) => config.setTuning(tuning as TuningType)}
       />
       <FormPicker
         label={t("theme")}

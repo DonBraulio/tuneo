@@ -2,6 +2,9 @@ export interface Translation {
   guitar: string
   chromatic: string
   instrument: string
+  mode: string
+  gtr_string: string
+  reference: string
   more_settings: string
   no_tone: string
   language: string
@@ -24,6 +27,9 @@ export const en: Translation = {
   guitar: "Guitar",
   chromatic: "Chromatic",
   instrument: "Instrument",
+  mode: "Mode",
+  gtr_string: "STRING",
+  reference: "REFERENCE",
   more_settings: "Settings...",
   no_tone: "No tone",
   language: "Language",
@@ -46,6 +52,9 @@ export const es: Translation = {
   guitar: "Guitarra",
   chromatic: "Cromática",
   instrument: "Instrumento",
+  mode: "Modo",
+  gtr_string: "CUERDA",
+  reference: "REFERENCIA",
   more_settings: "Configuración...",
   no_tone: "Sin tono",
   language: "Idioma",

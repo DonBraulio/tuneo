@@ -38,18 +38,21 @@ export interface ConfigState {
 export const useConfigStore = create<ConfigState>()(
   persist(
     (set) => ({
-      instrument: "guitar",
+      // Persistent values
       theme: "dark",
       language: getLocaleForDevice(),
-      tuning: "ref_440",
       graphics: Platform.OS === "ios" ? "high" : "low",
+
+      // Not persistent values below (see merge function)
+      instrument: "guitar",
+      tuning: "ref_440",
       manual: false,
 
       setLanguage: (language: LanguageType) => set({ language }),
-      setInstrument: (instrument: InstrumentType) => set({ instrument }),
       setTheme: (theme: ThemeType) => set({ theme }),
-      setTuning: (tuning: TuningType) => set({ tuning }),
       setGraphics: (graphics: GraphicsMode) => set({ graphics }),
+      setInstrument: (instrument: InstrumentType) => set({ instrument }),
+      setTuning: (tuning: TuningType) => set({ tuning }),
       setManual: (manual) => set({ manual }),
     }),
     {
@@ -60,14 +63,9 @@ export const useConfigStore = create<ConfigState>()(
         const savedState = persistedState as ConfigState
 
         // Load only valid configuration keys from savedState
-        if (INSTRUMENT_IDS.includes(savedState.instrument as any)) {
-          loadedState.instrument = savedState.instrument
-        }
+        // NOTE omitted on purpose: instrument, tuning or manual
         if (THEME_IDS.includes(savedState.theme as any)) {
           loadedState.theme = savedState.theme
-        }
-        if (TUNING_IDS.includes(savedState.tuning as any)) {
-          loadedState.tuning = savedState.tuning
         }
         if (LANGUAGE_IDS.includes(savedState.language as any)) {
           loadedState.language = savedState.language
@@ -92,4 +90,15 @@ export function getLocaleForDevice(): LanguageType {
     }
   }
   return "en" // fallback
+}
+
+export function getTuningFreq(tuning: TuningType): number {
+  switch (tuning) {
+    case "ref_440":
+      return 440
+    case "ref_432":
+      return 432
+    case "ref_444":
+      return 444
+  }
 }
