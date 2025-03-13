@@ -267,7 +267,7 @@ export const Tuneo = () => {
         />
       </Canvas>
       <Strings positionY={waveformY + waveformH} height={stringsH} instrument={instrument} />
-      <RightButtons instrument={instrument} positionY={waveformY + waveformH} />
+      <RightButtons positionY={waveformY + waveformH} instrument={instrument} />
       <ConfigButton
         x={width - cfgBtnMargin * cfgBtnSize}
         y={height - cfgBtnMargin * cfgBtnSize}

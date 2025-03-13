@@ -1,10 +1,12 @@
 import { getFreqFromNote, getNoteFromFreq, Note } from "./notes"
-import { TuningType } from "./stores/configStore"
+import { InstrumentType, TuningType } from "./stores/configStore"
 
 export type InstrumentString = { note: Note; freq: number }
 
 export abstract class Instrument {
   tuning: TuningType
+  abstract readonly name: InstrumentType
+  abstract readonly hasStrings: boolean
 
   constructor(tuning: TuningType) {
     this.tuning = tuning
@@ -45,6 +47,14 @@ export class Guitar extends Instrument {
     this.stringFreqs = this.stringNotes.map((note) => getFreqFromNote(note, tuning))
   }
 
+  get name(): InstrumentType {
+    return "guitar"
+  }
+
+  get hasStrings() {
+    return true
+  }
+
   getStrings(): Note[] {
     return this.stringNotes
   }
@@ -58,6 +68,14 @@ export class Guitar extends Instrument {
 }
 
 export class Chromatic extends Instrument {
+  get name(): InstrumentType {
+    return "chromatic"
+  }
+
+  get hasStrings() {
+    return false
+  }
+
   getStrings(): Note[] {
     return []
   }

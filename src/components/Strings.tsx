@@ -1,6 +1,6 @@
 import Colors from "@/colors"
 import { Instrument } from "@/instruments"
-import { getFreqFromNote, Note } from "@/notes"
+import { getFreqFromNote } from "@/notes"
 import { useConfigStore } from "@/stores/configStore"
 import { useUiStore } from "@/stores/uiStore"
 import { useMemo } from "react"
@@ -35,7 +35,7 @@ export const Strings = ({
     <View
       style={{
         position: "absolute",
-        top: positionY + stringBoxSpacing,
+        top: positionY + 10,
         left: 0,
         gap: stringBoxSpacing,
       }}

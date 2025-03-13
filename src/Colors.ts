@@ -20,6 +20,8 @@ const Colors = {
   bgLight: "#ffffff",
   fgLight: "#000000",
   accent: "rgb(255, 126, 62)",
+  ok: "rgb(120, 255, 0)",
+  warn: "rgb(255, 60, 0)",
 
   // tuner indicators
   low: "rgb(255, 60, 0)",
