@@ -19,6 +19,7 @@ const Colors = {
   primary: "#ffffff",
   bgLight: "#ffffff",
   fgLight: "#000000",
+  accent: "rgb(255, 126, 62)",
 
   // tuner indicators
   low: "rgb(255, 60, 0)",

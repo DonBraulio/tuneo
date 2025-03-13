@@ -11,7 +11,7 @@ import MovingGrid from "@/components/MovingGrid"
 import ConfigButton from "@/components/ConfigButton"
 import { useTranslation } from "@/configHooks"
 import { useConfigStore } from "@/stores/configStore"
-import { Chromatic, Guitar, Instrument, InstrumentString } from "@/instruments"
+import { Chromatic, Guitar, Instrument } from "@/instruments"
 import { Waveform } from "@/components/Waveform"
 import { Strings } from "@/components/Strings"
 import { MainNote } from "@/components/MainNote"
@@ -19,6 +19,7 @@ import { TuningGauge } from "@/components/TuningGauge"
 import RequireMicAccess from "@/components/RequireMicAccess"
 import { useUiStore } from "@/stores/uiStore"
 import { getRelativeDiff, sameNote } from "@/notes"
+import { RightButtons } from "@/components/RightButtons"
 
 const TEST_MODE = false
 
@@ -64,7 +65,8 @@ export const Tuneo = () => {
   // Current string detection filtering
   const stringHistory = useUiStore((state) => state.stringHistory)
   const addString = useUiStore((state) => state.addString)
-  const [currentString, setCurrentString] = useState<InstrumentString>()
+  const currentString = useUiStore((state) => state.currentString)
+  const setCurrentString = useUiStore((state) => state.setCurrentString)
 
   // Request recording permission
   useEffect(() => {
@@ -187,12 +189,15 @@ export const Tuneo = () => {
 
   // Add latest string to history
   useEffect(() => {
+    if (config.manual) return
     const string = instrument.getNearestString(pitch)
     addString(string)
-  }, [pitch, instrument, addString])
+  }, [pitch, instrument, addString, config.manual])
 
   // Change currentString (requires 3 votes)
   useEffect(() => {
+    if (config.manual) return
+
     const len = stringHistory.length
     const string1 = len > 0 ? stringHistory[len - 1] : undefined
     const string2 = len > 1 ? stringHistory[len - 2] : undefined
@@ -201,7 +206,7 @@ export const Tuneo = () => {
     if (sameNote(string1?.note, string2?.note) && sameNote(string1?.note, string3?.note)) {
       setCurrentString(string1)
     }
-  }, [stringHistory])
+  }, [stringHistory, setCurrentString, config.manual])
 
   // Tuning gauge indicator
   const gaugeDeviation = useMemo(
@@ -261,12 +266,8 @@ export const Tuneo = () => {
           framesPerSec={BUF_PER_SEC}
         />
       </Canvas>
-      <Strings
-        positionY={waveformY + waveformH}
-        currentNote={currentString?.note}
-        height={stringsH}
-        instrument={instrument}
-      />
+      <Strings positionY={waveformY + waveformH} height={stringsH} instrument={instrument} />
+      <RightButtons instrument={instrument} positionY={waveformY + waveformH} />
       <ConfigButton
         x={width - cfgBtnMargin * cfgBtnSize}
         y={height - cfgBtnMargin * cfgBtnSize}

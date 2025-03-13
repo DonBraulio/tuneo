@@ -10,6 +10,8 @@ interface uiState {
   addId: (id: number) => void
   stringHistory: (InstrumentString | undefined)[]
   addString: (string?: InstrumentString) => void
+  currentString?: InstrumentString
+  setCurrentString: (string?: InstrumentString) => void
 }
 
 const PITCH_HISTORY = 3
@@ -42,4 +44,6 @@ export const useUiStore = create<uiState>()((set, get) => ({
     stringQueue.push(string)
     set({ stringHistory: stringQueue })
   },
+  currentString: undefined,
+  setCurrentString: (currentString) => set({ currentString }),
 }))

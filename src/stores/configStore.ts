@@ -22,11 +22,13 @@ export interface ConfigState {
   language: LanguageType
   tuning: TuningType
   graphics: GraphicsMode
+  manual: boolean
   setLanguage: (language: LanguageType) => void
   setInstrument: (instrument: InstrumentType) => void
   setTheme: (theme: ThemeType) => void
   setTuning: (tuning: TuningType) => void
   setGraphics: (grahpics: GraphicsMode) => void
+  setManual: (manual: boolean) => void
 }
 
 /**
@@ -41,12 +43,14 @@ export const useConfigStore = create<ConfigState>()(
       language: getLocaleForDevice(),
       tuning: "ref_440",
       graphics: Platform.OS === "ios" ? "high" : "low",
+      manual: false,
 
       setLanguage: (language: LanguageType) => set({ language }),
       setInstrument: (instrument: InstrumentType) => set({ instrument }),
       setTheme: (theme: ThemeType) => set({ theme }),
       setTuning: (tuning: TuningType) => set({ tuning }),
       setGraphics: (graphics: GraphicsMode) => set({ graphics }),
+      setManual: (manual) => set({ manual }),
     }),
     {
       name: "config-store",
