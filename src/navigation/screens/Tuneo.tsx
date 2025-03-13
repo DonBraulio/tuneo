@@ -24,6 +24,7 @@ import { RightButtons } from "@/components/RightButtons"
 const TEST_MODE = false
 
 // See python notebook to tweak these params
+const BUF_SIZE = 9000
 const MIN_FREQ = 30
 const MAX_FREQ = 500
 const MAX_PITCH_DEV = 0.2
@@ -45,7 +46,7 @@ export const Tuneo = () => {
 
   // Audio buffer
   const [sampleRate, setSampleRate] = useState(0)
-  const [audioBuffer, setAudioBuffer] = useState<number[]>([])
+  const [audioBuffer, setAudioBuffer] = useState<number[]>(() => new Array(BUF_SIZE).fill(0))
   const [bufferId, setBufferId] = useState(0)
 
   // Flag for microphone access granted
@@ -98,8 +99,9 @@ export const Tuneo = () => {
     const subscriber = MicrophoneStreamModule.addListener(
       "onAudioBuffer",
       (buffer: AudioBuffer) => {
-        // Set audio buffer
-        setAudioBuffer(buffer.samples)
+        // Append new audio samples to the end of the buffer
+        const len = buffer.samples.length
+        setAudioBuffer((prevBuffer) => [...prevBuffer.slice(len), ...buffer.samples])
 
         // Calculate signal RMS
         addRMS(DSPModule.rms(buffer.samples))

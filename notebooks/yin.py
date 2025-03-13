@@ -87,10 +87,10 @@ def yin_pitch_detection(
 test_audio = audio
 
 # %%
-# window_size should match app's buffer size
+# window_size should match app's buffer size (accumulator)
 # 44100 [samples/sec] / 15 [buffers/sec] = 2940 [samples / buffer]
-window_size = 2940
-hop_size = window_size
+window_size = 9000
+hop_size = int(44100 / 15)  # 15 buffers per second
 
 # Restricts frequency search range and increases threshold after 2 consecutive detections
 ENABLE_FILTER = True
@@ -101,7 +101,7 @@ freq_min = FREQ_MIN_DEFAULT
 freq_max = FREQ_MAX_DEFAULT
 
 THRESHOLD_DEFAULT = 0.15
-THRESHOLD_NOISY = 0.6
+THRESHOLD_NOISY = 0.5
 threshold = THRESHOLD_DEFAULT
 
 # An RMS increase above this factor is considered a new stroke
@@ -141,7 +141,7 @@ for i in progress.track(range(0, len(test_audio) - window_size, hop_size)):
         threshold = THRESHOLD_DEFAULT
         freq_span.append(-1)
     pitch, min_tau = yin_pitch_detection(window, fs, freq_min, freq_max, threshold)
-    print(f"{i=} {pitch:.2f}Hz  [{freq_min:.2f}Hz-{freq_max:.2f}Hz] RMS: {rms:.4f}")
+    # print(f"{i=} {pitch:.2f}Hz  [{freq_min:.2f}Hz-{freq_max:.2f}Hz] RMS: {rms:.4f}")
     pitch_times.append(i / fs)
     pitch_values.append(pitch)
     rms_values.append(rms)
@@ -204,14 +204,8 @@ plt.axhline(y=THRESHOLD_NOISY, color="g", marker=",")
 # # Step by step YIN detection
 
 # %%
-# t = 2.5
-# nylon_all.wav examples
-#  i=5880,i=8820 -> Detects 109Hz instead of 328Hz
-#  i=11760 -> Detects 328Hz
-#  i=49980 -> Detects 49Hz instead of 245Hz
-#  i=52920 -> Detects 245Hz (only correct window)
-#  i=55860 -> Detects 61Hz instead of 245Hz again
-win_begin = 55860  # int(t * fs)
+t = 0.5
+win_begin = int(t * fs)
 audio_chunk = audio[win_begin : win_begin + window_size]
 
 plt.figure()
