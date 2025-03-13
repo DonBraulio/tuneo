@@ -5,6 +5,7 @@ export interface Translation {
   mode: string
   gtr_string: string
   reference: string
+  feedback: string
   more_settings: string
   no_tone: string
   language: string
@@ -30,6 +31,7 @@ export const en: Translation = {
   mode: "Mode",
   gtr_string: "STRING",
   reference: "REFERENCE",
+  feedback: "FOLLOW",
   more_settings: "Settings...",
   no_tone: "No tone",
   language: "Language",
@@ -55,6 +57,7 @@ export const es: Translation = {
   mode: "Modo",
   gtr_string: "CUERDA",
   reference: "REFERENCIA",
+  feedback: "SEGUIR",
   more_settings: "Configuración...",
   no_tone: "Sin tono",
   language: "Idioma",
