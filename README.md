@@ -1,8 +1,7 @@
-![tuneo_banner](assets/tuneo_banner.jpg)
+![tuneo-banner](https://github.com/user-attachments/assets/497f6c16-354e-40e4-a44f-cadcbd11e6a5)
 
-## 🎸 A React Native Guitar Tuner
 
-An open-source guitar tuner app built with React Native, leveraging the new bridgeless architecture to achieve real-time pitch detection and smooth UI updates.
+Tuneo is a guitar tuner mobile app built with React Native, leveraging the new bridgeless architecture to achieve real-time pitch detection and smooth UI updates.
 
 > [!IMPORTANT]
 > **We're currently looking for testers!**
