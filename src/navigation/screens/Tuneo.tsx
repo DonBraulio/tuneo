@@ -42,6 +42,7 @@ type MicrophoneAccess = "pending" | "granted" | "denied"
 export const Tuneo = () => {
   const { width, height } = useWindowDimensions()
   const config = useConfigStore()
+  const setManual = useConfigStore((state) => state.setManual)
   const t = useTranslation()
 
   // Audio buffer
@@ -189,6 +190,13 @@ export const Tuneo = () => {
     }
   }, [config.instrument, config.tuning])
 
+  // Disable manual mode if instrument doesn't support strings
+  useEffect(() => {
+    if (!instrument.hasStrings) {
+      setManual(false)
+    }
+  }, [instrument, setManual])
+
   // Add latest string to history
   useEffect(() => {
     if (config.manual) return
@@ -201,9 +209,9 @@ export const Tuneo = () => {
     if (config.manual) return
 
     const len = stringHistory.length
-    const string1 = len > 0 ? stringHistory[len - 1] : undefined
-    const string2 = len > 1 ? stringHistory[len - 2] : undefined
-    const string3 = len > 2 ? stringHistory[len - 3] : undefined
+    const string1 = stringHistory[len - 1]
+    const string2 = stringHistory[len - 2]
+    const string3 = stringHistory[len - 3]
     // Never sets currentString to undefined
     if (sameNote(string1?.note, string2?.note) && sameNote(string1?.note, string3?.note)) {
       setCurrentString(string1)
