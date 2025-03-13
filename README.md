@@ -4,6 +4,15 @@
 
 An open-source guitar tuner app built with React Native, leveraging the new bridgeless architecture to achieve real-time pitch detection and smooth UI updates.
 
+> [!IMPORTANT]
+> **We're currently looking for testers!**
+> 
+> Reach us on Instagram (**@tuneo.app**) or email (**braulioriosf@gmail.com**) so we can add you to the list of testers and you'll be able to install it immediately from the App Store (iOS) or PlayStore (Android).
+
+- Android users: We need at least 12 testers to install the app for 14 days in order to publish it for Android.
+
+- iOS users: The app is currently in review to get approval for the App Store, so for now it's only available for listed testers.
+
 ## 🔥 Features
 
 - Real-time Pitch Detection: Uses a C++ TurboModule for efficient pitch estimation using the YIN algorithm.
@@ -12,7 +21,7 @@ An open-source guitar tuner app built with React Native, leveraging the new brid
 - Native Audio Modules: Uses custom built Swift (iOS) and Kotlin (Android) modules for microphone access.
 - **Open Source:** No ads, no paywalls—just a functional and efficient tuner. Sponsors/donations are welcome to support development!
 
-## 🤓 Technical Rationale
+## 🤓 Technical Overview
 
 ### Why Use React Native's New Architecture?
 
@@ -26,7 +35,7 @@ This project was developed with a fraction of the effort that would be necessary
 
 Also, the codebase for iOS and Android is shared, except for the microphone access native modules, which are very small and were generated using AI tools for the most part, because I didn't have time to dive deeper in Swift and Kotlin 😁. The C++ signal processing module is cross-platform by design, requiring no modifications for iOS and Android.
 
-## ⚙️ How It Works
+### Getting started
 
 If you are a developer and want to dive in, here's the basics you need to know:
 
