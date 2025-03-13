@@ -10,7 +10,7 @@ const GRID_COLOR = Colors.bgInactive
 const BACKGROUND_GRADIENT_START = Colors.bgActive
 const BACKGROUND_GRADIENT_END = Colors.bgInactive
 const GRID_SPACING = 30
-const GRID_SPEED = 60 // Pixels per second
+const GRID_SPEED = 120 // Pixels per second
 const MISSING_NOTE = -2
 
 const MovingGrid = ({
@@ -26,7 +26,7 @@ const MovingGrid = ({
 }) => {
   const { width, height } = useWindowDimensions()
   const graphics = useConfigStore((state) => state.graphics)
-  const boxHeight = useMemo(() => height / 4, [height])
+  const boxHeight = useMemo(() => height / 2, [height])
   const pointSpacing = useMemo(() => GRID_SPEED / pointsPerSec, [pointsPerSec])
   const maxHistory = useMemo(() => Math.floor(boxHeight / pointSpacing), [boxHeight, pointSpacing])
 
@@ -54,7 +54,7 @@ const MovingGrid = ({
       return newT
     })
     setHistoryLength((prevLength) => Math.min(prevLength + 1, maxHistory))
-  }, [deviation, currentIdx, maxHistory])
+  }, [deviation, currentIdx, maxHistory, pitchId])
 
   const historyPoints = useMemo(() => {
     const points = new Array(historyLength)
@@ -78,7 +78,7 @@ const MovingGrid = ({
   // Vertical offset for animating grid lines
   const translateY = useSharedValue(0)
 
-  // Animate the verticalOffset value
+  // Animate the grid verticalOffset value
   useEffect(() => {
     cancelAnimation(translateY)
 

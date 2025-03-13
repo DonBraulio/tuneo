@@ -2,7 +2,9 @@ const combineColorTuples = (c1: number[], c2: number[], ratio: number) => {
   return c1.map((_, i) => (1 - ratio) * c1[i] + ratio * c2[i])
 }
 
-const getColorFromGaugeDeviation = (gaugeDeviation: number) => {
+const getColorFromGaugeDeviation = (gaugeDeviation?: number) => {
+  if (!gaugeDeviation) return Colors.secondary
+
   const [colorR, colorG, colorB] = combineColorTuples(
     Colors.centerTuple,
     gaugeDeviation > 0 ? Colors.highTuple : Colors.lowTuple,

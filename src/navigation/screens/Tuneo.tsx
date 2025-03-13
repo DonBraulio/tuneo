@@ -216,8 +216,8 @@ export const Tuneo = () => {
         : undefined,
     [pitch, currentString]
   )
-  const gaugeWidth = 18
-  const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation ?? 0)
+  const gaugeWidth = 10
+  const gaugeColor = Colors.getColorFromGaugeDeviation(gaugeDeviation)
 
   // Component sizes and positions
   const waveformY = 60
