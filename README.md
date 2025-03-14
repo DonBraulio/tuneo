@@ -6,11 +6,11 @@ Tuneo is a guitar tuner mobile app built with React Native, leveraging the new b
 > [!IMPORTANT]
 > **We're currently looking for testers!**
 > 
-> Reach us on Instagram (**@tuneo.app**) or email (**braulioriosf@gmail.com**) so we can add you to the list of testers and you'll be able to install it immediately from the App Store (iOS) or PlayStore (Android).
+> Reach us on Instagram (**@tuneo.app**) or email (**braulioriosf@gmail.com**) so we can add you to the list of testers and you'll be able to install it immediately on the PlayStore (Android). iOS users are also welcome to reach out with feedback!
 
-- Android users: We need at least 12 testers to install the app for 14 days in order to publish it for Android.
+- **Apple users:** [Go to App Store (iOS)](https://apps.apple.com/uy/app/tuneo-guitar-tuner/id6743103035)
 
-- iOS users: The app is currently in review to get approval for the App Store, so for now it's only available for listed testers.
+- **Android users**: Reach us (contact info above) to get the link! Google requires least 12 testers to install the app for 14 days before releasing to the public.
 
 ## 🔥 Features
 
